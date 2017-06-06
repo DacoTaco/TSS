@@ -1,0 +1,29 @@
+﻿
+/* XS */
+@media screen and (max-width: 767px) {
+    .notesBox {
+        min-height: 10em;
+        max-height: 10em;
+    }
+}
+/* SM */
+@media screen and (min-width: 768px) {
+    .notesBox {
+        min-height: 12em;
+        max-height: 12em;
+    }
+}
+/*MD*/
+@media screen and (min-width: 992px) {
+    .notesBox{
+        min-height:9em;
+        max-height:9em;
+    }
+}
+/* LG */
+@media screen and (min-width: 1200px) {
+    .notesBox{
+        min-height:12em;
+        max-height:12em;
+    }
+}

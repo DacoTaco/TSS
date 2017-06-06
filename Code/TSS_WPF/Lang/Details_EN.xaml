@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:TSS_WPF"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="Name">Name:</system:String>
+    <system:String x:Key="Technician">Technician :</system:String>
+    <system:String x:Key="Department">Department :</system:String>
+    <system:String x:Key="Location">Location :</system:String>
+    <system:String x:Key="Description">Description :</system:String>
+    <system:String x:Key="Notes">Notes :</system:String>
+    <system:String x:Key="AddNote">Add Note :</system:String>
+    <system:String x:Key="AddNoteBtn">Add Note</system:String>
+    <system:String x:Key="Machine">Machine :</system:String>
+    <system:String x:Key="Documentation">Documentation...</system:String>
+    <system:String x:Key="State">State :</system:String>
+    <system:String x:Key="Urguent">Urguent :</system:String>
+    <system:String x:Key="Pictures">Pictures :</system:String>
+    <system:String x:Key="AddPhoto">Add Picture</system:String>
+    <system:String x:Key="TaskType">Task Type</system:String>
+
+    <system:String x:Key="DocumentationLabel">Documentation :</system:String>
+    <system:String x:Key="AddDocumentation">Add Documentation</system:String>
+    <system:String x:Key="MachineType">Type :</system:String>
+    <system:String x:Key="Suppliers">Supplier :</system:String>
+    <system:String x:Key="Models">Model :</system:String>
+
+</ResourceDictionary>

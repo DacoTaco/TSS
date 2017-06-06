@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:TSS_WPF"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="Name">Naam :</system:String>
+    <system:String x:Key="Technician">Technieker :</system:String>
+    <system:String x:Key="Department">Afdeling :</system:String>
+    <system:String x:Key="Location">Locatie :</system:String>
+    <system:String x:Key="Description">Beschrijving :</system:String>
+    <system:String x:Key="Notes">Notities :</system:String>
+    <system:String x:Key="AddNote">Notitie Toevoegen:</system:String>
+    <system:String x:Key="AddNoteBtn">Notitie Toevoegen</system:String>
+    <system:String x:Key="Machine">Toestel :</system:String>
+    <system:String x:Key="Documentation">Documentatie...</system:String>
+    <system:String x:Key="State">Status :</system:String>
+    <system:String x:Key="Urguent">Dringend :</system:String>
+    <system:String x:Key="Pictures">Foto's :</system:String>
+    <system:String x:Key="AddPhoto">Foto's Toevoegen</system:String>
+    <system:String x:Key="TaskType">Type Taak</system:String>
+
+    <system:String x:Key="DocumentationLabel">Documentatie :</system:String>
+    <system:String x:Key="AddDocumentation">Documentatie Toevoegen</system:String>
+    <system:String x:Key="MachineType">Type :</system:String>
+    <system:String x:Key="Suppliers">Leverancier :</system:String>
+    <system:String x:Key="Models">Model :</system:String>
+
+</ResourceDictionary>

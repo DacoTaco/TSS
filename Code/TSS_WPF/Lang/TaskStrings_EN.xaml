@@ -1,0 +1,44 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:TSS_WPF.Lang"
+                    xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+
+    <!-- I'd prefer a sorted list cause the key could be the database ID's but i have NO idea how to use that in code behind...-->
+    <col:SortedList x:Key="res_statusses">
+        <system:String x:Key="0">None</system:String>
+        <system:String x:Key="1">Being Processed</system:String>
+        <system:String x:Key="2">Assigned</system:String>
+        <system:String x:Key="3">Part requires ordering</system:String>
+        <system:String x:Key="4">Part ordered</system:String>
+        <system:String x:Key="5">External intervention required</system:String>
+        <system:String x:Key="6">External intervention requested</system:String>
+        <system:String x:Key="7">Task Finished</system:String>
+        <system:String x:Key="8">Active</system:String>
+        <system:String x:Key="9">Disabled</system:String>
+    </col:SortedList>
+
+    <!-- as expected from an array , the order is very fucking important! -->
+    <x:Array Type="system:String" x:Key="StatusArray">
+        <system:String>None</system:String>
+        <system:String>Being Processed</system:String>
+        <system:String>Assigned</system:String>
+        <system:String>Part requires ordering</system:String>
+        <system:String>Part ordered</system:String>
+        <system:String>External intervention required</system:String>
+        <system:String>External intervention requested</system:String>
+        <system:String>Task Finished</system:String>
+        <system:String>Active</system:String>
+        <system:String>Disabled</system:String>
+    </x:Array>
+
+    <x:Array Type="system:String" x:Key="TypesArray">
+        <system:String>Unkown</system:String>
+        <system:String>Normal Task</system:String>
+        <system:String>Repeating Task</system:String>
+    </x:Array>
+
+    <system:String x:Key="NotSet">Not Set</system:String>
+    
+</ResourceDictionary>

@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:TSS_WPF.Lang"
+                    xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="ErrorEmpty">Text should not be empty!</system:String>
+    <system:String x:Key="ErrorValidating">Error validating text</system:String>
+    
+</ResourceDictionary>

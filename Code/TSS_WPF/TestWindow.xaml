@@ -1,0 +1,152 @@
+﻿<Window x:Class="TSS_WPF.TestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TSS_WPF"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:library="clr-namespace:TechnicalServiceSystem;assembly=TechnicalServiceSystem"
+        mc:Ignorable="d"
+        Title="Test Window" ResizeMode="NoResize" Name="MainWindow">
+    <Window.Resources>
+        <TextBlock x:Key="DescriptionHeader" Text="{DynamicResource Description}"/>
+        <TextBlock x:Key="UrguentHeader" Text="{DynamicResource Urguent}"/>
+        <TextBlock x:Key="TypeHeader" Text="{DynamicResource TaskType}"/>
+        <TextBlock x:Key="ReporterHeader" Text="{DynamicResource Reporter}"/>
+        <TextBlock x:Key="TechnicianHeader" Text="{DynamicResource Technician}"/>
+        <TextBlock x:Key="DepartmentHeader" Text="{DynamicResource Department}"/>
+        <TextBlock x:Key="LocationHeader" Text="{DynamicResource Location}"/>
+        <TextBlock x:Key="StatusHeader" Text="{DynamicResource Status}"/>
+        <TextBlock x:Key="MachineHeader" Text="{DynamicResource Machine}"/>
+        <TextBlock x:Key="AdjustmentHeader" Text="{DynamicResource LastAdjustment}"/>
+        <TextBlock x:Key="ActivationHeader" Text="{DynamicResource ActivationDate}"/>
+        <TextBlock x:Key="IntervalHeader" Text="{DynamicResource Interval}"/>
+
+        <!-- Converters for the Lists-->
+        <library:BaseClassListIndexConverter x:Key="baseClassListIndexConverter" />
+        <library:NoteListToString x:Key="noteListToString" />
+        <library:DateTimeToString x:Key="dateTimeToString" />
+
+        <Style TargetType="TextBlock" x:Key="TextBlockStyle">
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+    </Window.Resources>
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <Label Name="lblStatus" Content=" "></Label>
+        </StatusBar>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File"></MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <!--<TextBox Name="txtNotes" Background="Orange" Text="{Binding Notes,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource noteListToString}}" TextWrapping="Wrap"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0" IsReadOnly="True">
+            </TextBox>-->
+            <ListBox Name="lsbNotes" ItemsSource="{Binding Notes}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" Grid.Row="0">
+                
+            </ListBox>
+            
+            <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" >
+                <Button Name="btnNewTask" Content="{DynamicResource NewTask}" Click="btnNewTask_Click"/>
+                <Button Name="btnSyncTasks" Content="{DynamicResource SyncTasks}" Click="btnSyncTasks_Click"/>
+            </StackPanel>
+            
+            <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.Tasks}" 
+                      AutoGenerateColumns="False" ColumnWidth="Auto" SelectionUnit="FullRow" CanUserDeleteRows="False" RowEditEnding="TaskGrid_RowEditEnding">
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate>
+                        <TextBlock Background="Orange" Text="{Binding strNotes,UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource TextBlockStyle}">
+                        </TextBlock>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding strNotes}" Value="">
+                                <Setter Property="ToolTipService.IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                        <Setter Property="ToolTip">
+                            <Setter.Value>
+                                <TextBlock Text="{Binding strNotes}" Style="{StaticResource TextBlockStyle}" />
+                            </Setter.Value>
+                        </Setter>
+                        <EventSetter Event="MouseDoubleClick" Handler="Row_DoubleClick"/>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Description}" ClipboardContentBinding="{x:Null}" Header="{StaticResource DescriptionHeader}" IsReadOnly="True"/>
+                    <DataGridCheckBoxColumn Binding="{Binding Urguent,UpdateSourceTrigger=PropertyChanged}" Header="{StaticResource UrguentHeader}" IsReadOnly="False"></DataGridCheckBoxColumn>
+                    <DataGridTextColumn Header="{StaticResource TypeHeader}" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
+                                <Binding Path="TaskTypeID"></Binding>
+                                <Binding Path="Lists.TaskTypes" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Reporter}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ReporterHeader}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="{StaticResource TechnicianHeader}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding Path=Lists.Technicians,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}" 
+                                          DisplayMemberPath="Username" SelectedValue="{Binding TechnicianID,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="ID" SelectionChanged="Technician_Changed">
+                                </ComboBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="{StaticResource DepartmentHeader}" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
+                                <Binding Path="DepartmentID"></Binding>
+                                <Binding Path="Lists.Departments" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="{StaticResource LocationHeader}" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
+                                <Binding Path="LocationID"></Binding>
+                                <Binding Path="Lists.Locations" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="{StaticResource StatusHeader}" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
+                                <Binding Path="StatusID"></Binding>
+                                <Binding Path="Lists.TaskStatuses" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="{StaticResource MachineHeader}" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
+                                <Binding Path="MachineID"></Binding>
+                                <Binding Path="Lists.Machines" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding LastAdjustment}" ClipboardContentBinding="{x:Null}" Header="{StaticResource AdjustmentHeader}" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding ActivationDate,Converter={StaticResource dateTimeToString}}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding TaskInterval}" ClipboardContentBinding="{x:Null}" Header="{StaticResource IntervalHeader}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </DockPanel>
+</Window>

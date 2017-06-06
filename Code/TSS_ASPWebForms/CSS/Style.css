@@ -1,0 +1,403 @@
+﻿html{
+    min-height:100%;
+}
+body {
+    height : 100%;
+    min-height: 100%;
+    width : 100%;
+	/*background: url(/system/background.jpg);
+    background-repeat: no-repeat;
+    background-position:bottom bottom;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;*/
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#a6a6a6+50,a6a6a6+100&0+50,1+100 */
+    /* Pure Gray */
+    /*background-repeat: no-repeat;
+    background: -moz-linear-gradient(top,  rgba(166,166,166,0) 21%, rgba(166,166,166,1) 100%); /* FF3.6-15 */
+    /*background: -webkit-linear-gradient(top,  rgba(166,166,166,0) 21%,rgba(166,166,166,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    /*background: linear-gradient(to bottom,  rgba(166,166,166,0) 21%,rgba(166,166,166,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00a6a6a6', endColorstr='#a6a6a6',GradientType=0 ); /* IE6-9 */
+
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#00a5ff+21,000c42+100&0+21,1+100 */
+    background: -moz-linear-gradient(top,  rgba(0,165,255,0) 21%, rgba(0,12,66,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(0,165,255,0) 21%,rgba(0,12,66,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(0,165,255,0) 21%,rgba(0,12,66,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0000a5ff', endColorstr='#000c42',GradientType=0 ); /* IE6-9 */
+
+
+}
+/*would be nice if it worked, but these input/button applying doesn't seem to work...*/
+input,input[type=submit]{ 
+    min-height:25px;
+} 
+input[type=submit]{
+    min-height:25px;
+}
+input[type="button"],input[type="submit"]:disabled
+{
+    color: #666;
+    background: #DDD;
+    border: 1px solid #CCC;
+}
+input[type="button"]:disabled
+{
+    color: #666;
+    background: #DDD;
+    border: 1px solid #CCC;
+}
+
+/* IE 6 */
+* html #footer {
+   position:absolute;
+   top:expression((0-(footer.offsetHeight)+(document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)+(ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))+'px');
+}
+h1
+{
+    margin-bottom:0.5em;
+}
+.gridview tr td, .gridview th
+{
+    padding: 7px;
+    text-align:center;
+    border-width:2px;
+    word-break:break-word;
+    cursor: pointer;
+    max-width:20em;
+}
+.gridview th
+{
+    cursor: default;
+}
+.gridview tr:hover td
+{
+    background-color:#A1DCF2;
+}
+.alternating-table-color tr td{
+    text-align:center;
+    padding-bottom:1em;
+    padding-right:1em;
+    border:solid 1px;
+    border-top-width:1px;
+}
+.alternating-table-color tr:nth-child(odd):not(:hover) td{
+    background-color:#EEE;
+}
+.alternating-table-color tr:nth-child(even):not(:hover) td{
+    background-color:#FFF;
+}
+.searchButton
+{
+    min-width:0.2em;
+    min-height:0.2em;
+}
+.option-row
+{
+    margin-bottom:1%;
+}
+.text-responsive {
+  font-size: 1em;
+}
+.btn-close
+{
+    line-height:12px;
+    font-size:8pt;
+    font-family:tahoma;
+    margin-top:1px;
+    margin-right:2px;
+    position:absolute;
+    top:0;
+    right:0;
+    width: 3vmin; 
+    height: 3vmin; 
+    min-height:25px; 
+    min-width:25px; 
+    margin:3px
+}
+.UserButton
+{
+    max-width:5em;
+    max-height:5em;
+}
+/*xs < 767*/
+@media screen and (max-width: 767px)
+{
+    body
+    {
+        font-size: 0.8em;
+        /*color : lawngreen;*/
+    }
+    h1
+    {
+        font-size: 2em;
+    }
+    .UserTable
+    {
+        font-size:1.3em;
+    }
+    .option-row
+    {
+        height:3em;
+        margin-left:0%;
+        /*margin-right:-3%;*/
+        padding:1%;
+        margin-bottom:4%;
+    }
+    .text-responsive {
+      font-size: 1.2em;
+    }
+    .ScreenClassSpan:after
+    {
+        content : "XS screen";
+    }
+    .gridview-header
+    {
+        font-size:1.1em;
+    }
+    .gridview
+    {
+        width:100%;
+    }
+    .gridview tr td, .gridview th
+    {
+        padding: 0px;
+        border-width:1px;
+        word-break: normal;
+    }
+    .searchButton:before
+    {
+        min-width:0.1em;
+    }
+    .xs-float-left{
+        float:left;
+    }
+    .xs-float-right{
+        float:right;
+    }
+    .xs-float-center{
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .btn-close
+    {
+        width: 2.6em; 
+        height: 2.6em;
+        font-size: 2em;
+    }
+}
+/*sm 767*/
+@media screen and (min-width: 768px)
+{
+    .sm-font-size
+    {
+        font-size: 2.8em;
+    }
+    body {
+        font-size: 1.8em;
+        /*color : orange;*/
+    }
+    h1
+    {
+        font-size: 1.3em;
+    }
+    .UserTable
+    {
+        font-size:1em;
+    }
+    .option-row
+    {
+        height:2.2em;
+        margin-left:1%;
+        margin-right:-6%;
+        margin-bottom:4%;
+    }
+    .ScreenClassSpan:after
+    {
+        content : "SM screen";
+    }
+    .gridview-header
+    {
+        font-size:0.8em;
+    }
+    .gridview
+    {
+        width:100%;
+    }
+    .gridview tr td, .gridview th
+    {
+        padding: 0px;
+        border-width:1px;
+        word-break: normal;
+    }
+    .searchButton:before
+    {
+        min-width:0.8em;
+    }
+    .sm-float-left{
+        float:left;
+    }
+    .sm-float-right{
+        float:right;
+    }
+    .sm-float-center{
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .btn-close
+    {
+        width: 4em; 
+        height: 4em;
+        font-size: 1em;
+    }
+}
+/*md 992*/
+@media screen and (min-width: 992px)
+{
+    body {
+        font-size: 1.5em;
+        /*color: cyan;*/
+    }
+    h1
+    {
+        font-size: 1.8em;
+    }
+    .ScreenClassSpan:after
+    {
+        content : "MD screen";
+    }
+    .gridview-header
+    {
+        font-size:0.7em;
+    }
+    .gridview
+    {
+        width:100%;
+    }
+    .searchButton:before
+    {
+        min-width:7em;
+        max-width:30%;
+    }
+    .md-float-left{
+        float:left;
+    }
+    .md-float-right{
+        float:right;
+    }
+    .md-float-center{
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .md-button-max-width
+    {
+        max-width : 10em;
+    }
+    .md-dropdown-max-width{
+        max-width : 12em;
+    }
+    .btn-close
+    {
+        width: 4em; 
+        height: 4em;
+        font-size: 1em;
+    }
+}
+/*lg 1200*/
+@media screen and (min-width: 1200px)
+{
+    body
+    {
+        font-size: 1.6em;
+        /*color : red;*/
+    }
+    h1
+    {
+        font-size: 1.6em;
+    }
+    .ScreenClassSpan:after
+    {
+        content : "LG screen";
+    }
+       .option-row
+    {
+        height:2em;
+        margin-bottom:1%;
+        margin-left:0%;
+        margin-right:0%
+    }
+    .gridview-header
+    {
+        font-size:0.7em;
+    }
+    .gridview
+    {
+        width:95vw;
+    }
+    .searchButton:before
+    {
+        min-width:7em;
+        max-width:30%;
+    }
+    .lg-float-left{
+        float:left;
+    }
+    .lg-float-right{
+        float:right;
+    }
+    .lg-float-center{
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .lg-button-max-width
+    {
+        max-width : 9em;
+    }
+    .btn-close
+    {
+        width: 4em; 
+        height: 4em;
+        font-size: 1em;
+    }
+}
+
+/* the classes used to display something infront of the rest*/
+.blocker
+{
+    /*the black background*/
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: .5;
+    background-color: #000;
+    z-index: 1000;
+}
+.blocker-content
+{
+    /* the content of the blocker*/
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5em;
+    height: 2em;
+    margin: -1em 0 0 -2.5em;
+    color: #fff;
+    font-weight: bold;
+}
+.centerPage
+{
+    align-content:center;
+    text-align:center;
+    align-items:center;
+    justify-content:center;
+    position:fixed;
+    display:flex;
+    width:80%;
+    height:80%;
+    margin-left:10%;
+    margin-right:10%;
+    margin-top:5%;
+    margin-bottom:5%;
+}

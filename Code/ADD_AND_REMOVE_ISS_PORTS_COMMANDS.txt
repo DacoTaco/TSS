@@ -1,0 +1,4 @@
+rem this is to run as ADMIN!
+netsh http add urlacl url=http://*:80/ user=everyone
+netsh http delete urlacl url=http://*:80/
+rem for more info -> http://stackoverflow.com/questions/3313616/iis-express-enable-external-request
