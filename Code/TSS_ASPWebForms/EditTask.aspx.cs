@@ -138,7 +138,8 @@ namespace TSS_ASPWebForms
 
             var generalMngr = new GeneralManager();
             selectLocations.DataSource = generalMngr.GetLocations(department, Settings.GetAppSetting("company"));
-            if((TaskID <=0 || Task.ID <=0) && selectLocations.Items.Count > 0)
+            selectLocations.DataBind();
+            if ((TaskID <=0 || Task.ID <=0) && selectLocations.Items.Count > 0)
             {
                 int id = 0;
                 bool result = Int32.TryParse(selectLocations.Items[0].Value,out id);
@@ -147,7 +148,7 @@ namespace TSS_ASPWebForms
                     Task.LocationID = id;
                 }
             }
-            selectLocations.DataBind();
+            
 
             selectTechnicians.DataSource = Lists.Technicians;
             selectTechnicians.DataBind();

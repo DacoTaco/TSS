@@ -51,7 +51,7 @@ namespace TSS_ASPWebForms
             get
             {
                 int? ret = default(int?);
-                if (HttpContext.Current.Session["SearchDepartmentID"] == null)
+                if (HttpContext.Current.Session["SearchDepartmentID"] != null)
                     ret = (int?)HttpContext.Current.Session["SearchDepartmentID"];
                 return ret;
             }
@@ -273,27 +273,6 @@ namespace TSS_ASPWebForms
                 //just some leftover tool to see the user hash :P
                 //conID.Text = LoggedUser.GetUserHash();
 
-                if (String.IsNullOrWhiteSpace(searchbar.Text))
-                    searchbar.Text = String.Empty;
-
-                //set search string in the textbox
-                searchbar.Attributes["placeholder"] = String.Format("{0}...", (string)GetLocalResourceObject("Search.Text"));
-
-                //set the session value's for searching and departmentID. this is fallback value's incase the DataSource fails and doesn't pass any values... ive seen it happen a few times...
-                SearchText = null;
-                string contains = Request.Params["Search"];
-                if (!String.IsNullOrWhiteSpace(contains))
-                {
-                    SearchText = contains;
-                }
-                else if (!String.IsNullOrWhiteSpace(searchbar.Text))
-                    SearchText = searchbar.Text;
-                else if (LoggedUser.UserLoggedIn)
-                    SearchText = LoggedUser.GetUser().Username;
-                else
-                    SearchText = null;
-
-
                 //set department string from the url parameters
                 SearchDepartmentID = null;
                 //if we dont have a role that needs to see all tasks, look for the tasks of said user
@@ -316,9 +295,16 @@ namespace TSS_ASPWebForms
                     if (DropDownSorting.SelectedIndex >= 0 && DropDownSorting.SelectedIndex < DropDownSorting.Items.Count)
                     {
                         bool result = Int32.TryParse(DropDownSorting.Items[DropDownSorting.SelectedIndex].Value, out selecteddep);
-                        if (result == true && selecteddep >= 0)
-                            SearchDepartmentID = selecteddep;
+                        if (result == true)
+                        {
+                            if (selecteddep > 0)
+                                SearchDepartmentID = selecteddep;
+                            else
+                                SearchDepartmentID = -2;
+                        }
                     }
+
+                    bool hasvalue = SearchDepartmentID.HasValue;
 
                     if (
                         !SearchDepartmentID.HasValue && 
@@ -329,6 +315,29 @@ namespace TSS_ASPWebForms
                     else if (!SearchDepartmentID.HasValue && LoggedUser.UserLoggedIn)
                         SearchDepartmentID = -1;
                 }
+
+
+                //retrieve what to search for
+                if (String.IsNullOrWhiteSpace(searchbar.Text))
+                    searchbar.Text = String.Empty;
+
+                //set search string in the textbox
+                searchbar.Attributes["placeholder"] = String.Format("{0}...", (string)GetLocalResourceObject("Search.Text"));
+
+                //set the session value's for searching and departmentID. this is fallback value's incase the DataSource fails and doesn't pass any values... ive seen it happen a few times...
+                SearchText = null;
+                string contains = Request.Params["Search"];
+                if (!String.IsNullOrWhiteSpace(contains))
+                {
+                    SearchText = contains;
+                }
+                else if (!String.IsNullOrWhiteSpace(searchbar.Text))
+                    SearchText = searchbar.Text;
+                else if (LoggedUser.UserLoggedIn && contains != String.Empty && SearchDepartmentID >= 0)
+                    SearchText = LoggedUser.GetUser().Username;
+                else
+                    SearchText = null;
+
 
                 if (!IsPostBack || Lists.TaskStatuses.Count == 0)
                     GetLists();
