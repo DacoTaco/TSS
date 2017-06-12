@@ -99,7 +99,7 @@ namespace TechnicalServiceSystem.DataSourceManagers
                     if (Settings.IsWebEnvironment)
                         dep = (int?)HttpContext.Current.Session["SearchDepartmentID"];
 
-                    if (dep.HasValue && dep > 0)
+                    if (dep.HasValue && dep >= -5)
                     {
                         depID = dep.Value;
                     }

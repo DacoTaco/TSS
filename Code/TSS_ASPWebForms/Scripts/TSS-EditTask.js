@@ -1,13 +1,18 @@
 ﻿//retrieve task list
+function searchTaskPage()
+{
+    return getTasksPage("-2");
+}
 function getTasksPage(department, callback) {
     var contains = $("#searchbar").val();
     var timeOutId = 0;
     var depNumber = Number(department);
+    var parameters = { "Search" : "", "depID" : -2}
 
-    if ((department == null || depNumber == null || depNumber < 0) && contains.length > 0)
-        var parameters = { "Search": contains };
-    else
-        var parameters = { "depID": department };
+    if (contains.length > 0)
+        parameters.Search = contains;
+    if (department != null && depNumber != null && depNumber > -5)
+        parameters.depID = depNumber;
 
     var dropdown = document.getElementById("DropDownSorting");
     if (depNumber > -1)

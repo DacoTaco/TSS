@@ -28,6 +28,9 @@ body {
 
 
 }
+input[type="checkbox"]{
+    cursor:pointer;
+}
 /*would be nice if it worked, but these input/button applying doesn't seem to work...*/
 input,input[type=submit]{ 
     min-height:25px;

@@ -69,7 +69,7 @@ namespace TechnicalServiceSystem
                             command.Parameters.Add(companyParam);
                         }
 
-                        if (DepartmentID.HasValue && DepartmentID.Value >= 0)
+                        if (DepartmentID.HasValue && DepartmentID.Value >= -5)
                         {
                             var DepartmentParam = command.CreateParameter();
                             DepartmentParam.ParameterName = "departmentID";

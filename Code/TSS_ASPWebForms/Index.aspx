@@ -138,7 +138,7 @@
                     </div>
                     <div class="col-xs-4 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;">
                         <asp:TextBox runat="server" ID="searchbar" class="md-float-center" style="width:100%;height:100%;min-width:1em;min-height:1em;" AutoCompleteType="Disabled"
-                        onkeypress='onSearchKeyEnter(event,function(){getTasksPage("-2");});' AutoPostBack="false"> </asp:TextBox>
+                        onkeypress='onSearchKeyEnter(event,searchTaskPage);' AutoPostBack="false"> </asp:TextBox>
                     </div>
                     <div class="col-xs-1 col-lg-2" style="height:inherit;padding:0px;">
                         <button runat="server" name="btnSearch" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getTasksPage();return false;" 
@@ -160,7 +160,7 @@
 
                         <asp:TemplateField HeaderText="Urguency" meta:resourcekey="Urguent" SortExpression="Urguent" ControlStyle-Width="6.4em">
                             <ItemTemplate>
-                                <asp:CheckBox ID="urguentchkbx" runat="server" Checked='<%# Bind("Urguent") %>' Enabled="false" style="zoom:0.7;"/>
+                                <asp:CheckBox ID="urguentchkbx" runat="server" Checked='<%# Bind("Urguent") %>' style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
 
@@ -224,7 +224,7 @@
                     </div>
                     <div class="col-xs-4 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;">
                         <asp:TextBox runat="server" ID="txtSearchUser" class="md-float-center" style="width:100%;height:100%;min-width:1em;min-height:1em;" AutoCompleteType="Disabled"
-                        onkeypress='onSearchKeyEnter(event,function(){ getUserPage("-2");});' AutoPostBack="false"> </asp:TextBox>
+                        onkeypress='onSearchKeyEnter(event,SearchUserPage);' AutoPostBack="false"> </asp:TextBox>
                     </div>
                     <div class="col-xs-1 col-lg-2" style="height:inherit;padding:0px;">
                         <button runat="server" name="btnSearchUser" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getUserPage();return false;" 
@@ -253,7 +253,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleAdmin" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"Admin") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="User" ControlStyle-Width="6.4em">
@@ -263,7 +263,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleUser" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"User") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="Technician" ControlStyle-Width="6.4em">
@@ -273,7 +273,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleTechnician" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"Technician") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="User Manager" ControlStyle-Width="6.4em" ItemStyle-CssClass="hidden-xs hidden-sm hidden-md" HeaderStyle-CssClass="hidden-xs hidden-sm hidden-md">
@@ -283,7 +283,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleUserMngr" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"User Manager") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField ControlStyle-Width="6.4em" ItemStyle-CssClass="hidden-xs hidden-sm hidden-md" HeaderStyle-CssClass="hidden-xs hidden-sm hidden-md">
@@ -293,7 +293,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleSupManager" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"Suppliers Manager") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="Task Manager" ControlStyle-Width="6.4em"  ItemStyle-CssClass="hidden-xs hidden-sm hidden-md" HeaderStyle-CssClass="hidden-xs hidden-sm hidden-md">
@@ -303,7 +303,7 @@
                             <ItemTemplate>
                                 <asp:CheckBox ID="UserRoleTaskManager" runat="server" 
                                     Checked='<%# TechnicalServiceSystem.RoleManager.UserHasRole((System.Collections.ObjectModel.ObservableCollection<TechnicalServiceSystem.Base.RoleInfo>)Eval("UserRoles"),"Task Manager") %>' 
-                                    Enabled="false" style="zoom:0.7;"/>
+                                    style="zoom:0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>

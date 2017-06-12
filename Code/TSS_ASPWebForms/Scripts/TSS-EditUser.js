@@ -1,4 +1,8 @@
 ﻿//retrieve task list
+function SearchUserPage()
+{
+    return getUserPage("-2");
+}
 function getUserPage(roleID, callback) {
     var contains = $("#txtSearchUser").val();
     var timeOutId = 0;

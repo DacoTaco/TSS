@@ -304,7 +304,7 @@ namespace TSS_ASPWebForms
                 {
                     int department;
                     Int32.TryParse(Request.Params["depID"], out department);
-                    if (department >= 0)
+                    if (department >= -5)
                     {
                         SearchDepartmentID = department;
                     }
@@ -320,10 +320,14 @@ namespace TSS_ASPWebForms
                             SearchDepartmentID = selecteddep;
                     }
 
-                    if (!SearchDepartmentID.HasValue && user != null && !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician))
+                    if (
+                        !SearchDepartmentID.HasValue && 
+                        user != null && 
+                        !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician)
+                        )
                         SearchDepartmentID = user.DepartmentID;
                     else if (!SearchDepartmentID.HasValue && LoggedUser.UserLoggedIn)
-                        SearchDepartmentID = 0;
+                        SearchDepartmentID = -1;
                 }
 
                 if (!IsPostBack || Lists.TaskStatuses.Count == 0)

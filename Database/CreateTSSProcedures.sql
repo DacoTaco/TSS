@@ -240,6 +240,13 @@ Begin
 		BEGIN
 			set @contains = null;
 		END
+		IF(@departmentID < 0)
+		BEGIN
+			IF(@contains is null)
+			BEGIN
+				set @departmentID = null;
+			END
+		END
 	END
 
 	declare @text nvarchar(max) = null
@@ -307,7 +314,7 @@ Begin
 			--	)
 			--) 
 			(
-				(@departmentID is null and @text is null) or
+				(@departmentID is null) or 
 				( 
 					(@departmentID != dep.DepartmentID or @departmentID is null) and
 					(
