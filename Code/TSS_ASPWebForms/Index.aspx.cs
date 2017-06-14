@@ -335,6 +335,13 @@ namespace TSS_ASPWebForms
                     SearchText = searchbar.Text;
                 else if (LoggedUser.UserLoggedIn && contains != String.Empty && SearchDepartmentID >= 0)
                     SearchText = LoggedUser.GetUser().Username;
+                else if(LoggedUser.UserLoggedIn && 
+                        RoleManager.UserHasPermission(LoggedUser.GetUser(),RoleInfo.RolesPermissions.Technician) &&
+                        !RoleManager.UserHasPermission(LoggedUser.GetUser(), RoleInfo.RolesPermissions.ManageTasks)
+                       )
+                {
+                    SearchText = LoggedUser.GetUser().Username;
+                }
                 else
                     SearchText = null;
 

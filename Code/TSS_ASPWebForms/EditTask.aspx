@@ -66,7 +66,7 @@
                         <td style="text-align:left;padding-bottom:1em;padding-right:1em;" colspan="3"><input type="text" runat="server" id="txtDescription" value="<%# Task.Description %>" onblur="updateTaskDescription(); return false;" autocomplete="off" style="width:100%;min-height:5px;height:2em;max-height:inherit;" /></td>
                     </tr>
                     <tr> <!-- Notes row -->
-                        <td style="text-align:right;padding-bottom:1em;padding-right:1em;"> <asp:Label runat="server" Text="Notes : " meta:resourcekey="Notes" Width="100%"></asp:Label> </td>
+                        <td style="text-align:right;padding-bottom:1em;padding-right:1em;vertical-align:top;"> <asp:Label runat="server" Text="Notes : " meta:resourcekey="Notes" Width="100%"></asp:Label> </td>
                         <td style="text-align:left;padding-bottom:1em;padding-right:1em;width:100%;" colspan="3" rowspan="4" class="notesBox">
                             <asp:TextBox runat="server" ID="Notes" Width="100%" Text="<%# Task.strNotes %>" TextMode="MultiLine" Enabled="false" style="resize:none;min-height:inherit;max-height:inherit"></asp:TextBox>
                         </td>
@@ -95,13 +95,13 @@
                         <td style="text-align:right;padding-bottom:1em;padding-right:1em;"> <asp:Label runat="server" Text="State : " meta:resourcekey="TaskState"></asp:Label></td>
                         <td style="text-align:left;padding-bottom:1em;padding-right:1em;"> <select runat="server" id="selectTaskState" style="width:100%" DataValueField="ID" DataTextField="Status" onchange="updateTaskState(); return false;"></select></td>
                         <td style="text-align:right;padding-bottom:1em;padding-right:1em;"><asp:Label runat="server" Text="Urguent : " meta:resourcekey="Urguent"></asp:Label></td>
-                        <td style="padding-bottom:1em;padding-right:1em;text-align:center;vertical-align:middle;"> 
+                        <td style="padding-bottom:1em;padding-right:1em;text-align:left;vertical-align:middle;"> 
                             <asp:CheckBox runat="server" ID="chkUrguent" onchange="updateTaskUrguency(); return false;" Checked="<%# Urguent %>" />
 
                         </td>
                     </tr>
                     <tr><!-- Photo's row -->
-                        <td style="text-align:right;padding-bottom:1em;padding-right:1em;"> <asp:Label runat="server" Text="Photo's : " meta:resourcekey="Photos"></asp:Label></td>
+                        <td style="text-align:right;padding-bottom:1em;padding-right:1em;vertical-align:top;"> <asp:Label runat="server" Text="Photo's : " meta:resourcekey="Photos"></asp:Label></td>
                         <td style="text-align:right;padding-bottom:1em;padding-right:1em;height:100%;width:100%;max-height:12em;min-height:12em;" colspan="3" rowspan="4">
                             <div style="max-height:inherit;min-height:inherit;overflow:scroll;overflow-y:hidden;white-space:nowrap;background-color:white;border:solid;border-color:black;border-width:1px;padding:0px">
                                 <!-- the list containing all photos -->

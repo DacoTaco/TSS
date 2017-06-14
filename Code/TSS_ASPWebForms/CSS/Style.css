@@ -67,7 +67,7 @@ h1
     border-width:2px;
     word-break:break-word;
     cursor: pointer;
-    max-width:20em;
+    max-width:13em;
 }
 .gridview th
 {
@@ -76,6 +76,9 @@ h1
 .gridview tr:hover td
 {
     background-color:#A1DCF2;
+}
+.gridview-align-left{
+    text-align:left !important;
 }
 .alternating-table-color tr td{
     text-align:center;

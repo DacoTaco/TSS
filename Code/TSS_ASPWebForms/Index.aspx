@@ -132,9 +132,10 @@
                             <asp:Label runat="server" Text="New Task" meta:resourcekey="NewTask" style="height:inherit"></asp:Label>
                         </button>
                     </div>
-                    <div class="col-xs-3 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;">
-                        <select runat="server" id="DropDownSorting" DataValueField="ID" DataTextField="Name"  class="xs-float-left md-float-center md-dropdown-max-width btn-block"
-                        style="min-height:1em;height:inherit;" onchange="onDepartmentChanged()"></select>
+                    <div class="col-xs-3 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;display:table-row">
+                        <asp:Label runat="server" Text="Afdeling : " style="float:left;text-align:center;vertical-align:central;min-height:inherit;height:inherit;position:relative;margin-left:15%;" CssClass="hidden-xs visible-sm visible-lg visible-md"></asp:Label>
+                        <select runat="server" id="DropDownSorting" DataValueField="ID" DataTextField="Name" style="min-height:1em;height:inherit;width:100%;margin-left:1em" 
+                                class="xs-float-left md-float-left md-dropdown-max-width btn-block" onchange="onDepartmentChanged()"></select>
                     </div>
                     <div class="col-xs-4 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;">
                         <asp:TextBox runat="server" ID="searchbar" class="md-float-center" style="width:100%;height:100%;min-width:1em;min-height:1em;" AutoCompleteType="Disabled"
@@ -156,7 +157,8 @@
                 ShowHeaderWhenEmpty="True" style="margin-top:1vw;font-size:2vmin;margin-left:auto;margin-right:auto;max-width:100%" BackColor="White" BorderColor="#868686" 
                 RowStyle-CssClass="text-responsive" >
                     <Columns>
-                        <asp:BoundField DataField="Description" HeaderText="Description" ReadOnly="True" SortExpression="Description" meta:resourcekey="Description"></asp:BoundField>
+                        <asp:BoundField DataField="Description" HeaderText="Description" ReadOnly="True" SortExpression="Description" meta:resourcekey="Description" ItemStyle-CssClass="gridview-align-left">
+                        </asp:BoundField>
 
                         <asp:TemplateField HeaderText="Urguency" meta:resourcekey="Urguent" SortExpression="Urguent" ControlStyle-Width="6.4em">
                             <ItemTemplate>
