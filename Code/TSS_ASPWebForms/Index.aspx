@@ -133,8 +133,9 @@
                         </button>
                     </div>
                     <div class="col-xs-3 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;display:table-row">
-                        <asp:Label runat="server" Text="Afdeling : " style="float:left;text-align:center;vertical-align:central;min-height:inherit;height:inherit;position:relative;margin-left:15%;" CssClass="hidden-xs visible-sm visible-lg visible-md"></asp:Label>
-                        <select runat="server" id="DropDownSorting" DataValueField="ID" DataTextField="Name" style="min-height:1em;height:inherit;width:100%;margin-left:1em" 
+                        <asp:Label runat="server" Text="Afdeling : " style="float:left;text-align:center;vertical-align:central;min-height:inherit;height:inherit;position:relative;margin-left:15%;" 
+                            CssClass="hidden-xs hidden-sm visible-lg visible-md"></asp:Label>
+                        <select runat="server" id="DropDownSorting" DataValueField="ID" DataTextField="Name" style="min-height:1em;height:inherit;width:90%;margin-left:1em;margin-right:1em" 
                                 class="xs-float-left md-float-left md-dropdown-max-width btn-block" onchange="onDepartmentChanged()"></select>
                     </div>
                     <div class="col-xs-4 col-lg-3" style="height:inherit;padding:0px;margin-right:0.4em;">

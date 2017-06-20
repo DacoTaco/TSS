@@ -265,6 +265,11 @@ namespace TSS_ASPWebForms
             else
             {
                 ReadOnly = false;
+                if(LoggedUser.UserLoggedIn)
+                {
+                    txtReporter.Disabled = true;
+
+                }
             }
 
 
@@ -294,8 +299,7 @@ namespace TSS_ASPWebForms
                 //check if the user has permissions to change the State
                 if (
                     !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician) &&
-                    !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.ManageTasks) &&
-                    !(user.ID != Task.ReporterID)
+                    !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.ManageTasks)
                     )
                 {
                     selectTaskState.Disabled = true;
