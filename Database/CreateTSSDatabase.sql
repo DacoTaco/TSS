@@ -114,7 +114,9 @@ Create Table Users.Users
 	PhotoID int foreign key references General.Photo(PhotoID),
 	Active bit not null default 1,
 	UserOpened nvarchar(max) default null,
-	OpenTimeDue DateTime default null
+	OpenTimeDue DateTime default null,
+	DateToDelete DateTime default null,
+	Deleted bit default null
 )
 
 create Table Users.UserRoles

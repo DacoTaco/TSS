@@ -216,6 +216,36 @@ BEGIN
 END
 GO
 
+--Tasks!
+
+CREATE PROCEDURE Tasks.ReseedTables
+AS
+BEGIN
+	declare @max int = null
+	select @max=max([TaskID])from Tasks.Task
+	if @max IS NUll   --check when max is returned as null
+		SET @max = 1
+	DBCC CHECKIDENT ('Tasks.Task', RESEED,@max)
+
+	set @max = null
+	select @max=max([NoteID])from Tasks.Notes
+	if @max IS NUll   --check when max is returned as null
+		SET @max = 1
+	DBCC CHECKIDENT ('Tasks.Notes', RESEED,@max)
+
+	set @max = null
+	select @max=max([InfoID])from Tasks.RepeatingInfo
+	if @max IS NUll  
+		SET @max = 1
+	DBCC CHECKIDENT ('Tasks.RepeatingInfo', RESEED,@max)
+
+	set @max = null
+	select @max=max([ID])from Tasks.TaskPhotos
+	if @max IS NUll  
+		SET @max = 1
+	DBCC CHECKIDENT ('Tasks.TaskPhotos', RESEED,@max)
+END
+go
 
 CREATE PROCEDURE Tasks.GetTask
 (
@@ -770,6 +800,23 @@ END
 go
 
 --Login & users
+CREATE PROCEDURE Users.ReseedTables
+AS
+BEGIN
+	declare @max int
+	select @max=max([UserID])from Users.Users
+	if @max IS NUll   --check when max is returned as null
+		SET @max = 1
+	DBCC CHECKIDENT ('Users.Users', RESEED,@max)
+
+	set @max = null
+	select @max=max([UserID])from Users.UserRoles
+	if @max IS NUll   --check when max is returned as null
+		SET @max = 1
+	DBCC CHECKIDENT ('Users.UserRoles', RESEED,@max)
+END
+go
+
 CREATE PROCEDURE Users.IsUserEditable
 (
 	@UserID int,
@@ -993,7 +1040,8 @@ CREATE PROCEDURE Users.ChangeUser
 	@DepartmentID int,
 	@PhotoID integer,
     @Roles Users.UserRolesTable READONLY,
-	@Password nvarchar(max) = null
+	@Password nvarchar(max) = null,
+	@delete bit = null
 )
 AS
 BEGIN
@@ -1058,6 +1106,16 @@ BEGIN
 				END
 		END
 
+		IF(@delete is not null and @delete > 0)
+		BEGIN
+			update USers.Users
+			set
+				DateToDelete = DATEADD(day,7,GETDATE()),
+				Active = 0
+			where
+				UserID = @UserID
+		END
+
 		--and now check what roles are saved in the database.
 		-- for every assigned role to the user we loop:
 		-- if role exists in @roles -> delete from @roles
@@ -1075,7 +1133,7 @@ BEGIN
 			declare @ID integer;
 			select top 1 @ID = RoleID from #UserRoles
 
-			IF(EXISTS(select * from @userRoles where roleID = @ID))
+			IF(EXISTS(select * from @userRoles rl where rl.roleID = @ID))
 			BEGIN
 				delete from @userRoles where RoleID = @ID;
 			END
@@ -1088,6 +1146,8 @@ BEGIN
 			delete from #UserRoles where RoleID = @ID;
 		END
 
+		exec Users.ReseedTables;
+
 		IF( EXISTS(select top 1 * from @userRoles))
 		BEGIN
 			exec Users.AssignRoles @UserID,@userRoles;
@@ -1095,6 +1155,42 @@ BEGIN
 
 	COMMIT TRANSACTION CHANGE_USER;
 	RETURN 1;
+END
+go
+
+CREATE PROCEDURE Users.CheckAndDeleteUsers
+AS
+BEGIN
+	declare @users as TABLE(ID int,UserName nvarchar(max),DateToDelete DateTime);
+	
+	insert into @users(ID,UserName,DateToDelete)
+		select us.UserID,us.UserName,us.DateToDelete from Users.Users us
+		where (us.DateToDelete is not null) and (CONVERT(date, us.DateToDelete) <= CONVERT(date, getdate()))
+
+
+	IF EXISTS(Select * from @users)
+	BEGIN
+		While EXISTS(SELECT * FROM @users)
+		BEGIN
+			declare @userID int = 0;
+			select TOP 1 @userID = ID from @users
+
+			--delete from Users.Users 
+			--where UserID = @userID
+			update Users.Users
+			set 
+				Deleted = 1,
+				Active = 0
+			where 
+				userID = @userID
+				AND (Deleted is null or Deleted = 0)
+
+			delete from @users where ID = @userID
+		END
+
+		--reseed the tables after deletion
+		exec Users.ReseedTables;
+	END
 END
 go
 
@@ -1215,6 +1311,7 @@ BEGIN
 	AND us.PasswordHash = HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',@password)) )
 	AND cp.CompanyName = @companyName
 	AND us.Active = 1
+	AND (us.Deleted is null or us.Deleted = 0)
 
 	IF(@ret is null)
 		return 0
@@ -1248,6 +1345,7 @@ BEGIN
 		from Users.Users us
 		where us.UserID = @UserID and 
 		@UserHash = CONVERT(nvarchar(max),(HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',CONCAT(us.UserID,':',us.UserName))) )),2)
+		AND (us.Deleted is null or us.Deleted = 0)
 	)
 	BEGIN
 		RETURN 1;
@@ -1276,19 +1374,26 @@ BEGIN
 	ELSE
 		set @SearchText = '%';
 
-	Select DISTINCT us.UserID as 'User ID', us.UserName as 'Username' , us.DepartmentID as 'Department ID', us.PhotoID as 'Photo ID', us.Active
+	Select DISTINCT us.UserID as 'User ID', us.UserName as 'Username' , us.DepartmentID as 'Department ID', us.PhotoID as 'Photo ID', us.Active, 
+	CAST(
+		CASE 
+			WHEN us.DateToDelete is null or us.DateToDelete = 0
+				THEN 0
+			ELSE 1
+		END AS bit) as 'Delete'
 	from Users.Users us
 	left join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
 	left join General.Department dp on dp.DepartmentID = us.DepartmentID
 	left join Users.UserRoles ur on ur.UserID = us.UserID
 	left join Users.Roles rl on rl.RoleID = ur.RoleID
-	where cp.CompanyName = @companyName 
+	where cp.CompanyName like @companyName 
 	and
 	(
 		(@RoleID is null or @RoleID = rl.RoleID) and
 		(LOWER(us.UserName) like @SearchText or LOWER(dp.DepartmentName) like @SearchText)
 	)
+	AND (us.Deleted is null or us.Deleted = 0)
 	--and us.Active = 1
 	order by UserName
 END
@@ -1309,6 +1414,7 @@ BEGIN
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
 	where rs.RoleName like @roles and us.Active > 0
 	and cp.CompanyName like @companyName
+	AND (us.Deleted is null or us.Deleted = 0)
 END
 
 go
@@ -1319,11 +1425,18 @@ CREATE PROCEDURE Users.GetUserByID
 )
 AS
 BEGIN
-	Select us.UserID,us.Username,us.Active,ph.PhotoID,dep.DepartmentID,dep.DepartmentName
+	Select us.UserID,us.Username,us.Active,ph.PhotoID,dep.DepartmentID,dep.DepartmentName,
+	CAST(
+		CASE 
+			WHEN us.DateToDelete is null or us.DateToDelete = 0
+				THEN 0
+			ELSE 1
+		END AS bit) as 'Delete'
 	from Users.Users us
 	left join General.Department dep on Us.DepartmentID = dep.DepartmentID
 	left join General.Photo ph on ph.PhotoID = us.PhotoID
 	where us.UserID = @userID 
+	AND (us.Deleted is null or us.Deleted = 0)
 	--and us.Active = 1
 END
 
@@ -1339,6 +1452,7 @@ BEGIN
 	left join Users.UserRoles ur on ur.UserID = us.UserID
 	left join Users.Roles rl on rl.RoleID = ur.RoleID
 	where us.UserID = @userID
+	AND (us.Deleted is null or us.Deleted = 0)
 END
 go
 
