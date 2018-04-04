@@ -379,18 +379,26 @@ exec Suppliers.AssignMachineToDepartment 'Houten Nachtkastje','De Deining','Sint
 declare @photoID int
 select @photoID=PhotoID from General.Photo where PhotoName like './system/DefaultUser.jpg'
 
-exec Users.CreateUser 'Rombaut Joris', 'test' ,@photoID , 'Sint-Elisabeth' , 'Gelijkvloers'
+declare @gelijkvloers int
+select @gelijkvloers=DepartmentID from General.Department where DepartmentName like 'Gelijkvloers'
+declare @deHaven int
+select @deHaven=DepartmentID from General.Department where DepartmentName like 'De Haven'
+declare @deKoraal int
+select @deKoraal=DepartmentID from General.Department where DepartmentName like 'De Koraal'
+
+exec Users.CreateUser 'Rombaut Joris', 'test' ,@photoID , 'Sint-Elisabeth' , @gelijkvloers
+
 
 DECLARE @UserRoles AS Users.UserRolesTable;    
-INSERT INTO @UserRoles(roleID,roleName)
+INSERT INTO @UserRoles(roleName,roleID)
 values
 	('User', (select RoleID from Users.Roles where RoleName = 'User')),
 	('Task Manager', (select RoleID from Users.Roles where RoleName = 'Task Manager')),
 	('Suppliers Manager', (select RoleID from Users.Roles where RoleName = 'Suppliers Manager')),
 	('Technician', (select RoleID from Users.Roles where RoleName = 'Technician'))
-exec Users.CreateUser 'Dossche Paul', 'test',@photoID , 'Sint-Elisabeth' , 'Gelijkvloers', @RoleNames = @UserRoles
+exec Users.CreateUser 'Dossche Paul', 'test',@photoID , 'Sint-Elisabeth' , @gelijkvloers, @RoleNames = @UserRoles
 
-exec Users.CreateUser 'Alain','test',@photoID,'Ons Zomerheem','Gelijkvloers',@UserRoles
+--exec Users.CreateUser 'Alain','test',@photoID,'Ons Zomerheem','Gelijkvloers',@UserRoles
 
 declare @tempID int
 select @tempID=PhotoID from General.Photo where PhotoName like './images/User4.jpg'
@@ -398,23 +406,23 @@ delete from @UserRoles
 INSERT INTO @UserRoles(roleName)
 values
 	('User'),('Task Manager'),('Suppliers Manager'),('Technician'),('Admin')
-exec Users.CreateUser 'Vermeylen Joris','test',@tempID , 'Sint-Elisabeth' , 'Gelijkvloers', @RoleNames = @UserRoles
+exec Users.CreateUser 'Vermeylen Joris','test',@tempID , 'Sint-Elisabeth' , @gelijkvloers, @RoleNames = @UserRoles
 
 delete from @UserRoles
 INSERT INTO @UserRoles(roleName)
 values
 	('User'),('Technician')
-exec Users.CreateUser 'Pauwels Krist','test',@photoID , 'Sint-Elisabeth' , 'Gelijkvloers', @RoleNames = @UserRoles
+exec Users.CreateUser 'Pauwels Krist','test',@photoID , 'Sint-Elisabeth' , @gelijkvloers, @RoleNames = @UserRoles
 
 
 delete from @UserRoles
 INSERT INTO @UserRoles(roleName)
 values
 	('User'),('User Manager')
-exec Users.CreateUser 'Pauwels Helene','test',@photoID , 'Sint-Elisabeth' , 'Gelijkvloers', @RoleNames = @UserRoles
+exec Users.CreateUser 'Pauwels Helene','test',@photoID , 'Sint-Elisabeth' , @gelijkvloers, @RoleNames = @UserRoles
 
-exec Users.CreateUser 'Legrand Tamara','test',@photoID , 'Sint-Elisabeth' , 'De Haven'
-exec Users.CreateUser 'de Smet Evy', 'test',@photoID , 'Sint-Elisabeth' , 'De Koraal'
+exec Users.CreateUser 'Legrand Tamara','test',@photoID , 'Sint-Elisabeth' , @deHaven
+exec Users.CreateUser 'de Smet Evy', 'test',@photoID , 'Sint-Elisabeth' , @deKoraal
 
 --LOGIN! :D
 declare @userHash nvarchar(128)
