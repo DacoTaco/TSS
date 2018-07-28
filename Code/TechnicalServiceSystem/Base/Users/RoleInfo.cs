@@ -98,8 +98,8 @@ namespace TechnicalServiceSystem.Base
             if (otherObj == null)
                 return false;
 
-            if (otherObj.ID == this.ID)
-                ret = true;
+            if (otherObj.Name == this.Name || otherObj.ID == this.ID || otherObj.Name == "Admin")
+                return true;
 
             return ret;
         }

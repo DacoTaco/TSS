@@ -46,7 +46,7 @@ namespace TSS_ASPWebForms
         protected void Page_Load(object sender, EventArgs e)
         {
             if (
-                LoggedUser.GetUser() != null
+                LoggedInUser.GetUser() != null
               )
             {
                 Response.Redirect("Index");
@@ -118,9 +118,9 @@ namespace TSS_ASPWebForms
                 ret = Login(ref user, password);
 
                 if (ret)
-                    LoggedUser.SetUser(user);
+                    LoggedInUser.SetUser(user);
                 else
-                    LoggedUser.SetUser(null);
+                    LoggedInUser.SetUser(null);
 
                 return ret;
             }

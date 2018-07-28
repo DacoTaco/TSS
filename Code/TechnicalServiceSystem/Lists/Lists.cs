@@ -61,11 +61,11 @@ namespace TechnicalServiceSystem
                     //in ASP we can't use the static stuff since static is the same for all requests/sessions. so savinig to sessions it is xD
                     if (Settings.IsWebEnvironment)
                     {
-                        ret = HttpContext.Current.Session["SystemLists"] as SystemLists;
+                        ret = Settings.GetSessionSetting<SystemLists>("SystemLists");
                         if(ret == null)
                         {
                             ret = new SystemLists();
-                            HttpContext.Current.Session["SystemLists"] = ret;
+                            Settings.SetSessionSetting("SystemLists", ret);
                         }
                     }
                     else

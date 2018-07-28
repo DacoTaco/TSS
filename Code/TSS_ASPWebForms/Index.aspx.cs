@@ -37,12 +37,12 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                return (string)HttpContext.Current.Session["SearchText"];
+                return Settings.GetSessionSetting<string>("SearchText");
             }
 
             set
             {
-                HttpContext.Current.Session["SearchText"] = value;
+                Settings.SetSessionSetting("SearchText", value);
             }
         }
 
@@ -50,14 +50,15 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                int? ret = default(int?);
+                /*int? ret = default(int?);
                 if (HttpContext.Current.Session["SearchDepartmentID"] != null)
                     ret = (int?)HttpContext.Current.Session["SearchDepartmentID"];
-                return ret;
+                return ret;*/
+                return Settings.GetSessionSetting<int?>("SearchDepartmentID");
             }
             set
             {
-                HttpContext.Current.Session["SearchDepartmentID"] = value;
+                Settings.SetSessionSetting("SearchDepartmentID", value);
             }
         }
 
@@ -133,41 +134,37 @@ namespace TSS_ASPWebForms
                     DropDownSorting.DataBind();
                 }
                 
-                /*if ((roles & (int)RoleInfo.RolesPermissions.Technician) <= 0)
-                {*/
-                    //user isn't technician or task manager. hide a few columns in the task grid
-                    try
-                    {
-                        string TaskTypeHeader = GetLocalResourceObject("TaskType.HeaderText") as string;
-                        string MachineHeader = GetLocalResourceObject("Machine.HeaderText") as string;
+                try
+                {
+                    string TaskTypeHeader = GetLocalResourceObject("TaskType.HeaderText") as string;
+                    string MachineHeader = GetLocalResourceObject("Machine.HeaderText") as string;
 
-                        if (String.IsNullOrEmpty(TaskTypeHeader))
-                            TaskTypeHeader = "Task Type";
+                    if (String.IsNullOrEmpty(TaskTypeHeader))
+                        TaskTypeHeader = "Task Type";
 
-                        if (string.IsNullOrEmpty(MachineHeader))
-                            MachineHeader = "Machine";
+                    if (string.IsNullOrEmpty(MachineHeader))
+                        MachineHeader = "Machine";
 
-                        ((DataControlField)TaskView.Columns
-                           .Cast<DataControlField>()
-                           .Where(fld => (fld.HeaderText == TaskTypeHeader))
-                           .SingleOrDefault()).Visible = false;
+                    ((DataControlField)TaskView.Columns
+                        .Cast<DataControlField>()
+                        .Where(fld => (fld.HeaderText == TaskTypeHeader))
+                        .SingleOrDefault()).Visible = false;
 
-                        ((DataControlField)TaskView.Columns
-                          .Cast<DataControlField>()
-                          .Where(fld => (fld.HeaderText == MachineHeader))
-                          .SingleOrDefault()).Visible = false;
+                    ((DataControlField)TaskView.Columns
+                        .Cast<DataControlField>()
+                        .Where(fld => (fld.HeaderText == MachineHeader))
+                        .SingleOrDefault()).Visible = false;
 
-                        if(!IsPostBack)
-                            DropDownSorting.SelectedIndex = (LoggedUser.UserLoggedIn == true) ? user.DepartmentID : 0;
+                    if(!IsPostBack)
+                        DropDownSorting.SelectedIndex = (LoggedInUser.IsUserLoggedIn == true) ? user.DepartmentID : 0;
 
 
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
-                /*}
-                else*/
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
                 if ((roles & (int)RoleInfo.RolesPermissions.Technician) > 0)
                 {
                     //we have a technician or task mananger! set department to all!
@@ -248,10 +245,10 @@ namespace TSS_ASPWebForms
         protected void Page_Load(object sender, EventArgs e)
         {
             //clear the shit from the Task editting!
-            if(HttpContext.Current.Session["OriginalTask"] != null)
+            if(Settings.GetSessionSetting("OriginalTask") != null)
             {
-                HttpContext.Current.Session["OriginalTask"] = null;
-                HttpContext.Current.Session["EditTask"] = null;
+                Settings.SetSessionSetting("OriginalTask", null);
+                Settings.SetSessionSetting("EditTask", null);
             }
 
             try
@@ -262,13 +259,13 @@ namespace TSS_ASPWebForms
                     requireLogin = "";
                 if(
                     requireLogin != "0" &&
-                    LoggedUser.GetUser() == null
+                    LoggedInUser.GetUser() == null
                   )
                 {
                     Response.Redirect("Login");
                 }
 
-                UserInfo user = LoggedUser.GetUser();
+                UserInfo user = LoggedInUser.GetUser();
 
                 //just some leftover tool to see the user hash :P
                 //conID.Text = LoggedUser.GetUserHash();
@@ -312,7 +309,7 @@ namespace TSS_ASPWebForms
                         !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician)
                         )
                         SearchDepartmentID = user.DepartmentID;
-                    else if (!SearchDepartmentID.HasValue && LoggedUser.UserLoggedIn)
+                    else if (!SearchDepartmentID.HasValue && LoggedInUser.IsUserLoggedIn)
                         SearchDepartmentID = -1;
                 }
 
@@ -333,14 +330,14 @@ namespace TSS_ASPWebForms
                 }
                 else if (!String.IsNullOrWhiteSpace(searchbar.Text))
                     SearchText = searchbar.Text;
-                else if (LoggedUser.UserLoggedIn && contains != String.Empty && SearchDepartmentID >= 0)
-                    SearchText = LoggedUser.GetUser().Username;
-                else if(LoggedUser.UserLoggedIn && 
-                        RoleManager.UserHasPermission(LoggedUser.GetUser(),RoleInfo.RolesPermissions.Technician) &&
-                        !RoleManager.UserHasPermission(LoggedUser.GetUser(), RoleInfo.RolesPermissions.ManageTasks)
+                else if (LoggedInUser.IsUserLoggedIn && contains != String.Empty && SearchDepartmentID >= 0)
+                    SearchText = LoggedInUser.GetUser().Username;
+                else if(LoggedInUser.IsUserLoggedIn && 
+                        RoleManager.UserHasPermission(LoggedInUser.GetUser(),RoleInfo.RolesPermissions.Technician) &&
+                        !RoleManager.UserHasPermission(LoggedInUser.GetUser(), RoleInfo.RolesPermissions.ManageTasks)
                        )
                 {
-                    SearchText = LoggedUser.GetUser().Username;
+                    SearchText = LoggedInUser.GetUser().Username;
                 }
                 else
                     SearchText = null;
@@ -367,8 +364,8 @@ namespace TSS_ASPWebForms
         {
             UserInfo user = null;
 
-            if(LoggedUser.UserLoggedIn)
-                user = LoggedUser.GetUser();
+            if(LoggedInUser.IsUserLoggedIn)
+                user = LoggedInUser.GetUser();
 
             //setup user related stuff!
             if (user != null)
@@ -407,7 +404,7 @@ namespace TSS_ASPWebForms
         /// <param name="TasksOnly"></param>
         protected void GetLists(bool TasksOnly = false)
         {
-            UserInfo user = LoggedUser.GetUser();
+            UserInfo user = LoggedInUser.GetUser();
 
             //if we aren't looking for something specific and we are logged in, add tasks of the user
             if (
@@ -482,13 +479,13 @@ namespace TSS_ASPWebForms
         //Click event handler for the Login/Logout button in the user menu
         protected void LoginMenu_Click(object sender, EventArgs e)
         { 
-            if (!LoggedUser.UserLoggedIn)
+            if (!LoggedInUser.IsUserLoggedIn)
             {
                 Response.Redirect("Login");
             }
             else
             {
-                LoggedUser.SetUser(null);
+                LoggedInUser.SetUser(null);
                 DropDownSorting.SelectedIndex = 0;
                 hidTABControl.Value = "#Tasks";
                 SearchText = null;

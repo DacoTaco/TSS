@@ -37,21 +37,15 @@ namespace TechnicalServiceSystem
         /// <returns></returns>
         static public bool UserHasRole(UserInfo user, string RoleName)
         {
-            bool ret = false;
-
             if ((user == null) || (user.UserRoles == null) || (user.UserRoles.Count <= 0))
                 return false;
 
-            foreach (RoleInfo role in user.UserRoles)
-            {
-                if (role.Name == RoleName)
-                {
-                    ret = true;
-                    break;
-                }
-            }
+            var role = new RoleInfo(0, RoleName);
 
-            return ret;
+            if (user.UserRoles.Contains(role))
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -65,12 +59,13 @@ namespace TechnicalServiceSystem
             if ((user == null) || (user.UserRoles == null) || (user.UserRoles.Count <= 0))
                 return false;
 
-            foreach (RoleInfo role in user.UserRoles)
-            {
-                if (role.ID == RoleID)
-                    return true;
-            }
+            var role = new RoleInfo(RoleID, "");
+
+            if (user.UserRoles.Contains(role))
+                return true;
+
             return false;
+        
         }
         /// <summary>
         /// Checks whether the user's RolesList has the given role or not
@@ -83,11 +78,9 @@ namespace TechnicalServiceSystem
             if (roles == null)
                 return false;
 
-            foreach (RoleInfo role in roles)
-            {
-                if (role.Name == RoleName || role.Name == "Admin")
-                    return true;
-            }
+            var role = new RoleInfo(0, RoleName);
+            if (roles.Contains(role))
+                return true;
 
             return false;
         }

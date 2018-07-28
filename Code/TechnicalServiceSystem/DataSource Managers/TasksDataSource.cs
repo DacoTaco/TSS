@@ -82,7 +82,7 @@ namespace TechnicalServiceSystem.DataSourceManagers
                     string SearchParam = string.Empty;
 
                     if (Settings.IsWebEnvironment)
-                        SearchParam = (string)HttpContext.Current.Session["SearchText"];
+                        SearchParam = Settings.GetSessionSetting<string>("SearchText");
 
                     if (!String.IsNullOrWhiteSpace(SearchParam))
                         search = SearchParam;
@@ -97,7 +97,7 @@ namespace TechnicalServiceSystem.DataSourceManagers
                     int? dep = null;
 
                     if (Settings.IsWebEnvironment)
-                        dep = (int?)HttpContext.Current.Session["SearchDepartmentID"];
+                        dep = Settings.GetSessionSetting<int?>("SearchDepartmentID");
 
                     if (dep.HasValue && dep >= -5)
                     {

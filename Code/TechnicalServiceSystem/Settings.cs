@@ -27,7 +27,7 @@ using TechnicalServiceSystem;
 namespace TechnicalServiceSystem
 {
     /// <summary>
-    /// Class to handle loading the application Settings
+    /// Class to handle loading and setting of the application Settings & session settings
     /// </summary>
     public class Settings
     {
@@ -71,6 +71,26 @@ namespace TechnicalServiceSystem
 
 
             return ret;
+        }
+
+        public static T GetSessionSetting<T>(string setting)
+        {
+            return (T)GetSessionSetting(setting);
+        }
+
+        public static Object GetSessionSetting(string setting)
+        {
+            if (!IsWebEnvironment)
+                return null;
+
+            return HttpContext.Current.Session[setting];
+        }
+
+        public static void SetSessionSetting(string setting,object value)
+        {
+            if (!IsWebEnvironment)
+                return;
+            HttpContext.Current.Session[setting] = value;
         }
     }
 }

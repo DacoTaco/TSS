@@ -53,22 +53,22 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                return HttpContext.Current.Session["EditTask"] as ChangedTask;
+                return Settings.GetSessionSetting<ChangedTask>("EditTask");
             }
             set
             {
-                HttpContext.Current.Session["EditTask"] = value;
+                Settings.SetSessionSetting("EditTask", value);
             }
         }
         static public Task OriginalTask
         {
             get
             {
-                    return HttpContext.Current.Session["OriginalTask"] as Task;
+                return Settings.GetSessionSetting<Task>("OriginalTask");
             }
             set
             {
-                    HttpContext.Current.Session["OriginalTask"] = value;
+                Settings.SetSessionSetting("OriginalTask", value);
             }
         }
 
@@ -91,7 +91,7 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                bool? ret = HttpContext.Current.Session["TaskReadOnly"] as bool?;
+                bool? ret = Settings.GetSessionSetting<bool?>("TaskReadOnly");
                 if (ret.HasValue)
                     return ret.Value;
                 else
@@ -99,7 +99,7 @@ namespace TSS_ASPWebForms
             }
             set
             {
-                HttpContext.Current.Session["TaskReadOnly"] = value;
+                Settings.SetSessionSetting("TaskReadOnly",value);
             }
         }
         public string ReadOnlyMsg
@@ -126,12 +126,12 @@ namespace TSS_ASPWebForms
         {
             //setup all bindings in the page
             int department = 0;
-            UserInfo user = LoggedUser.GetUser();
+            UserInfo user = LoggedInUser.GetUser();
 
             if (Task != null)
                 department = Task.DepartmentID;
             else
-                department = (LoggedUser.UserLoggedIn == true) ? user.DepartmentID : 0;
+                department = (LoggedInUser.IsUserLoggedIn == true) ? user.DepartmentID : 0;
 
             selectDepartments.DataSource = Lists.Departments;
             selectDepartments.DataBind();
@@ -226,7 +226,7 @@ namespace TSS_ASPWebForms
                 //editting a task!
                 txtReporter.Disabled = true;
 
-                string userHash = LoggedUser.GetUserHash();
+                string userHash = LoggedInUser.GetUserHash();
                 var taskMngr = new TaskManager();
 
                 //check if its editable at all. if not, disable and grey out a few shits
@@ -265,7 +265,7 @@ namespace TSS_ASPWebForms
             else
             {
                 ReadOnly = false;
-                if(LoggedUser.UserLoggedIn)
+                if(LoggedInUser.IsUserLoggedIn)
                 {
                     txtReporter.Disabled = true;
 
@@ -273,9 +273,9 @@ namespace TSS_ASPWebForms
             }
 
 
-            if (LoggedUser.UserLoggedIn)
+            if (LoggedInUser.IsUserLoggedIn)
             {
-                UserInfo user = LoggedUser.GetUser();
+                UserInfo user = LoggedInUser.GetUser();
 
                 //check if user has permissions to change the technician
                 if (!RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.ManageTasks))
@@ -374,8 +374,8 @@ namespace TSS_ASPWebForms
                 if (Task == null || TaskID == 0)
                 {
                     UserInfo user = null;
-                    if (LoggedUser.UserLoggedIn)
-                        user = LoggedUser.GetUser();
+                    if (LoggedInUser.IsUserLoggedIn)
+                        user = LoggedInUser.GetUser();
 
                     OriginalTask = new Task(0, "", false, 0, "", 0, 0, 0, 0, 0, DateTime.Now, DateTime.Now);
                     Task = ChangedTask.UpgradeBase(OriginalTask);
@@ -563,7 +563,7 @@ namespace TSS_ASPWebForms
             try
             {
                 var tskMngr = new TaskManager();
-                ret = tskMngr.SetTaskClosed(Task.ID, LoggedUser.GetUserHash());
+                ret = tskMngr.SetTaskClosed(Task.ID, LoggedInUser.GetUserHash());
 
                 if (ret)
                 {

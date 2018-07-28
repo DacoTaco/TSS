@@ -48,7 +48,7 @@ namespace TSS_ASPWebForms
         {
             try
             {
-                if (LoggedUser.GetUser() != null)
+                if (LoggedInUser.GetUser() != null)
                 {
                     Response.Redirect("Index");
                 }

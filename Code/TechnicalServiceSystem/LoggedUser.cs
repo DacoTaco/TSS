@@ -26,24 +26,18 @@ namespace TechnicalServiceSystem
     /// <summary>
     /// class to handle the logged in user 
     /// </summary>
-    public static class LoggedUser
+    public static class LoggedInUser
     {
-        static private UserInfo LoggedInUser = null;
+        static private UserInfo LoggedUser = null;
 
         /// <summary>
         /// boolean that indicates if a user is logged in or not
         /// </summary>
-        static public bool UserLoggedIn
+        static public bool IsUserLoggedIn
         {
             get
             {
-                UserInfo user;
-
-                //retrieve the user. in a web envoirment we get it from the session
-                if (Settings.IsWebEnvironment)
-                    user = (UserInfo)HttpContext.Current.Session["LoggedInUser"];
-                else
-                    user = LoggedInUser;
+                UserInfo user = GetUser();
 
                 //verify weither the user is legit and has gotten a hash
                 //i could verify if the hash is correct with UserManager.CheckUserHash but i think this might slow down things alot!
@@ -67,9 +61,9 @@ namespace TechnicalServiceSystem
         static public UserInfo GetUser()
         {
             if (Settings.IsWebEnvironment)
-                return (UserInfo)HttpContext.Current.Session["LoggedInUser"];
+                return Settings.GetSessionSetting<UserInfo>("LoggedInUser");
             else
-                return LoggedInUser;
+                return LoggedUser;
         }
 
         /// <summary>
@@ -79,7 +73,7 @@ namespace TechnicalServiceSystem
         static public string GetUserHash()
         {
             string hash = String.Empty;
-            if (!UserLoggedIn)
+            if (!IsUserLoggedIn)
             {
                 if (Settings.IsWebEnvironment)
                 {
@@ -126,9 +120,9 @@ namespace TechnicalServiceSystem
             }
 
             if (Settings.IsWebEnvironment)
-                HttpContext.Current.Session["LoggedInUser"] = user;
+                Settings.SetSessionSetting("LoggedInUser", user);
             else
-                LoggedInUser = user;
+                LoggedUser = user;
         }
     }
 }

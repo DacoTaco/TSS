@@ -45,22 +45,22 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                return HttpContext.Current.Session["EditUser"] as UserInfo;
+                return Settings.GetSessionSetting<UserInfo>("EditUser");
             }
             set
             {
-                HttpContext.Current.Session["EditUser"] = value;
+                Settings.SetSessionSetting("EditUser", value);
             }
         }
         static public UserInfo OriginalUser
         {
             get
             {
-                return HttpContext.Current.Session["OriginalUser"] as UserInfo;
+                return Settings.GetSessionSetting<UserInfo>("OriginalUser");
             }
             set
             {
-                HttpContext.Current.Session["OriginalUser"] = value;
+                Settings.SetSessionSetting("OriginalUser", value);
             }
         }
 
@@ -70,7 +70,7 @@ namespace TSS_ASPWebForms
         {
             get
             {
-                bool? ret = HttpContext.Current.Session["UserReadOnly"] as bool?;
+                bool? ret = Settings.GetSessionSetting<bool?>("UserReadOnly");
                 if (ret.HasValue)
                     return ret.Value;
                 else
@@ -78,7 +78,7 @@ namespace TSS_ASPWebForms
             }
             set
             {
-                HttpContext.Current.Session["UserReadOnly"] = value;
+                Settings.SetSessionSetting("UserReadOnly", value);
             }
         }
         public string ReadOnlyMsg
@@ -99,7 +99,7 @@ namespace TSS_ASPWebForms
             ReadOnly = false;
             if(UserID > 0)
             {
-                string userHash = LoggedUser.GetUserHash();
+                string userHash = LoggedInUser.GetUserHash();
                 var usrManager = new UserManager();
                 if (!usrManager.UserEditable(UserID, userHash) || !usrManager.SetUserOpened(UserID, userHash))
                 {
@@ -119,7 +119,7 @@ namespace TSS_ASPWebForms
         //load the page
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (LoggedUser.UserLoggedIn == false || RoleManager.UserHasPermission(LoggedUser.GetUser(), RoleInfo.RolesPermissions.ManageUsers, Lists.Roles.ToList()) == false)
+            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(), RoleInfo.RolesPermissions.ManageUsers, Lists.Roles.ToList()) == false)
             {
                 Response.Redirect("Index.aspx");
             }
@@ -589,7 +589,7 @@ namespace TSS_ASPWebForms
             try
             {
                 var usrManager = new UserManager();
-                ret = usrManager.SetUserClosed(EdittedUser.ID, LoggedUser.GetUserHash());
+                ret = usrManager.SetUserClosed(EdittedUser.ID, LoggedInUser.GetUserHash());
 
                 if (ret)
                 {
