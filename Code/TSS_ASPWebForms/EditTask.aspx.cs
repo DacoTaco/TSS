@@ -496,10 +496,6 @@ namespace TSS_ASPWebForms
                         Task.Location = newloc;
 
                         var locationChanged = (Task.Location?.ID??0) != (OriginalTask.Location?.ID??0);
-                        /*if (Task.Changed_Properties.ContainsKey("LocationID"))
-                            Task.Changed_Properties["LocationID"] = locationChanged;
-                        else
-                            Task.Changed_Properties.Add("LocationID", locationChanged);*/
                     }
                     goto case "Generic";
                 case "Reporter":
@@ -537,16 +533,6 @@ namespace TSS_ASPWebForms
                 default:
                     break;
             }
-
-            //we went through the switch. lets see if changed were made
-            //if it is set as found, we will push the Changed_Properties entry
-            /*if (found)
-            {
-                if (Task.Changed_Properties.ContainsKey(PropertyName))
-                    Task.Changed_Properties[PropertyName] = changed;
-                else
-                    Task.Changed_Properties.Add(PropertyName, changed);
-            }*/
 
             return changed;
         }

@@ -109,7 +109,7 @@ Create Table Users.Users
 	UserID int not null identity(1,1) primary key,
 	UserName nvarchar(35) not null,
 	PasswordHash varbinary(128) null,
-	PasswordSalt nvarchar(max) not null default CONVERT(nvarchar(max), NEWID());,
+	PasswordSalt nvarchar(max) not null default CONVERT(nvarchar(max), NEWID()),
 	DepartmentID int not null default 0 foreign key references General.Department(DepartmentID) on delete set default,
 	PhotoID int foreign key references General.Photo(PhotoID),
 	Active bit not null default 1,

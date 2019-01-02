@@ -373,133 +373,6 @@ Begin
 END
 GO
 
-CREATE PROCEDURE Tasks.GetTask
-(
-	@TaskID int,
-	@companyName nvarchar(max) = '%',
-	@departmentID int = null,
-	@contains nvarchar(max) = null,
-	@showRepeating bit = 0,
-	@showAll bit = 0
-)
-as
-Begin
-
-	IF(@departmentID is not null)
-	BEGIN
-		if(@departmentID = 0)
-		BEGIN
-		--	set @contains = null;
-			set @departmentID = null;
-		END
-		--IF(@departmentID > 0)
-		--BEGIN
-		--	set @contains = null;
-		--END
-		IF(@departmentID < 0)
-		BEGIN
-			IF(@contains is null)
-			BEGIN
-				set @departmentID = null;
-			END
-		END
-	END
-
-	declare @text nvarchar(max) = null
-	if(@contains is not null)
-		set @text = ('%' + LOWER(@contains) + '%');
-
-	declare @minStatusID int;
-	declare @minTypeID int;
-
-
-	if(@showRepeating is not null and @showRepeating = 1)
-	BEGIN
-		set @minTypeID = (select top 1 TypeID from Tasks.TaskType order by TypeID desc) + 1
-		set @showAll = 1;
-	END
-	ELSE
-	BEGIN
-		set @minTypeID = 1;
-	END
-
-	if(@showAll is not null and @showAll = 1)
-	BEGin
-		set @minStatusID = (select TOP 1 StatusID from Tasks.TaskStatus order by StatusID desc) +1
-	END
-	ELSE
-	BEGIN
-		set @minStatusID = (select StatusID from Tasks.TaskStatus where StatusDescription = 'Task Finished')
-	END
-
-	select distinct tk.TaskID as 'Task ID', tk.TaskDescription as 'Task Description', IIF(tk.Urguent = 1,'Yes','No') as Urguent, tt.TypeID as 'Task Type ID',
-		tt.TypeDescription as 'Task Type' ,ISNULL((select UserName from Users.Users where UserID = tk.ReporterID),tk.ReporterName) as Reporter, 
-		ISNULL(tk.TechnicianID,0) as 'Technician ID', ISNULL(us.UserName,'None') as Technician,dep.DepartmentID as 'Department ID',
-		dep.DepartmentName as 'Department', tk.LocationID as 'Location ID', loc.LocationName as 'Location',	tk.StatusID as 'Status ID' , 
-		ts.StatusDescription as 'Status' , ISNULL(tk.MachineID,0) as 'Machine ID', ISNULL(ma.MachineName,'Not Set') as 'Machine', 
-		tk.CreationDate as 'Created' , tk.DateLastADjustment as 'Last Adjusted', rt.RepeatInterval as 'Interval in days', 
-		TRY_CONVERT(DATE, CAST(rt.ActivationDate as DATETIME),0) as 'Next Planned Date',
-		(Select count(NoteID) from Tasks.Notes where TaskID = tk.TaskID) as 'Notes',
-		(Select count(PhotoID) from Tasks.TaskPhotos where TaskID = tk.TaskID) as 'Photos'
-	from Tasks.Task tk 
-		inner join Tasks.TaskType tt on tk.TypeID = tt.TypeID
-		inner join Tasks.TaskStatus ts on tk.StatusID = ts.StatusID
-		left join Users.Users us on us.UserID=tk.TechnicianID
-		inner join General.Locations loc on loc.LocationID = tk.LocationID
-		inner join General.Department dep on loc.DepartmentID = dep.DepartmentID
-		left join General.CompanyDepartment cd on cd.DepartmentID = dep.DepartmentID
-		left join General.Company cp on cp.CompanyID = cd.CompanyID
-		left join Tasks.RepeatingInfo rt on tk.TaskID = rt.ParentTaskID
-		left join Suppliers.Machine ma on ma.MachineID = tk.MachineID
-		left join Tasks.Notes nt on nt.TaskID = tk.TaskID
-		where ((@TaskID is null) or (tk.TaskID = @TaskID))
-			and cp.CompanyName like @companyName
-			and
-			--(
-			--	(@departmentID is null and @text is null) or
-			--	(@departmentID = dep.DepartmentID) or
-			--	(@text is not null and
-			--		(
-			--				LOWER(dep.DepartmentName) like @text
-			--				or LOWER(tk.ReporterName) like @text
-			--				or LOWER(loc.LocationName) like @text
-			--				or LOWER(us.UserName) like @text
-			--				or LOWER(ma.MachineName) like @text
-			--				or LOWER(tk.TaskDescription) like @text
-			--		)
-			--	)
-			--) 
-			(
-				(@departmentID is null) or 
-				( 
-					(@departmentID != dep.DepartmentID or @departmentID is null) and
-					(
-						LOWER(dep.DepartmentName) like @text
-						or LOWER(tk.ReporterName) like @text
-						or LOWER(loc.LocationName) like @text
-						or LOWER(us.UserName) like @text
-						or LOWER(ma.MachineName) like @text
-						or LOWER(tk.TaskDescription) like @text
-					)
-				)
-				or
-				(@departmentID = dep.DepartmentID)
-			)
-		and 
-		(
-			( tk.TypeID <= @minTypeID) 
-			and 
-			(
-				( tk.StatusID <= @minStatusID) or
-				( datediff(day,tk.DateLastAdjustment,GETDATE()) < 14  or @showAll > 0)
-			)
-		)
-		
-		
-	order by tt.TypeID asc,dep.DepartmentName asc,loc.LocationName asc,tk.DateLastAdjustment asc, tk.TaskDescription asc
-END
-go
-
 CREATE PROCEDURE Tasks.IsTaskEditable
 (
 	@TaskID int,
@@ -1178,6 +1051,96 @@ BEGIN
 		--reseed the tables after deletion
 		exec Users.ReseedTables;
 	END
+END
+go
+
+CREATE PROCEDURE Users.CreateUser
+(
+	@Username NVARCHAR(35),  
+	@Password nvarchar(max), 
+	@PhotoID integer, 
+	@CompanyName nvarchar(50) , 
+	@DepartmentID Integer, 
+	@Roles Users.UserRolesTable READONLY,
+	@Active bit = 1
+)
+AS
+BEGIN
+	DECLARE @RolesTable AS Users.UserRolesTable;
+
+	IF not EXISTS (SELECT * FROM @Roles)
+	BEGIN
+		declare @id integer = 0;
+		select @id = RoleID from Users.Roles where RoleName = 'User'
+		INSERT INTO @RolesTable(roleID)
+		values
+			(
+				--@id
+				(select RoleID from Users.Roles where RoleName = 'User')
+			)
+	END
+	else
+	BEGIN
+		insert into @RolesTable(roleID)
+		select roleID from @Roles
+	END
+
+	declare @newUser integer = 0
+	declare @passSalt nvarchar(max) = null
+
+	set @passSalt = CONVERT(nvarchar(max), NEWID());
+
+	declare @company nvarchar(max)
+
+	Select @company = com.CompanyName
+	from General.CompanyDepartment gd
+	left join General.Company com on gd.CompanyID = com.CompanyID
+	where gd.DepartmentID = @DepartmentID
+
+	IF(
+		(@DepartmentID = 0) or
+		(@company != @CompanyName)
+		)
+		BEGIN
+			RAISERROR('DepartmentID is 0 or company name is not correct',15,1);
+			RETURN 0
+		END
+
+	IF(@PhotoID = 0)
+	BEGIN
+		set @PhotoID = null
+	END
+
+
+	begin transaction AddUser
+
+	declare @error as int
+	insert into Users.Users(UserName,DepartmentID,PasswordSalt,PasswordHash,PhotoID,Active)
+	values
+	(
+		@Username,
+		@DepartmentID,
+		@passSalt,
+		HASHBytes('SHA2_512',CONCAT(@passSalt,HASHBytes('SHA2_512',@Password)) ),
+		@PhotoID,
+		@Active
+	);
+	set @error = @@ERROR;
+	
+	IF @error > 0
+		begin
+			ROLLBACK transaction AddUser
+			RAISERROR('Error was raised Inserting row',15,1);
+			RETURN 0;
+		end
+	ELSE
+		begin
+			set @newUser = SCOPE_IDENTITY();
+			exec Users.AssignRoles @newUser, @roles
+		end
+		
+	commit transaction AddUser
+	return @newUser
 END
 go
 
