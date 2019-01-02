@@ -108,8 +108,8 @@ Create Table Users.Users
 (
 	UserID int not null identity(1,1) primary key,
 	UserName nvarchar(35) not null,
-	PasswordHash varbinary(128) not null,
-	PasswordSalt nvarchar(max) not null,
+	PasswordHash varbinary(128) null,
+	PasswordSalt nvarchar(max) not null default CONVERT(nvarchar(max), NEWID());,
 	DepartmentID int not null default 0 foreign key references General.Department(DepartmentID) on delete set default,
 	PhotoID int foreign key references General.Photo(PhotoID),
 	Active bit not null default 1,
@@ -125,8 +125,11 @@ create Table Users.UserRoles
 	UserID int foreign key references Users.Users(UserID) on delete cascade not null,
 	RoleID Integer foreign key references Users.Roles(RoleID) on delete cascade not null
 );
-
 go
+
+ALTER TABLE Users.UserRoles
+  ADD CONSTRAINT UQ_UserRoles UNIQUE(UserID, RoleID);
+GO
 
 --Suppliers & machine stuff
 

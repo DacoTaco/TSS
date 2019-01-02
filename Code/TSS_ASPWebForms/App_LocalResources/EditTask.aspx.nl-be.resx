@@ -142,7 +142,7 @@
     <value>Een of meerdere velden hebben een ongeldige waarde. Ga de volgende waardes na</value>
   </data>
   <data name="ErrorSaveTasks" xml:space="preserve">
-    <value>Functie 'SaveTasks' kan niet gebruikt worden op dit moment</value>
+    <value>Taak kan momenteel niet worden opgeslaan</value>
   </data>
   <data name="LastAdjusted.Text" xml:space="preserve">
     <value>Laatste aanpassing op : </value>

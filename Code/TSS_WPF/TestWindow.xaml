@@ -65,7 +65,7 @@
                 <Button Name="btnSyncTasks" Content="{DynamicResource SyncTasks}" Click="btnSyncTasks_Click"/>
             </StackPanel>
             
-            <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.Tasks}" 
+            <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.TasksList}" 
                       AutoGenerateColumns="False" ColumnWidth="Auto" SelectionUnit="FullRow" CanUserDeleteRows="False" RowEditEnding="TaskGrid_RowEditEnding">
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>

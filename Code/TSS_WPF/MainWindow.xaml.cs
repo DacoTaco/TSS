@@ -15,37 +15,22 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TechnicalServiceSystem;
 using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.Tasks;
+using TechnicalServiceSystem.Lists;
 
 namespace TSS_WPF
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         public SystemLists Lists
         {
             get
@@ -103,7 +88,7 @@ namespace TSS_WPF
             TaskGrid.DataContext = this;
             MachinesGrid.DataContext = this;
 
-            lsbNotes.DataContext = Lists.Tasks[0];
+            lsbNotes.DataContext = Lists.TasksList[0];
 
             SystemTabs.SelectedIndex = 1;
         }
@@ -116,7 +101,16 @@ namespace TSS_WPF
             Task taskCopy;
 
             if (task == null)
-                taskCopy = new Task(0, "", false, 1, "", 0, 1, 0, 1, 0, DateTime.Now, DateTime.Now, null, null);
+                taskCopy = new Task()
+                {
+                    ID = 0,
+                    CreationDate = DateTime.Now,
+                    LastModifiedOn = DateTime.Now,
+                    IsUrguent = false,
+                    TypeID = 1,
+                    Reporter = "",
+                    StatusID = 1
+                };
             else
                 taskCopy = task.Clone();
 
@@ -147,12 +141,12 @@ namespace TSS_WPF
         {
             DataGridRow row = (DataGridRow)sender;
             Task targetTask = (Task)row.Item;
-            int index = Lists.Tasks.IndexOf(targetTask);
+            int index = Lists.TasksList.IndexOf(targetTask);
             Editting = true;
 
             if (GetTaskDetails(ref targetTask))
             {
-                Lists.Tasks[index] = targetTask;
+                Lists.TasksList[index] = targetTask;
             }
             Editting = false;
         }
@@ -161,7 +155,7 @@ namespace TSS_WPF
             Task task = null;
             if (GetTaskDetails(ref task, true))
             {
-                Lists.Tasks.Add(task);
+                Lists.TasksList.Add(task);
             }
         }
         private void btnSyncTasks_Click(object sender, RoutedEventArgs e)
@@ -217,10 +211,7 @@ namespace TSS_WPF
             //this also gets triggered when databinding changes the combobox. therefor we have the edittingTask variable to prevent it from adding it to the list
             if (TaskGrid.SelectedItem != null && Editting == false)
             {
-                ChangedTask task = ChangedTask.UpgradeBase(TaskGrid.SelectedItem as Task);
-                task.Changed_Properties["TechnicianID"] = true;
-                if (task.StatusID < 3)
-                    task.Changed_Properties["StatusID"] = true;
+                Task task = (TaskGrid.SelectedItem as Task).Clone(); 
 
                 Lists.EditedTasks.Add(task);
             }
@@ -231,10 +222,9 @@ namespace TSS_WPF
             object o = TaskGrid.ItemContainerGenerator.ItemFromContainer(e.Row);
 
             //if we aren't editting a task, add it to the list of changes to push to the Database!
-            if (Lists.Tasks.Contains(o) && Editting == false)
+            if (Lists.TasksList.Contains(o) && Editting == false)
             {
-                ChangedTask task = ChangedTask.UpgradeBase(o as Task);
-                task.Changed_Properties["Urguent"] = true;
+                Task task = (o as Task).Clone();
                 Lists.EditedTasks.Add(task);
             }
         }

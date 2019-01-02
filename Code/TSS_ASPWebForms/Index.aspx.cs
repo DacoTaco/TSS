@@ -1,5 +1,5 @@
 ﻿/*TSS - Technical Service System , a system build to help Technical Services maintain their reports and equipment
-Copyright(C) 2017 - Joris 'DacoTaco' Vermeylen
+Copyright(C) 2019 - Joris 'DacoTaco' Vermeylen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,197 +14,190 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using Equin.ApplicationFramework;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
-using System.Resources;
-using System.Web;
-using System.Web.Configuration;
+using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Windows;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.General;
+using TechnicalServiceSystem.Entities.Tasks;
+using TechnicalServiceSystem.Entities.Users;
+using TechnicalServiceSystem.Lists;
 
 namespace TSS_ASPWebForms
 {
-    public partial class Index : System.Web.UI.Page
+    public partial class index : Page
     {
-
-        public string SearchText
+        protected string GetTranslation(string table,int ID)
         {
-            get
-            {
-                return Settings.GetSessionSetting<string>("SearchText");
-            }
+            if (String.IsNullOrWhiteSpace(table) || ID < 0)
+                return null;
 
-            set
+            var list = LanguageFiles.LoadLanguageFile(table);
+            if (ID > list.Length)
+                return null;
+
+            return list[ID];
+        }
+        protected static string ActiveTab
+        {
+            get { return Settings.GetSessionSetting<string>("ActiveTab"); }
+            set { Settings.SetSessionSetting("ActiveTab", value); }
+        }
+        protected void Setup_UserContent()
+        {
+            User user = null;
+
+            if (LoggedInUser.IsUserLoggedIn)
+                user = LoggedInUser.GetUser();
+
+            //setup user related stuff!
+            if (user != null)
             {
-                Settings.SetSessionSetting("SearchText", value);
+                lblUserName.Text = "&lt; " + user.UserName + " &gt;";
+                var genMngr = new GeneralManager();
+                var path = user.Photo?.FileName;
+                if (string.IsNullOrWhiteSpace(path))
+                    path = "./system/DefaultUser.jpg";
+                userImage.ImageUrl = path;
+                LoginMenu.Text = "Logout";
+                ProfileMenu.Visible = true;
+                LoginSeperator.Visible = true;
+            }
+            else
+            {
+                //set up the default stuff
+                lblUserName.Text = string.Empty;
+                userImage.ImageUrl = "./system/DefaultUser.jpg";
+                LoginMenu.Text = "Login";
+                ProfileMenu.Visible = false;
+                LoginSeperator.Visible = false;
             }
         }
 
-        public int? SearchDepartmentID
-        {
-            get
-            {
-                /*int? ret = default(int?);
-                if (HttpContext.Current.Session["SearchDepartmentID"] != null)
-                    ret = (int?)HttpContext.Current.Session["SearchDepartmentID"];
-                return ret;*/
-                return Settings.GetSessionSetting<int?>("SearchDepartmentID");
-            }
-            set
-            {
-                Settings.SetSessionSetting("SearchDepartmentID", value);
-            }
-        }
-
-
-        //system lists, contains all tasks,users, etc etc
-        private SystemLists lists = null;
-        public SystemLists Lists
-        {
-            get
-            {
-                if (lists == null)
-                    lists = SystemLists.GetInstance();
-
-                return lists;
-            }
-
-        }
-
-        //retrieve role name from the lists. these are already translated anyway :)
-        public string GetRoleName(int roleID)
-        {
-            string ret = "[unknown]";
-
-            foreach (RoleInfo role in Lists.Roles)
-            {
-                if(role.ID == roleID)
-                {
-                    return role.Name;
-                }
-            }
-
-            return ret;
-        }
-
-        /// <summary>
-        /// function to set all tabs visable or invisable depending on the user's roles
-        /// </summary>
-        /// <param name="user"></param>
-        protected void SetTabs(UserInfo user)
+        protected void Setup_Tabs()
         {
             //OK, HOW THIS WORKS.
             //We loop trough all roles. per function of the system the user has access to we add a number that is a bitwise new number ( 0,1,2,4,8,16,32,64,128,...)
             //after we've looped trough the roles, we do a bitwise or so we can easily tell if the user has access to a part of the system
-            int roles = 0;
-            roles = RoleManager.GetUserPermissions(user, Lists.Roles.ToList());
 
+            User user = null;
 
+            if (LoggedInUser.IsUserLoggedIn)
+                user = LoggedInUser.GetUser();
+
+            var roles = RoleManager.GetUserPermissions(user);
             //handle the tasks tab
-            if ((roles & (int)RoleInfo.RolesPermissions.Tasks) <= 0)
+            if ((roles & (int) RolesPermissions.Tasks) <= 0)
             {
                 TasksTab.Visible = false;
                 Tasks.Visible = false;
             }
             else
             {
-                //so incase a selectedindexchanged is fired, the index doesn't reset by the databind...
-                if (!IsPostBack)
+                //link the departments drop down
+                var list = SystemLists.General.Departments;
+
+                var DepartmentsList = new ObservableCollection<Department>();
+
+                DepartmentsList.Add(new Department() {ID = 0,Description = LanguageFiles.GetLocalTranslation("AllDepartments", "All") });
+                foreach (var item in SystemLists.General.Departments) DepartmentsList.Add(item);
+
+                DropDownSorting.DataSource = DepartmentsList;
+                DropDownSorting.DataBind();
+
+                if (LoggedInUser.IsUserLoggedIn && (roles & (int) RolesPermissions.Technician) <= 0)
                 {
-                    //TODO : change the datasource to more then just the departments. need to add current user if it logged in, add show all
-                    ObservableCollection<DepartmentInfo> DepartmentsList = new ObservableCollection<DepartmentInfo>();
+                    DropDownSorting.SelectedIndex =
+                        DepartmentsList.ToList().FindIndex(x => x.ID == LoggedInUser.GetUser().Department.ID);
+                }
+                else
+                    DropDownSorting.SelectedIndex = 0;
 
-                    string alldep = GetLocalResourceObject("AllDepartments") as string;
-                    if (String.IsNullOrWhiteSpace(alldep))
-                        alldep = "All";
 
-                    DepartmentsList.Add(new DepartmentInfo(0, alldep));
-                    foreach (DepartmentInfo item in Lists.Departments)
+                //set the parameters for the datasource
+                string departmentID = Request.QueryString["depID"];
+                var searchText = Request.QueryString["Search"];
+
+                var departmentField = TaskSource.SelectParameters["DepartmentID"];
+                var searchField = TaskSource.SelectParameters["SearchText"];
+                if (LoggedInUser.IsUserLoggedIn)
+                {
+                    if (
+                        !RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageTasks) &&
+                        (
+                            (String.IsNullOrWhiteSpace(departmentID) && String.IsNullOrWhiteSpace(searchText)) ||
+                            (LoggedInUser.GetUser().Department.ID.ToString() == departmentID)
+                        ))
                     {
-                        DepartmentsList.Add(item);
+                        // logged in + either nothing was given or the user's department was chosen -> show department + user's tasks
+                        departmentField.DefaultValue = LoggedInUser.GetUser().Department.ID.ToString();
+                        searchText = LoggedInUser.GetUser().UserName;
+                    }
+                    else if (!String.IsNullOrWhiteSpace(departmentID))
+                    {
+                        //department was set.
+                        departmentField.DefaultValue = departmentID;
                     }
 
-                    DropDownSorting.DataSource = DepartmentsList;
-                    DropDownSorting.DataBind();
+                    if (!String.IsNullOrWhiteSpace(searchText))
+                    {
+                        //search text was given.
+                        searchField.DefaultValue = searchText;
+                    }
+                    
                 }
-                
-                try
+                else
                 {
-                    string TaskTypeHeader = GetLocalResourceObject("TaskType.HeaderText") as string;
-                    string MachineHeader = GetLocalResourceObject("Machine.HeaderText") as string;
+                    if (!String.IsNullOrWhiteSpace(departmentID))
+                        departmentField.DefaultValue = departmentID;
 
-                    if (String.IsNullOrEmpty(TaskTypeHeader))
-                        TaskTypeHeader = "Task Type";
-
-                    if (string.IsNullOrEmpty(MachineHeader))
-                        MachineHeader = "Machine";
-
-                    ((DataControlField)TaskView.Columns
-                        .Cast<DataControlField>()
-                        .Where(fld => (fld.HeaderText == TaskTypeHeader))
-                        .SingleOrDefault()).Visible = false;
-
-                    ((DataControlField)TaskView.Columns
-                        .Cast<DataControlField>()
-                        .Where(fld => (fld.HeaderText == MachineHeader))
-                        .SingleOrDefault()).Visible = false;
-
-                    if(!IsPostBack)
-                        DropDownSorting.SelectedIndex = (LoggedInUser.IsUserLoggedIn == true) ? user.DepartmentID : 0;
-
-
+                    if (!String.IsNullOrWhiteSpace(searchText))
+                        searchField.DefaultValue = searchText;
                 }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+                //set the department parameter
+                TaskSource.SelectParameters["DepartmentID"] = departmentField;
+                TaskSource.SelectParameters["SearchText"] = searchField;
 
-                if ((roles & (int)RoleInfo.RolesPermissions.Technician) > 0)
-                {
-                    //we have a technician or task mananger! set department to all!
-                    if (!IsPostBack)
-                        DropDownSorting.SelectedIndex = 0;
-                }
+                //set datasource and bind/retrieve data
+                TaskGrid.DataSourceID = "TaskSource";
+                TaskGrid.DataBind();
             }
 
-            //permissions to the machines tab!
-            if(true == true)//(roles & (int)RoleInfo.RolesPermissions.ManageMachines) <= 0)
+            //handle machines tab
+            //if ((roles & (int)RolesPermissions.ManageMachines) <= 0)
             {
                 //no permissions!
                 MachinesTab.Visible = false;
-                Machines.Visible = false;
+                //Machines.Visible = false;
             }
-            else
+            /*else
             {
                 MachinesTab.Visible = true;
-                Machines.Visible = true;
-            }
+                //Machines.Visible = true;
+            }*/
 
             //permissions to the Suppliers tab!
-            if(/*
-                ((roles & (int)RoleInfo.RolesPermissions.ViewSuppliers) <= 0 ) &&
-                ((roles & (int)RoleInfo.RolesPermissions.ManageSuppliers) <= 0)*/
-                true == true
-              )
+            /*if (
+                ((roles & (int)RolesPermissions.ViewSuppliers) <= 0 ) &&
+                ((roles & (int)RolesPermissions.ManageSuppliers) <= 0)
+            )*/
             {
                 SuppliersTab.Visible = false;
-                Suppliers.Visible = false;
+                //Suppliers.Visible = false;
             }
-            else
+            /*else
             {
                 SuppliersTab.Visible = true;
                 Suppliers.Visible = true;
-            }
+            }*/
 
 
             //permissions for the Users tab!
-            if ((roles & (int)RoleInfo.RolesPermissions.ManageUsers) <= 0)
+            if ((roles & (int) RolesPermissions.ManageUsers) <= 0)
             {
                 UsersTab.Visible = false;
                 Users.Visible = false;
@@ -214,271 +207,64 @@ namespace TSS_ASPWebForms
                 UsersTab.Visible = true;
                 Users.Visible = true;
 
-                //fill the roles we can pick to filter from
-                if (!IsPostBack)
+                var RolesList = new ObservableCollection<Role>();
+                var roleList = LanguageFiles.LoadLanguageFile("Roles");
+
+                for (int i = 0; i < roleList.Length; i++)
                 {
-                    ObservableCollection<RoleInfo> RolesList = new ObservableCollection<RoleInfo>();
-
-                    string allRoles = GetLocalResourceObject("AllRoles") as string;
-                    if (String.IsNullOrWhiteSpace(allRoles))
-                        allRoles = "All Roles";
-
-                    RolesList.Add(new RoleInfo(0, allRoles));
-                    foreach (RoleInfo item in Lists.Roles)
-                    {
-                        RolesList.Add(item);
-                    }
-                    //bind User dropdown of roles
-                    selectUserType.DataSource = RolesList;
-                    selectUserType.DataBind();
+                    RolesList.Add(new Role() { ID = i,RoleName = roleList[i]});
                 }
+                //bind User dropdown of roles
+                selectUserType.DataSource = RolesList;
+                selectUserType.DataBind();
+
+                //set the parameters for the datasource
+                string RoleID = Request.QueryString["UserRoleID"];
+                var searchText = Request.QueryString["SearchUser"];
+
+                if (!String.IsNullOrWhiteSpace(RoleID))
+                {
+                    var RoleField = UserSource.SelectParameters["RoleID"];
+                    RoleField.DefaultValue = RoleID;
+                    UserSource.SelectParameters["RoleID"] = RoleField;
+                }
+
+                if (!String.IsNullOrWhiteSpace(searchText))
+                {
+                    var searchField = UserSource.SelectParameters["contains"];
+                    searchField.DefaultValue = searchText;
+                    UserSource.SelectParameters["contains"] = searchField;
+                }
+
+                UserGrid.DataSourceID = "UserSource";
+                UserGrid.DataBind();
             }
 
+            //set the last known open tab
+            if (!String.IsNullOrWhiteSpace(ActiveTab))
+                hidTABControl.Value = ActiveTab;
         }
 
-        /// <summary>
-        /// Main function of the page. checks the configuration , redirects to login page if needed, loads the lists and databinds all contents
-        /// Pass Parameter depID with a departmentID to list tasks for a certain department if no user is logged in.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        protected void Setup_Page()
+        {
+            Setup_UserContent();
+            Setup_Tabs();           
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
-            //clear the shit from the Task editting!
-            if(Settings.GetSessionSetting("OriginalTask") != null)
-            {
-                Settings.SetSessionSetting("OriginalTask", null);
-                Settings.SetSessionSetting("EditTask", null);
-            }
-
-            try
-            {
-                //check if user login is needed
-                string requireLogin = Settings.GetAppSetting("RequireLogin");
-                if (requireLogin == null)
-                    requireLogin = "";
-                if(
-                    requireLogin != "0" &&
-                    LoggedInUser.GetUser() == null
-                  )
-                {
-                    Response.Redirect("Login");
-                }
-
-                UserInfo user = LoggedInUser.GetUser();
-
-                //just some leftover tool to see the user hash :P
-                //conID.Text = LoggedUser.GetUserHash();
-
-                //set department string from the url parameters
-                SearchDepartmentID = null;
-                //if we dont have a role that needs to see all tasks, look for the tasks of said user
-
-                //if the user isn't logged in, we might as well listen for specific departments
-                string depID = Request.Params["depID"];
-                if (!String.IsNullOrWhiteSpace(depID))
-                {
-                    int department;
-                    Int32.TryParse(Request.Params["depID"], out department);
-                    if (department >= -5)
-                    {
-                        SearchDepartmentID = department;
-                    }
-                }
-                else
-                {
-                    //if all that isn't given, use the value from the dropdown
-                    int selecteddep = -1;
-                    if (DropDownSorting.SelectedIndex >= 0 && DropDownSorting.SelectedIndex < DropDownSorting.Items.Count)
-                    {
-                        bool result = Int32.TryParse(DropDownSorting.Items[DropDownSorting.SelectedIndex].Value, out selecteddep);
-                        if (result == true)
-                        {
-                            if (selecteddep > 0)
-                                SearchDepartmentID = selecteddep;
-                            else
-                                SearchDepartmentID = -2;
-                        }
-                    }
-
-                    bool hasvalue = SearchDepartmentID.HasValue;
-
-                    if (
-                        !SearchDepartmentID.HasValue && 
-                        user != null && 
-                        !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician)
-                        )
-                        SearchDepartmentID = user.DepartmentID;
-                    else if (!SearchDepartmentID.HasValue && LoggedInUser.IsUserLoggedIn)
-                        SearchDepartmentID = -1;
-                }
-
-
-                //retrieve what to search for
-                if (String.IsNullOrWhiteSpace(searchbar.Text))
-                    searchbar.Text = String.Empty;
-
-                //set search string in the textbox
-                searchbar.Attributes["placeholder"] = String.Format("{0}...", (string)GetLocalResourceObject("Search.Text"));
-
-                //set the session value's for searching and departmentID. this is fallback value's incase the DataSource fails and doesn't pass any values... ive seen it happen a few times...
-                SearchText = null;
-                string contains = Request.Params["Search"];
-                if (!String.IsNullOrWhiteSpace(contains))
-                {
-                    SearchText = contains;
-                }
-                else if (!String.IsNullOrWhiteSpace(searchbar.Text))
-                    SearchText = searchbar.Text;
-                else if (LoggedInUser.IsUserLoggedIn && contains != String.Empty && SearchDepartmentID >= 0)
-                    SearchText = LoggedInUser.GetUser().Username;
-                else if(LoggedInUser.IsUserLoggedIn && 
-                        RoleManager.UserHasPermission(LoggedInUser.GetUser(),RoleInfo.RolesPermissions.Technician) &&
-                        !RoleManager.UserHasPermission(LoggedInUser.GetUser(), RoleInfo.RolesPermissions.ManageTasks)
-                       )
-                {
-                    SearchText = LoggedInUser.GetUser().Username;
-                }
-                else
-                    SearchText = null;
-
-
-                if (!IsPostBack || Lists.TaskStatuses.Count == 0)
-                    GetLists();
-
-                //setup the page for the current user
-                SetupPage();
-            }
-            catch (Exception ex)
-            {
-                this.Session["exceptionMessage"] = ex.Message;
-                Response.Redirect("DisplayError");
-            }
-        }
-
-        /// <summary>
-        /// set the page up depending on the given user
-        /// </summary>
-        /// <param name="user"></param>
-        protected void SetupPage()
-        {
-            UserInfo user = null;
-
-            if(LoggedInUser.IsUserLoggedIn)
-                user = LoggedInUser.GetUser();
-
-            //setup user related stuff!
-            if (user != null)
-            {
-                lblUserName.Text = "&lt; " + user.Username + " &gt;";
-                var genMngr = new GeneralManager();
-                string path = genMngr.GetPhoto(user.PhotoID);
-                if (String.IsNullOrWhiteSpace(path))
-                    path = "./system/DefaultUser.jpg";
-                userImage.ImageUrl = genMngr.GetPhoto(user.PhotoID);
-                LoginMenu.Text = "Logout";
-                ProfileMenu.Visible = true;
-                LoginSeperator.Visible = true;
-            }
-            else
-            {
-                //set up the default stuff
-                lblUserName.Text = String.Empty;
-                userImage.ImageUrl = "./system/DefaultUser.jpg";
-                LoginMenu.Text = "Login";
-                ProfileMenu.Visible = false;
-                LoginSeperator.Visible = false;
-            }
-
-            //load the Tasks before setting up the Tabs to the current user info
-            if(IsPostBack)
-                GetLists(true);
-
-            //go through the roles and set the tabs for the user
-            SetTabs(user);
-        }
-
-        /// <summary>
-        /// Gets the Lists needed for this page
-        /// </summary>
-        /// <param name="TasksOnly"></param>
-        protected void GetLists(bool TasksOnly = false)
-        {
-            UserInfo user = LoggedInUser.GetUser();
-
-            //if we aren't looking for something specific and we are logged in, add tasks of the user
-            if (
-                String.IsNullOrWhiteSpace(SearchText) && user != null && !RoleManager.UserHasPermission(user, RoleInfo.RolesPermissions.Technician) &&
-                (
-                    DropDownSorting.SelectedIndex < 0 ||
-                    ((DropDownSorting.SelectedIndex >= 0 && DropDownSorting.SelectedIndex < DropDownSorting.Items.Count) && DropDownSorting.Items[DropDownSorting.SelectedIndex].Value == user.DepartmentID.ToString())
-                )
-               )
-            {
-                SearchText = user.Username;
-            }
-
-            //get tasks!
-            if (TasksOnly)
-                Lists.GetTasks(SearchText, null);
-            else
-            {
-                string notset = (string)GetGlobalResourceObject("NotSet", "0");
-                string[] TaskStatus = LanguageFiles.LoadLanguageFile("TaskStatus");
-                string[] TaskTypes = LanguageFiles.LoadLanguageFile("TaskTypes");
-                string[] RoleNames = LanguageFiles.LoadLanguageFile("Roles");
-                Lists.GetLists(SearchText, TaskStatus, TaskTypes,RoleNames, notset, null);
-            }
-        }
-
-        //setup all the tooltips for task notes and register the onclick event for a row
-        protected void TaskView_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            int index = e.Row.RowIndex;
-            if (
-                index < 0 ||
-                index >= Lists.Tasks.Count              
-              )
-            {
+            if (IsPostBack)
                 return;
-            }
-            else
-            {
-                if(!(String.IsNullOrWhiteSpace(Lists.Tasks[index].strNotes)))
-                    e.Row.ToolTip = Lists.Tasks[index].strNotes;
-                else
-                    e.Row.ToolTip = String.Empty;
-            }
 
-            if (e.Row.RowType == DataControlRowType.DataRow)
-            {
-                e.Row.Attributes["onclick"] = "SelectTaskRow(" + Lists.Tasks[index].ID + "," + index + ",event);";
-            }
+            //check if user login is needed
+            string requireLogin = Settings.GetAppSetting("RequireLogin");
+            if (!String.IsNullOrWhiteSpace(requireLogin) && requireLogin == "1" && !LoggedInUser.IsUserLoggedIn)
+                Response.Redirect("Login");
 
+            Setup_Page();
         }
-
-        //setup all shit for the user grid rows!
-        protected void UserView_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            int index = e.Row.RowIndex;
-            if (
-                index < 0 ||
-                index >= Lists.Users.Count
-              )
-            {
-                return;
-            }
-
-            if (e.Row.RowType == DataControlRowType.DataRow)
-            {
-                e.Row.Attributes["onclick"] = "SelectUserRow(" + Lists.Users[index].ID + "," + index + ",event);";
-            }
-            return;
-        }
-
         //Click event handler for the Login/Logout button in the user menu
         protected void LoginMenu_Click(object sender, EventArgs e)
-        { 
+        {
             if (!LoggedInUser.IsUserLoggedIn)
             {
                 Response.Redirect("Login");
@@ -488,13 +274,99 @@ namespace TSS_ASPWebForms
                 LoggedInUser.SetUser(null);
                 DropDownSorting.SelectedIndex = 0;
                 hidTABControl.Value = "#Tasks";
-                SearchText = null;
-                SearchDepartmentID = null;
-                TaskSource.Select();
+
+                //page_load didn't setup the page(because this is a postback). so setup page
+                Setup_Page();
             }
 
-            SetupPage();
+            Setup_Page();
+        }
+        protected void UserGrid_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType != DataControlRowType.DataRow)
+                return;
+
+            if (e?.Row?.DataItem == null || e.Row.DataItem as ObjectView<User> == null)
+                return;
+
+            var User = (e.Row.DataItem as ObjectView<User>).Object;
+
+            e.Row.Attributes["onclick"] = $"SelectUserRow( {User.ID},event);";
+        }
+        //event when a row is added
+        protected void TaskGrid_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType != DataControlRowType.DataRow)
+                return;
+
+            if (e?.Row?.DataItem == null || e.Row.DataItem as ObjectView<Task> == null)
+                return;
+
+            var Task = (e.Row.DataItem as ObjectView<Task>).Object;
+
+            if (!string.IsNullOrWhiteSpace(Task?.strNotes))
+                e.Row.ToolTip = Task.strNotes;
+            else
+                e.Row.ToolTip = string.Empty;
+
+            e.Row.Attributes["onclick"] = $"SelectTaskRow({Task.ID},event);";
+        }
+        //event when sorting
+        /*protected void TaskGrid_Sorting(object sender, GridViewSortEventArgs e)
+        {
+            var grid = sender as GridView;
+            if(grid == null)
+                Console.WriteLine("grid is null");
+            if(grid.DataSource == null)
+                Console.WriteLine("Datasource is null");
+
+            if (grid == null || grid?.DataSource == null || grid.DataSource as BindingListView<Task> == null)
+            {
+                Console.WriteLine("Something is null! D:");
+                return;
+            }
+
+            var sort = e.SortExpression;
+            var direction = e.SortDirection;
+
+            Console.WriteLine($"sort : {sort} {direction}");
+
+            var list = grid.DataSource as BindingListView<Task>;
+            //list.Sort = e.SortExpression;
+            //list.Sort = $"{e.SortExpression} {(e.SortDirection == SortDirection.Ascending?"ASC": "DESC")}";
+
+            grid.DataSource = list;
+            grid.DataBind();
+            //list.SortDirection = (e.SortDirection.ToString() == ListSortDirection.Ascending.ToString())?ListSortDirection.Ascending:ListSortDirection.Descending;
+            //Retrieve the table from the session object.
+        }*/
+
+
+        //-----------------------------------------------
+        //                  WebMethods
+        //-----------------------------------------------
+        //  AKA functions / API Calls we can call from javascript
+
+        [WebMethod]
+        public static bool NewPropertyValue(string PropertyName, object value)
+        {
+            if (String.IsNullOrWhiteSpace(PropertyName))
+                return true;
+
+            switch (PropertyName.ToLower())
+            {
+                case "tab":
+                    string newTab = value as string;
+                    if (string.IsNullOrWhiteSpace(newTab) || !newTab.StartsWith("#"))
+                        return false;
+
+                    ActiveTab = newTab;
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
         }
     }
-
 }

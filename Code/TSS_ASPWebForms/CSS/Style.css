@@ -1,11 +1,7 @@
-﻿html{
-    min-height:100%;
-}
+﻿html { min-height: 100%; }
+
 body {
-    height : 100%;
-    min-height: 100%;
-    width : 100%;
-	/*background: url(/system/background.jpg);
+    /*background: url(/system/background.jpg);
     background-repeat: no-repeat;
     background-position:bottom bottom;
 	-webkit-background-size: cover;
@@ -21,389 +17,328 @@ body {
     /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00a6a6a6', endColorstr='#a6a6a6',GradientType=0 ); /* IE6-9 */
 
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#00a5ff+21,000c42+100&0+21,1+100 */
-    background: -moz-linear-gradient(top,  rgba(0,165,255,0) 21%, rgba(0,12,66,1) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top,  rgba(0,165,255,0) 21%,rgba(0,12,66,1) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom,  rgba(0,165,255,0) 21%,rgba(0,12,66,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0000a5ff', endColorstr='#000c42',GradientType=0 ); /* IE6-9 */
-
-
+    background: -moz-linear-gradient(top, rgba(0, 165, 255, 0) 21%, rgba(0, 12, 66, 1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(0, 165, 255, 0) 21%, rgba(0, 12, 66, 1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(0, 165, 255, 0) 21%, rgba(0, 12, 66, 1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000a5ff', endColorstr='#000c42', GradientType=0); /* IE6-9 */
+    height: 100%;
+    min-height: 100%;
+    width: 100%;
 }
-input[type="checkbox"]{
-    cursor:pointer;
-}
+
+input[type="checkbox"] { cursor: pointer; }
+
 /*would be nice if it worked, but these input/button applying doesn't seem to work...*/
-input,input[type=submit]{ 
-    min-height:25px;
-} 
-input[type=submit]{
-    min-height:25px;
-}
-input[type="button"],input[type="submit"]:disabled
-{
-    color: #666;
+
+input, input[type=submit] { min-height: 25px; }
+
+input[type=submit] { min-height: 25px; }
+
+input[type="button"], input[type="submit"]:disabled {
     background: #DDD;
     border: 1px solid #CCC;
-}
-input[type="button"]:disabled
-{
     color: #666;
+}
+
+input[type="button"]:disabled {
     background: #DDD;
     border: 1px solid #CCC;
+    color: #666;
 }
 
 /* IE 6 */
+
 * html #footer {
-   position:absolute;
-   top:expression((0-(footer.offsetHeight)+(document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)+(ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))+'px');
+    position: absolute;
+    top: expression((0-(footer.offsetHeight)+(document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)+(ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))+'px');
 }
-h1
-{
-    margin-bottom:0.5em;
-}
-.gridview tr td, .gridview th
-{
-    padding: 7px;
-    text-align:center;
-    border-width:2px;
-    word-break:break-word;
+
+h1 { margin-bottom: 0.5em; }
+
+.gridview tr td, .gridview th {
+    border-width: 2px;
     cursor: pointer;
-    max-width:13em;
+    max-width: 13em;
+    padding: 7px;
+    text-align: center;
+    word-break: break-word;
 }
-.gridview th
-{
-    cursor: default;
+
+.gridview th { cursor: default; }
+
+.gridview tr:hover td { background-color: #A1DCF2; }
+
+.gridview-align-left { text-align: left !important; }
+
+.alternating-table-color tr td {
+    border: solid 1px;
+    border-top-width: 1px;
+    padding-bottom: 1em;
+    padding-right: 1em;
+    text-align: center;
 }
-.gridview tr:hover td
-{
-    background-color:#A1DCF2;
+
+.alternating-table-color tr:nth-child(odd):not(:hover) td { background-color: #EEE; }
+
+.alternating-table-color tr:nth-child(even):not(:hover) td { background-color: #FFF; }
+
+.searchButton {
+    min-height: 0.2em;
+    min-width: 0.2em;
 }
-.gridview-align-left{
-    text-align:left !important;
+
+.option-row { margin-bottom: 1%; }
+
+.text-responsive { font-size: 1em; }
+
+.btn-close {
+    font-family: tahoma;
+    font-size: 8pt;
+    height: 3vmin;
+    line-height: 12px;
+    margin: 3px;
+    margin-right: 2px;
+    margin-top: 1px;
+    min-height: 25px;
+    min-width: 25px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3vmin;
 }
-.alternating-table-color tr td{
-    text-align:center;
-    padding-bottom:1em;
-    padding-right:1em;
-    border:solid 1px;
-    border-top-width:1px;
+
+.UserButton {
+    max-height: 5em;
+    max-width: 5em;
 }
-.alternating-table-color tr:nth-child(odd):not(:hover) td{
-    background-color:#EEE;
-}
-.alternating-table-color tr:nth-child(even):not(:hover) td{
-    background-color:#FFF;
-}
-.searchButton
-{
-    min-width:0.2em;
-    min-height:0.2em;
-}
-.option-row
-{
-    margin-bottom:1%;
-}
-.text-responsive {
-  font-size: 1em;
-}
-.btn-close
-{
-    line-height:12px;
-    font-size:8pt;
-    font-family:tahoma;
-    margin-top:1px;
-    margin-right:2px;
-    position:absolute;
-    top:0;
-    right:0;
-    width: 3vmin; 
-    height: 3vmin; 
-    min-height:25px; 
-    min-width:25px; 
-    margin:3px
-}
-.UserButton
-{
-    max-width:5em;
-    max-height:5em;
-}
+
 /*xs < 767*/
-@media screen and (max-width: 767px)
-{
-    body
-    {
+
+@media screen and (max-width: 767px) {
+    body {
         font-size: 0.8em;
         /*color : lawngreen;*/
     }
-    h1
-    {
-        font-size: 2em;
-    }
-    .UserTable
-    {
-        font-size:1.3em;
-    }
-    .option-row
-    {
-        height:3em;
-        margin-left:0%;
+
+    h1 { font-size: 2em; }
+
+    .UserTable { font-size: 1.3em; }
+
+    .option-row {
+        height: 3em;
+        margin-bottom: 4%;
+        margin-left: 0%;
         /*margin-right:-3%;*/
-        padding:1%;
-        margin-bottom:4%;
+        padding: 1%;
     }
-    .text-responsive {
-      font-size: 1.2em;
-    }
-    .ScreenClassSpan:after
-    {
-        content : "XS screen";
-    }
-    .gridview-header
-    {
-        font-size:1.1em;
-    }
-    .gridview
-    {
-        width:100%;
-    }
-    .gridview tr td, .gridview th
-    {
+
+    .text-responsive { font-size: 1.2em; }
+
+    .ScreenClassSpan:after { content: "XS screen"; }
+
+    .gridview-header { font-size: 1.1em; }
+
+    .gridview { width: 100%; }
+
+    .gridview tr td, .gridview th {
+        border-width: 1px;
         padding: 0px;
-        border-width:1px;
         word-break: normal;
     }
-    .searchButton:before
-    {
-        min-width:0.1em;
+
+    .searchButton:before { min-width: 0.1em; }
+
+    .xs-float-left { float: left; }
+
+    .xs-float-right { float: right; }
+
+    .xs-float-center {
+        margin-left: auto;
+        margin-right: auto;
     }
-    .xs-float-left{
-        float:left;
-    }
-    .xs-float-right{
-        float:right;
-    }
-    .xs-float-center{
-        margin-left:auto;
-        margin-right:auto;
-    }
-    .btn-close
-    {
-        width: 2.6em; 
-        height: 2.6em;
+
+    .btn-close {
         font-size: 2em;
+        height: 2.6em;
+        width: 2.6em;
     }
 }
+
 /*sm 767*/
-@media screen and (min-width: 768px)
-{
-    .sm-font-size
-    {
-        font-size: 2.8em;
-    }
+
+@media screen and (min-width: 768px) {
+    .sm-font-size { font-size: 2.8em; }
+
     body {
         font-size: 1.8em;
         /*color : orange;*/
     }
-    h1
-    {
-        font-size: 1.3em;
+
+    h1 { font-size: 1.3em; }
+
+    .UserTable { font-size: 1em; }
+
+    .option-row {
+        height: 2.2em;
+        margin-bottom: 4%;
+        margin-left: 1%;
+        margin-right: -6%;
     }
-    .UserTable
-    {
-        font-size:1em;
-    }
-    .option-row
-    {
-        height:2.2em;
-        margin-left:1%;
-        margin-right:-6%;
-        margin-bottom:4%;
-    }
-    .ScreenClassSpan:after
-    {
-        content : "SM screen";
-    }
-    .gridview-header
-    {
-        font-size:0.8em;
-    }
-    .gridview
-    {
-        width:100%;
-    }
-    .gridview tr td, .gridview th
-    {
+
+    .ScreenClassSpan:after { content: "SM screen"; }
+
+    .gridview-header { font-size: 0.8em; }
+
+    .gridview { width: 100%; }
+
+    .gridview tr td, .gridview th {
+        border-width: 1px;
         padding: 0px;
-        border-width:1px;
         word-break: normal;
     }
-    .searchButton:before
-    {
-        min-width:0.8em;
+
+    .searchButton:before { min-width: 0.8em; }
+
+    .sm-float-left { float: left; }
+
+    .sm-float-right { float: right; }
+
+    .sm-float-center {
+        margin-left: auto;
+        margin-right: auto;
     }
-    .sm-float-left{
-        float:left;
-    }
-    .sm-float-right{
-        float:right;
-    }
-    .sm-float-center{
-        margin-left:auto;
-        margin-right:auto;
-    }
-    .btn-close
-    {
-        width: 4em; 
-        height: 4em;
+
+    .btn-close {
         font-size: 1em;
+        height: 4em;
+        width: 4em;
     }
 }
+
 /*md 992*/
-@media screen and (min-width: 992px)
-{
+
+@media screen and (min-width: 992px) {
     body {
         font-size: 1.5em;
         /*color: cyan;*/
     }
-    h1
-    {
-        font-size: 1.8em;
+
+    h1 { font-size: 1.8em; }
+
+    .ScreenClassSpan:after { content: "MD screen"; }
+
+    .gridview-header { font-size: 0.7em; }
+
+    .gridview { width: 100%; }
+
+    .searchButton:before {
+        max-width: 30%;
+        min-width: 7em;
     }
-    .ScreenClassSpan:after
-    {
-        content : "MD screen";
+
+    .md-float-left { float: left; }
+
+    .md-float-right { float: right; }
+
+    .md-float-center {
+        margin-left: auto;
+        margin-right: auto;
     }
-    .gridview-header
-    {
-        font-size:0.7em;
-    }
-    .gridview
-    {
-        width:100%;
-    }
-    .searchButton:before
-    {
-        min-width:7em;
-        max-width:30%;
-    }
-    .md-float-left{
-        float:left;
-    }
-    .md-float-right{
-        float:right;
-    }
-    .md-float-center{
-        margin-left:auto;
-        margin-right:auto;
-    }
-    .md-button-max-width
-    {
-        max-width : 10em;
-    }
-    .md-dropdown-max-width{
-        max-width : 12em;
-    }
-    .btn-close
-    {
-        width: 4em; 
-        height: 4em;
+
+    .md-button-max-width { max-width: 10em; }
+
+    .md-dropdown-max-width { max-width: 12em; }
+
+    .btn-close {
         font-size: 1em;
+        height: 4em;
+        width: 4em;
     }
 }
+
 /*lg 1200*/
-@media screen and (min-width: 1200px)
-{
-    body
-    {
+
+@media screen and (min-width: 1200px) {
+    body {
         font-size: 1.6em;
         /*color : red;*/
     }
-    h1
-    {
-        font-size: 1.6em;
+
+    h1 { font-size: 1.6em; }
+
+    .ScreenClassSpan:after { content: "LG screen"; }
+
+    .option-row {
+        height: 2em;
+        margin-bottom: 1%;
+        margin-left: 0%;
+        margin-right: 0%
     }
-    .ScreenClassSpan:after
-    {
-        content : "LG screen";
+
+    .gridview-header { font-size: 0.7em; }
+
+    .gridview { width: 95vw; }
+
+    .searchButton:before {
+        max-width: 30%;
+        min-width: 7em;
     }
-       .option-row
-    {
-        height:2em;
-        margin-bottom:1%;
-        margin-left:0%;
-        margin-right:0%
+
+    .lg-float-left { float: left; }
+
+    .lg-float-right { float: right; }
+
+    .lg-float-center {
+        margin-left: auto;
+        margin-right: auto;
     }
-    .gridview-header
-    {
-        font-size:0.7em;
-    }
-    .gridview
-    {
-        width:95vw;
-    }
-    .searchButton:before
-    {
-        min-width:7em;
-        max-width:30%;
-    }
-    .lg-float-left{
-        float:left;
-    }
-    .lg-float-right{
-        float:right;
-    }
-    .lg-float-center{
-        margin-left:auto;
-        margin-right:auto;
-    }
-    .lg-button-max-width
-    {
-        max-width : 9em;
-    }
-    .btn-close
-    {
-        width: 4em; 
-        height: 4em;
+
+    .lg-button-max-width { max-width: 9em; }
+
+    .btn-close {
         font-size: 1em;
+        height: 4em;
+        width: 4em;
     }
 }
 
 /* the classes used to display something infront of the rest*/
-.blocker
-{
+
+.blocker {
+    background-color: #000;
+    height: 100%;
+    left: 0;
+    opacity: .5;
     /*the black background*/
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    opacity: .5;
-    background-color: #000;
     z-index: 1000;
 }
-.blocker-content
-{
+
+.blocker-content {
+    color: #fff;
+    font-weight: bold;
+    height: 2em;
+    left: 50%;
+    margin: -1em 0 0 -2.5em;
     /* the content of the blocker*/
     position: absolute;
     top: 50%;
-    left: 50%;
     width: 5em;
-    height: 2em;
-    margin: -1em 0 0 -2.5em;
-    color: #fff;
-    font-weight: bold;
 }
-.centerPage
-{
-    align-content:center;
-    text-align:center;
-    align-items:center;
-    justify-content:center;
-    position:fixed;
-    display:flex;
-    width:80%;
-    height:80%;
-    margin-left:10%;
-    margin-right:10%;
-    margin-top:5%;
-    margin-bottom:5%;
+
+.centerPage {
+    align-content: center;
+    align-items: center;
+    display: flex;
+    height: 80%;
+    justify-content: center;
+    margin-bottom: 5%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 5%;
+    position: fixed;
+    text-align: center;
+    width: 80%;
 }

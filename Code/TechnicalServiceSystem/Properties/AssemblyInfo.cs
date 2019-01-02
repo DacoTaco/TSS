@@ -22,6 +22,9 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("e70a3a76-763b-45db-9a85-2de20537ac47")]
 
+//the following lets internals be used by everything from the mappings namespace (so we can map to protected internal fields)
+[assembly: InternalsVisibleTo("TechnicalServiceSystem.Mappings")]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version

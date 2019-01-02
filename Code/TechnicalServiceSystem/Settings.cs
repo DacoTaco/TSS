@@ -15,80 +15,82 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Web;
 using System.Web.Configuration;
-using TechnicalServiceSystem;
 
 namespace TechnicalServiceSystem
 {
     /// <summary>
-    /// Class to handle loading and setting of the application Settings & session settings
+    ///     Class to handle loading and setting of the application Settings & session settings
     /// </summary>
     public class Settings
     {
         /// <summary>
-        /// boolean to check weither we are running in a ASP/MVC web environment or in a Windows(WPF) environment
+        ///     boolean to check weither we are running in a ASP/MVC web environment or in a Windows(WPF) environment
         /// </summary>
-        public static bool IsWebEnvironment
-        {
-            get
-            {
-                if (HttpRuntime.AppDomainAppId != null)
-                    return true;
-                else
-                    return false;
-            }
-        }
+        public static bool IsWebEnvironment => (HttpRuntime.AppDomainAppId != null);
 
 
         /// <summary>
-        /// function to load an application setting. In ASP/MVC it will load from web.config, in WPF it will load from app.config
+        ///     function to load an application setting. In ASP/MVC it will load from web.config, in WPF it will load from
+        ///     app.config
         /// </summary>
         /// <param name="settingName"></param>
         /// <returns></returns>
         public static string GetAppSetting(string settingName)
         {
-            string ret = String.Empty;
+            var ret = string.Empty;
 
-            if (String.IsNullOrWhiteSpace(settingName))
+            if (string.IsNullOrWhiteSpace(settingName))
                 return ret;
 
             if (IsWebEnvironment)
-            {
-                //ASP.NET/MVC
                 ret = WebConfigurationManager.AppSettings[settingName];
-            }
             else
-            {
-                //WPF system
                 ret = ConfigurationManager.AppSettings[settingName];
-            }
 
 
             return ret;
         }
 
-        public static T GetSessionSetting<T>(string setting)
+        public static string GetServerPath()
         {
-            return (T)GetSessionSetting(setting);
+            string path = @"~\";
+            if (IsWebEnvironment && String.IsNullOrWhiteSpace(GetAppSetting("ServerPath")))
+            {
+                path = HttpContext.Current.Server.MapPath(@".\");
+            }
+            else
+            {
+                path = Path.Combine(GetAppSetting("ServerPath") ?? "~", @"\");
+            }
+
+            return Path.GetFullPath(path);
         }
 
-        public static Object GetSessionSetting(string setting)
+        public static string GetCompanyName()
+        {
+            return GetAppSetting("company");
+        }
+
+        public static T GetSessionSetting<T>(string setting)
+        {
+            return (T) GetSessionSetting(setting);
+        }
+
+        public static object GetSessionSetting(string setting)
         {
             if (!IsWebEnvironment)
                 return null;
 
-            return HttpContext.Current.Session[setting];
+            return HttpContext.Current?.Session?[setting];
         }
 
-        public static void SetSessionSetting(string setting,object value)
+        public static void SetSessionSetting(string setting, object value)
         {
-            if (!IsWebEnvironment)
+            if (!IsWebEnvironment || HttpContext.Current?.Session == null)
                 return;
             HttpContext.Current.Session[setting] = value;
         }

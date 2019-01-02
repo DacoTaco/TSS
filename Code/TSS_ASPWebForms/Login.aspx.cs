@@ -15,53 +15,35 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 
+using Equin.ApplicationFramework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace TSS_ASPWebForms
 {
-    public partial class Login : System.Web.UI.Page
+    public partial class Login : Page
     {
-        private SystemLists lists = null;
-        public SystemLists Lists
-        {
-            get
-            {
-                if (lists == null)
-                    lists = SystemLists.GetInstance();
-
-                return lists;
-            }
-
-        }
-
         //Intialise Page. if we are already logged in, direct to index. no need to be here :)
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                if (LoggedInUser.GetUser() != null)
-                {
-                    Response.Redirect("Index");
-                }
+                if (LoggedInUser.GetUser() != null) Response.Redirect("Index");
 
                 //load user list
-                Lists.GetUserLists();
+                var userManager = new UserManager();
+                var list = userManager.GetUsers(null, null, "UserName ASC");
 
-                userlist.DataSource = Lists.ActiveUsers;
+                userlist.DataSource = list;
                 userlist.DataBind();
             }
             catch (Exception ex)
             {
-                this.Session["exceptionMessage"] = ex.Message;
+                Session["exceptionMessage"] = ex.Message;
                 Response.Redirect("DisplayError");
             }
         }
@@ -69,21 +51,25 @@ namespace TSS_ASPWebForms
         //attach the onclick event to every row so when we click on it, we go over to the login page
         protected void userlist_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow && e.Row.RowIndex > -1)
-            {
-                e.Row.Attributes["onclick"] = "getLoginPage(" + e.Row.RowIndex + ")";
-            }
+            if (e?.Row?.DataItem == null)
+                return;
+
+            if (e.Row.RowType != DataControlRowType.DataRow || e.Row.DataItem as ObjectView<User> == null)
+                return;
+
+            var user = (e.Row.DataItem as ObjectView<User>).Object;
+            e.Row.Attributes["onclick"] = "getLoginPage(" + user.ID + ")";
         }
 
         [WebMethod]
         public static bool RequireLogin()
         {
-            bool ret = false;
+            var ret = false;
 
             try
             {
-                string requireLogin = Settings.GetAppSetting("RequireLogin");
-                if (String.IsNullOrWhiteSpace(requireLogin) || requireLogin != "0")
+                var requireLogin = Settings.GetAppSetting("RequireLogin");
+                if (string.IsNullOrWhiteSpace(requireLogin) || requireLogin != "0")
                     ret = true;
             }
             catch

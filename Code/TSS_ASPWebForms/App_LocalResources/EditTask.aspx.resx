@@ -142,7 +142,7 @@
     <value>One or more fields are not valid. please recheck the following fields</value>
   </data>
   <data name="ErrorSaveTasks" xml:space="preserve">
-    <value>Function 'SaveTasks' can not be called at this time</value>
+    <value>You can not save task at this time</value>
   </data>
   <data name="LastAdjusted.Text" xml:space="preserve">
     <value>Last Saved : </value>

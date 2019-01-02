@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSS_WPF", "TSS_WPF\TSS_WPF.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSS_ASPWebForms", "TSS_ASPWebForms\TSS_ASPWebForms.csproj", "{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E70A3A76-763B-45DB-9A85-2DE20537AC47} = {E70A3A76-763B-45DB-9A85-2DE20537AC47}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +32,10 @@ Global
 		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

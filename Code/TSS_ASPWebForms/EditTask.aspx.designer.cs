@@ -64,7 +64,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect selectTechnicians;
+        protected global::TSS_ASPWebForms.selectObject selectTechnicians;
         
         /// <summary>
         /// selectDepartments control.
@@ -73,7 +73,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect selectDepartments;
+        protected global::TSS_ASPWebForms.selectObject selectDepartments;
         
         /// <summary>
         /// selectLocations control.
@@ -82,7 +82,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect selectLocations;
+        protected global::TSS_ASPWebForms.selectObject selectLocations;
         
         /// <summary>
         /// txtDescription control.
@@ -136,7 +136,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect selectMachines;
+        protected global::TSS_ASPWebForms.selectObject selectMachines;
         
         /// <summary>
         /// selectTaskState control.
@@ -145,7 +145,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect selectTaskState;
+        protected global::TSS_ASPWebForms.selectObject selectTaskState;
         
         /// <summary>
         /// chkUrguent control.

@@ -1,18 +1,15 @@
 ﻿using System;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.DataProtection;
-using Microsoft.Owin.Security.Google;
 using Owin;
 using TSS_ASPWebForms.Models;
 
 namespace TSS_ASPWebForms
 {
-    public partial class Startup {
-
+    public partial class Startup
+    {
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301883
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -30,9 +27,10 @@ namespace TSS_ASPWebForms
                 LoginPath = new PathString("/Account/Login"),
                 Provider = new CookieAuthenticationProvider
                 {
-                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
-                        validateInterval: TimeSpan.FromMinutes(30),
-                        regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
+                    OnValidateIdentity =
+                        SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
+                            TimeSpan.FromMinutes(30),
+                            (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
             });
             // Use a cookie to temporarily store information about a user logging in with a third party login provider

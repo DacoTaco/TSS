@@ -1,32 +1,14 @@
 ﻿//select row - change colour, open item
-function SelectTaskRow(taskID,rowID,evt)
-{
-    return SelectRow(rowID, "TaskView", function () { loadTaskPage(taskID); });
+function SelectTaskRow(taskID,evt) {
+    return loadTaskPage(taskID);
 }
-function SelectRow(rowID, tableName, callback) {
-    /*rowID += 1;
-    var table = document.getElementById(tableName);
-    var tr = document.getElementById(tableName).rows;
-    var size = tr.length;
-    for (var i = 1;i < size; i++) {
-        var row = table.rows[i];
-        if (row.style.backgroundColor != 'transparent')
-            row.style.backgroundColor = 'transparent';
-        if(i == rowID)
-        {
-            table.rows[rowID].style.backgroundColor = "#A1DCF2";
-        }
-    }*/
-    if (callback)
-        callback();
-}
-function SelectUserRow(UserID,rowID,evt)
-{
-    return SelectRow(rowID, "UserGrid", function () { loadUserPage(UserID);})
+
+function SelectUserRow(UserID,evt) {
+    return loadUserPage(UserID);
 }
 
 //function to handle pressing enter on the textboxes
-function onSearchKeyEnter(evt,callback) {
+function onSearchKeyEnter(evt, callback) {
     var keycode;
 
     //retrieve keycode. evt used for decent browsers, window.event for IE/Edge.
@@ -35,6 +17,7 @@ function onSearchKeyEnter(evt,callback) {
     var keycode = evt.keyCode || evt.which;
 
     if (keycode == 13) {
+        //enter was pressed
         //use all known ways to prevent the event from executing normally and reget the grid
         evt.preventDefault();
         evt.returnValue = false;
@@ -43,30 +26,35 @@ function onSearchKeyEnter(evt,callback) {
         //run the function that was given
         if (callback)
             callback();
-        //getTasksPage("-2");
     }
     return false;
 }
 
 //setting the current active tab
-function SetActiveTab(name)
-{
+function SetActiveTab(name) {
     var control = $("#hidTABControl");
     control.val(name);
+    PushNewPropertyValue("Index.aspx", "Tab", name, false);
     return true;
 }
+
+var closeModelEventListener = function () { };
+var SaveFn = function () { };
+var CloseFn = CloseModal;
 //loading the task page and displaying the modal
-function loadTaskPage(taskID,evt)
-{
+function loadTaskPage(taskID, evt) {
     if (taskID != null || taskID.length > 0)
         var parameters = { "TaskID": taskID };
 
-    LoadPageDivIntoDiv("EditTask.aspx", "#EditTask", "#editModal", parameters, function () { $("#EditWindow").modal(); });
+    LoadPageDivIntoDiv("EditTask.aspx",
+        "#EditTask",
+        "#editModal",
+        parameters,
+        function() { $("#EditWindow").modal('toggle'); });
 
-    var exists = (typeof IsTaskReadOnly === 'function');
+    var exists = (typeof IsTaskReadOnly === "function");
     var ret = true;
-    if (exists)
-    {
+    if (exists) {
         var ret = IsTaskReadOnly();
     }
 
@@ -74,29 +62,35 @@ function loadTaskPage(taskID,evt)
     if (ret == null || ret == true)
     {
         SaveBtn.disabled = true;
-        SaveBtn.setAttribute("onclick", "return false;");
-        $("#CloseBtn").attr("onclick", "CloseModal(); return false;");
-        $('#EditWindow').on('hide.bs.modal', function () { CloseModal(); });
+        SaveFn = function () { };
+        CloseFn = CloseModal;
     }
     else
     {
         SaveBtn.disabled = false;
-        $("#SaveModal").attr("onclick", "SaveTaskFn(); return false;");
-        $("#CloseBtn").attr("onclick", "CloseTaskModal(); return false;");
-        $('#EditWindow').on('hide.bs.modal', function () { CloseTaskModal(); });
+        SaveFn = SaveTaskFn;
+        CloseFn = CloseTaskModal;
     }
+    closeModelEventListener = CloseFn;
+    $("#SaveModal").attr("onclick", "SaveFn(); return false;");
+    $("#CloseBtn").attr("onclick", "CloseFn(); return false;");
+    $("#EditWindow").on("hide.bs.modal", closeModelEventListener);
 
     return false;
 }
+
 //load user page and display window!
-function loadUserPage(UserID,evt)
-{
+function loadUserPage(UserID, evt) {
     if (UserID != null || UserID.length > 0)
         var parameters = { "UserID": UserID };
 
-    LoadPageDivIntoDiv("EditUser.aspx", "#EditUser", "#editModal", parameters, function () { $("#EditWindow").modal(); });
+    LoadPageDivIntoDiv("EditUser.aspx",
+        "#EditUser",
+        "#editModal",
+        parameters,
+        function() { $("#EditWindow").modal(); });
 
-    var exists = (typeof IsUserReadOnly === 'function');
+    var exists = (typeof IsUserReadOnly === "function");
     var ret = true;
     if (exists) {
         var ret = IsUserReadOnly();
@@ -105,37 +99,38 @@ function loadUserPage(UserID,evt)
     var SaveBtn = document.getElementById("SaveModal");
     if (ret == null || ret == true) {
         SaveBtn.disabled = true;
-        SaveBtn.setAttribute("onclick", "return false;");
-        $("#CloseBtn").attr("onclick", "CloseModal(); return false;");
-        $('#EditWindow').on('hide.bs.modal', function () { CloseModal(); });
-    }
-    else {
+        SaveFn = function () { };
+        CloseFn = CloseModal;
+    } else {
         SaveBtn.disabled = false;
-        $("#SaveModal").attr("onclick", "SaveUserFn(); return false;");
-        $("#CloseBtn").attr("onclick", "CloseUserModal(); return false;");
-        $('#EditWindow').on('hide.bs.modal', function () { CloseUserModal(); });
+        SaveFn = SaveUserFn;
+        CloseFn = CloseUserModal;       
     }
+
+    closeModelEventListener = CloseFn;
+    $("#SaveModal").attr("onclick", "SaveFn(); return false;");
+    $("#CloseBtn").attr("onclick", "CloseFn(); return false;");
+    $("#EditWindow").on("hide.bs.modal", closeModelEventListener);
 
     return false;
 
 }
 
 //saving and closing
-function SaveTaskFn()
-{
+function SaveTaskFn() {
     var ret = SaveTask();
-    if (ret == true)
-    {
+    if (ret == true) {
         SetTaskClosed();
         CloseModal();
-    }  
+    }
     return false;
 }
-function CloseTaskModal()
-{
+
+function CloseTaskModal() {
     SetTaskClosed();
     CloseModal();
 }
+
 function SaveUserFn() {
     var ret = SaveUser();
     if (ret == true) {
@@ -144,38 +139,29 @@ function SaveUserFn() {
     }
     return false;
 }
-function CloseUserModal()
-{
+
+function CloseUserModal() {
     SetUserClosed();
     return CloseModal();
 }
 
-function CloseModal()
-{
+function CloseModal() {
     var dropdown = document.getElementById("DropDownSorting");
     var department = dropdown.value;
     var textbox = document.getElementById("searchbar");
     if (textbox)
         textbox.value = "";
 
-    //reload required because otherwise asp controls start not firing their code behind shit?!?!
-    var setLoading = function () {
-        $("#loadingDiv").show();
-    }
+    $("#SaveModal").attr("onclick", "return false;");
+    $("#CloseBtn").attr("onclick", "return false;");
+    $("#EditWindow").off("hide.bs.modal", closeModelEventListener);
 
-    //timeOutId = setTimeout(setLoading, 100);
-    //location.reload(); gives the "do you wanna resend postback data?", the other one doesn't :D
-    //location.reload();
-    //var href = Math.random();
-    //location.href = location.href + '?' + href;
-    //window.location = window.location;
-    window.location.href = window.location.href;
-    //getTasksPage(department, function () { $("#EditWindow").modal.CloseModal(); });
-    /*LoadPageDivIntoDiv("Index.aspx", "#MainContainer", "#MainContainer", null, function () { $("#EditWindow").modal.CloseModal(); });
-    
-    if(typeof setTab === 'function')
-    {
-        setTab();
-    }*/
+    //it looks like somewhere down the line i had issues with asp controls not firing after opening the model.
+    //this doesn't seem to be a problem anymore since most of the stuff we do is javascript communicating and reloading(ajax) soooo... just reload active div? :')
+    //window.location.href = window.location.href;
 
+    var control = $("#hidTABControl");
+    var DivToReload = control[0].value;
+
+    LoadPageDivIntoDiv("Index.aspx", DivToReload, DivToReload, null, null);
 }

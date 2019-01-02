@@ -16,52 +16,16 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TechnicalServiceSystem.Base;
-using TechnicalServiceSystem;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Collections;
+using TechnicalServiceSystem.Entities.Tasks;
 
-namespace TechnicalServiceSystem
+namespace TechnicalServiceSystem.Lists
 {
     public partial class SystemLists
     {
-        /// <summary>
-        /// Event handler for the Task List. when attached to the list, it will add tasks to the right lists for syncing
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Tasks_Changed(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems != null && e.NewItems.Count > 0)
-            {
-                foreach (Task item in e.NewItems)
-                {
-                    //if the same task is in the deleted lists at the same time, it means an assigning was done.
-                    //therefor , we do nothing with the item..
-                    //tom?
-                    if (e.OldItems == null || (!(e.OldItems.Contains(item))) )
-                    {
-                        NewTasks.Add(item);
-                    }
-                }
-            }
-
-            if (e.OldItems != null && e.OldItems.Count > 0)
-            {
-                foreach (Task task in e.OldItems)
-                {
-                    if ( (!Tasks.Contains(task)) && 
-                         ( ( e.NewItems == null) || (!e.NewItems.Contains(task)))
-                       )
-                        DeletedTasks.Add(task);
-                }
-            }
-            OnPropertyChanged("Tasks");
-        }
+        public List<Task> DeletedTasks = new List<Task>();
+        public List<Task> EditedTasks = new List<Task>();
 
 
         //----------------
@@ -70,12 +34,15 @@ namespace TechnicalServiceSystem
 
         //lists for syncing tasks
         public List<Task> NewTasks = new List<Task>();
-        public List<ChangedTask> EditedTasks = new List<ChangedTask>();
-        public List<Task> DeletedTasks = new List<Task>();
 
         //lists of tasks, tasktypes and taskstatuses. their function is simple
         private ObservableCollection<Task> tasks;
-        public ObservableCollection<Task> Tasks
+
+        private ObservableCollection<TaskStatus> taskStatuses;
+
+        private ObservableCollection<TaskType> taskTypes;
+
+        public ObservableCollection<Task> TasksList
         {
             get
             {
@@ -85,17 +52,16 @@ namespace TechnicalServiceSystem
             }
             set
             {
-                if(tasks != null)
+                if (tasks != null)
                     tasks.CollectionChanged -= Tasks_Changed;
 
                 tasks = value;
                 tasks.CollectionChanged += Tasks_Changed;
-                
+
                 OnPropertyChanged("Tasks");
             }
         }
 
-        private ObservableCollection<TaskType> taskTypes;
         public ObservableCollection<TaskType> TaskTypes
         {
             get
@@ -112,7 +78,6 @@ namespace TechnicalServiceSystem
             }
         }
 
-        private ObservableCollection<TaskStatus> taskStatuses;
         public ObservableCollection<TaskStatus> TaskStatuses
         {
             get
@@ -129,23 +94,47 @@ namespace TechnicalServiceSystem
             }
         }
 
+        /// <summary>
+        ///     Event handler for the Task List. when attached to the list, it will add tasks to the right lists for syncing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Tasks_Changed(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null && e.NewItems.Count > 0)
+                foreach (Task item in e.NewItems)
+                    //if the same task is in the deleted lists at the same time, it means an assigning was done.
+                    //therefor , we do nothing with the item..
+                    //tom?
+                    if (e.OldItems == null || !e.OldItems.Contains(item))
+                        NewTasks.Add(item);
+
+            if (e.OldItems != null && e.OldItems.Count > 0)
+                foreach (Task task in e.OldItems)
+                    if (!TasksList.Contains(task) &&
+                        (e.NewItems == null || !e.NewItems.Contains(task))
+                    )
+                        DeletedTasks.Add(task);
+            OnPropertyChanged("Tasks");
+        }
+
 
         //----------------------------
         // List retrieval functions
         //----------------------------
 
         /// <summary>
-        /// Retrieve the list of Tasks that contain the given string and/or are from the given Department
+        ///     Retrieve the list of Tasks that contain the given string and/or are from the given Department
         /// </summary>
         /// <param name="contains"></param>
         /// <param name="DepartmentID"></param>
-        public void GetTasks(string contains = "",int? DepartmentID = null)
+        public void GetTasks(string contains = "", int? DepartmentID = null)
         {
             try
             {
                 //proxy of the datasource manager
-                var manager = new DataSourceManagers.TasksManager();
-                Tasks = manager.GetTasks(contains, DepartmentID);
+                var manager = new TaskManager();
+                TasksList = manager.GetTasks(contains,Settings.GetCompanyName(),DepartmentID,null);
             }
             catch (Exception ex)
             {
@@ -154,10 +143,10 @@ namespace TechnicalServiceSystem
         }
 
         /// <summary>
-        /// Retrieve the list of task status. if a string array is given it will be attempted to be translated
+        ///     Retrieve the list of task status. if a string array is given it will be attempted to be translated
         /// </summary>
         /// <param name="StatusDescriptions"></param>
-        private void GetTaskStatuses(string[] StatusDescriptions)
+        public void GetTaskStatuses(string[] StatusDescriptions)
         {
             try
             {
@@ -166,17 +155,13 @@ namespace TechnicalServiceSystem
                 temp = taskmgr.GetTaskStatuses();
 
                 if (temp != null &&
-                   temp.Count > 0 &&
-                   StatusDescriptions != null &&
-                   StatusDescriptions.Length > 0 &&
-                   StatusDescriptions.Length >= temp.Count
-                   )
-                {
-                    foreach (TaskStatus item in temp)
-                    {
-                        item.Status = StatusDescriptions[item.ID];
-                    }
-                }
+                    temp.Count > 0 &&
+                    StatusDescriptions != null &&
+                    StatusDescriptions.Length > 0 &&
+                    StatusDescriptions.Length >= temp.Count
+                )
+                    foreach (var item in temp)
+                        item.Description = StatusDescriptions[item.ID];
 
                 TaskStatuses = temp;
             }
@@ -187,7 +172,7 @@ namespace TechnicalServiceSystem
         }
 
         /// <summary>
-        /// Retrieve the list of Task Types. if a string array is given, it will be attempted to be translated
+        ///     Retrieve the list of Task Types. if a string array is given, it will be attempted to be translated
         /// </summary>
         /// <param name="TypeDescriptions"></param>
         private void GetTaskTypes(string[] TypeDescriptions)
@@ -199,17 +184,13 @@ namespace TechnicalServiceSystem
                 temp = taskmgr.GetTaskTypes();
 
                 if (temp != null &&
-                   temp.Count > 0 &&
-                   TypeDescriptions != null &&
-                   TypeDescriptions.Length > 0 &&
-                   TypeDescriptions.Length >= temp.Count
-                   )
-                {
-                    foreach (TaskType item in temp)
-                    {
-                        item.Type = TypeDescriptions[item.ID];
-                    }
-                }
+                    temp.Count > 0 &&
+                    TypeDescriptions != null &&
+                    TypeDescriptions.Length > 0 &&
+                    TypeDescriptions.Length >= temp.Count
+                )
+                    foreach (var item in temp)
+                        item.Description = TypeDescriptions[item.ID];
 
                 TaskTypes = temp;
             }
@@ -220,26 +201,29 @@ namespace TechnicalServiceSystem
         }
 
         /// <summary>
-        /// General function of the task lists retrieval. this will retrieve all tasks,types and status and attempt translations
+        ///     General function of the task lists retrieval. this will retrieve all tasks,types and status and attempt
+        ///     translations
         /// </summary>
         /// <param name="StatusDescriptions"></param>
         /// <param name="TypeDescriptions"></param>
         /// <param name="DepartmentID"></param>
-        public void GetTaskList(string[] StatusDescriptions, string[] TypeDescriptions,int? DepartmentID = null)
+        public void GetTaskList(string[] StatusDescriptions, string[] TypeDescriptions, int? DepartmentID = null)
         {
             GetTaskList(null, StatusDescriptions, TypeDescriptions, DepartmentID);
         }
 
         /// <summary>
-        /// General function of the task lists retrieval. this will retrieve all tasks of the given department and/or conains a certain string,types and status and attempt translations
+        ///     General function of the task lists retrieval. this will retrieve all tasks of the given department and/or conains a
+        ///     certain string,types and status and attempt translations
         /// </summary>
         /// <param name="contains"></param>
         /// <param name="StatusDescriptions"></param>
         /// <param name="TypeDescriptions"></param>
         /// <param name="DepartmentID"></param>
-        public void GetTaskList(string contains, string[] StatusDescriptions, string[] TypeDescriptions, int? DepartmentID = null)
+        public void GetTaskList(string contains, string[] StatusDescriptions, string[] TypeDescriptions,
+            int? DepartmentID = null)
         {
-            GetTasks(contains,DepartmentID);
+            GetTasks(contains, DepartmentID);
             GetTaskStatuses(StatusDescriptions);
             GetTaskTypes(TypeDescriptions);
         }

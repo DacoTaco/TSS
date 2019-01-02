@@ -49,7 +49,7 @@ namespace TSS_WPF
                     return new ValidationResult(false, Failure);
 
             }
-            catch(Exception ex)
+            catch
             {
                 return new ValidationResult(false, Error);
             }

@@ -70,7 +70,7 @@
                         <Button Name="btnSyncTasks" Content="{DynamicResource SyncTasks}" Click="btnSyncTasks_Click"/>
                     </StackPanel>
 
-                    <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.Tasks}" 
+                    <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.TasksList}" 
                       AutoGenerateColumns="False" ColumnWidth="Auto" SelectionUnit="FullRow" CanUserDeleteRows="False" RowEditEnding="TaskGrid_RowEditEnding">
                         <DataGrid.RowDetailsTemplate>
                             <DataTemplate>
@@ -96,11 +96,11 @@
                         </DataGrid.RowStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Description}" ClipboardContentBinding="{x:Null}" Header="{StaticResource DescriptionHeader}" IsReadOnly="True"/>
-                            <DataGridCheckBoxColumn Binding="{Binding Urguent,UpdateSourceTrigger=PropertyChanged}" Header="{StaticResource UrguentHeader}" IsReadOnly="False"></DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Binding="{Binding IsUrguent,UpdateSourceTrigger=PropertyChanged}" Header="{StaticResource UrguentHeader}" IsReadOnly="False"></DataGridCheckBoxColumn>
                             <DataGridTextColumn Header="{StaticResource TypeHeader}" IsReadOnly="True">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
-                                        <Binding Path="TaskTypeID"></Binding>
+                                        <Binding Path="TypeID"></Binding>
                                         <Binding Path="Lists.TaskTypes" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
@@ -142,14 +142,14 @@
                             <DataGridTextColumn Header="{StaticResource MachineHeader}" IsReadOnly="True">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
-                                        <Binding Path="MachineID"></Binding>
+                                        <Binding Path="DeviceID"></Binding>
                                         <Binding Path="Lists.Machines" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding LastAdjustment}" ClipboardContentBinding="{x:Null}" Header="{StaticResource AdjustmentHeader}" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding ActivationDate,Converter={StaticResource dateTimeToString}}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding TaskInterval}" ClipboardContentBinding="{x:Null}" Header="{StaticResource IntervalHeader}" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding LastModifiedOn}" ClipboardContentBinding="{x:Null}" Header="{StaticResource AdjustmentHeader}" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding RepeatingInfo.ActivationDate,Converter={StaticResource dateTimeToString}}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding RepeatingInfo.Interval}" ClipboardContentBinding="{x:Null}" Header="{StaticResource IntervalHeader}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

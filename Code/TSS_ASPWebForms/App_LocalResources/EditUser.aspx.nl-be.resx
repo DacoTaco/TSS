@@ -147,7 +147,7 @@
   <data name="Allow.HeaderText" xml:space="preserve">
     <value>Toegekend</value>
   </data>
-  <data name="Role.HeaderText" xml:space="preserve">
+  <data name="Role.Text" xml:space="preserve">
     <value>Bemachtiging</value>
   </data>
   <data name="ErrorMsg" xml:space="preserve">

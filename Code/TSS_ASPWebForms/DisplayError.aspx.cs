@@ -16,11 +16,7 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace TSS_ASPWebForms
 {
@@ -29,13 +25,15 @@ namespace TSS_ASPWebForms
         protected void Page_Load(object sender, EventArgs e)
         {
             //get and generate string , then display it :)
-            string msg = "A general error has occured. please contact the administrator" + Environment.NewLine;
-            if (this.Session["exceptionMessage"] != null && !String.IsNullOrWhiteSpace(this.Session["exceptionMessage"].ToString()))
+            var msg = "A general error has occured. please contact the administrator" + Environment.NewLine;
+            if (Session["exceptionMessage"] != null &&
+                !string.IsNullOrWhiteSpace(Session["exceptionMessage"].ToString()))
             {
-                string error = this.Session["exceptionMessage"].ToString();
+                var error = Session["exceptionMessage"].ToString();
                 msg += Environment.NewLine + "Error Message : " + Environment.NewLine + error;
-                this.Session["exceptionMessage"] = null;
+                Session["exceptionMessage"] = null;
             }
+
             lblErrorMessage.Text = msg;
         }
     }

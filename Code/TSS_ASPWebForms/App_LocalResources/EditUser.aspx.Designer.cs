@@ -135,9 +135,9 @@ namespace TSS_ASPWebForms.App_LocalResources {
         /// <summary>
         ///   Looks up a localized string similar to Role.
         /// </summary>
-        internal static string Role_HeaderText {
+        internal static string Role_Text {
             get {
-                return ResourceManager.GetString("Role.HeaderText", resourceCulture);
+                return ResourceManager.GetString("Role.Text", resourceCulture);
             }
         }
         

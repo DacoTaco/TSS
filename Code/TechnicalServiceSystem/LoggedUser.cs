@@ -15,114 +15,96 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Web;
-using TechnicalServiceSystem.Base;
+using Remotion.Linq.Utilities;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace TechnicalServiceSystem
 {
     /// <summary>
-    /// class to handle the logged in user 
+    ///     class to handle the logged in user
     /// </summary>
     public static class LoggedInUser
     {
-        static private UserInfo LoggedUser = null;
+        private static User LoggedUser;
 
         /// <summary>
-        /// boolean that indicates if a user is logged in or not
+        ///     boolean that indicates if a user is logged in or not
         /// </summary>
-        static public bool IsUserLoggedIn
+        public static bool IsUserLoggedIn
         {
             get
             {
-                UserInfo user = GetUser();
+                var user = GetUser();
 
                 //verify weither the user is legit and has gotten a hash
                 //i could verify if the hash is correct with UserManager.CheckUserHash but i think this might slow down things alot!
                 //so we only do it when setting the user
                 if (
-                   user == null ||
-                   user.ID == 0 ||
-                   String.IsNullOrWhiteSpace(user.UserHash) ||
-                   user.Active == false
-                  )
+                    user == null ||
+                    user.ID == 0 ||
+                    string.IsNullOrWhiteSpace(user.UserHash) ||
+                    user.IsActive == false
+                )
                     return false;
-                else
-                    return true;
+                return true;
             }
         }
 
         /// <summary>
-        /// return the logged in UserInfo
+        ///     return the logged in UserInfo
         /// </summary>
         /// <returns></returns>
-        static public UserInfo GetUser()
-        {
-            if (Settings.IsWebEnvironment)
-                return Settings.GetSessionSetting<UserInfo>("LoggedInUser");
-            else
-                return LoggedUser;
-        }
+        public static User GetUser() => (Settings.IsWebEnvironment)
+            ? Settings.GetSessionSetting<User>("LoggedInUser")
+            : LoggedUser;
+
 
         /// <summary>
-        /// Return the current user's hash. if no user is logged in, the SessionID or MachineName is returned
+        ///     Return the current user's hash. if no user is logged in, the SessionID or MachineName is returned
         /// </summary>
         /// <returns></returns>
-        static public string GetUserHash()
+        public static string GetUserHash()
         {
-            string hash = String.Empty;
+            var hash = string.Empty;
             if (!IsUserLoggedIn)
             {
-                if (Settings.IsWebEnvironment)
-                {
-                    hash = HttpContext.Current.Session.SessionID;
-                }
-                else
-                {
-                    hash = Environment.MachineName;
-                }
+                return (Settings.IsWebEnvironment)
+                    ? HttpContext.Current.Session.SessionID
+                    : Environment.MachineName;
             }
-            else
-            {
-                UserInfo user = GetUser();
-                if (String.IsNullOrWhiteSpace(user.UserHash))
-                {
-                    //this normally shouldn't happen as the retrieval of the user when logging in sets the hash on success but to have something... :)
-                    hash = String.Format("{0}:{1}", user.ID, user.Username);
-                }
-                else
-                {
-                    hash = user.UserHash;
-                }
-            }
-            return hash;
+
+            var user = GetUser();
+            if (string.IsNullOrWhiteSpace(user.UserHash))
+                throw new ArgumentEmptyException("User Hash can not be null or empty!");
+                //hash = string.Format("{0}:{1}", user.ID, user.Username);
+
+            return user.UserHash;
         }
 
         /// <summary>
-        /// set the userinfo of the logged user. this also checks whether the user is actually allowed to be set as logged in
+        ///     set the userinfo of the logged user. this also checks whether the user is actually allowed to be set as logged in
         /// </summary>
         /// <param name="user"></param>
-        static public void SetUser(UserInfo user)
+        public static void SetUser(User user)
         {
             var usrManager = new UserManager();
             //here we do check whether if the user hash a valid hash or not!
             if (
                 user == null ||
                 user.ID == 0 ||
-                user.Active == false ||
-                String.IsNullOrWhiteSpace(user.UserHash) ||
+                user.IsActive == false ||
+                string.IsNullOrWhiteSpace(user.UserHash) ||
                 usrManager.CheckUserHash(user) == false
-                )
-            {
+            )
                 user = null;
-            }
 
             if (Settings.IsWebEnvironment)
                 Settings.SetSessionSetting("LoggedInUser", user);
             else
                 LoggedUser = user;
+
+
         }
     }
 }

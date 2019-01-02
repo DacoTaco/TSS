@@ -114,8 +114,8 @@ GO
 CREATE PROCEDURE Suppliers.GetMachines
 AS
 BEGIN
-	select ma.MachineID as 'Machine ID',ma.MachineName as 'Machine Name', ma.SupplierID as 'Supplier', sup.SupplierName as 'Supplier Name', 
-		ma.TypeID as 'Type ID',mt.TypeName as 'Type Name' , ma.ModelName as 'Model Name' , ma.ModelNumber as 'Model Number' , ma.SerialNumber as 'Serial Number',
+	select ma.MachineID,ma.MachineName, ma.SupplierID, sup.SupplierName as 'Supplier Name', 
+		ma.TypeID,mt.TypeName as 'Type Name' , ma.ModelName, ma.ModelNumber, ma.SerialNumber,
 		(Select count(PhotoID) from Suppliers.MachinePhotos where MachineID = ma.MachineID) as 'Photos'
 	from Suppliers.Machine ma
 		inner join Suppliers.Supplier sup on sup.SupplierID=ma.SupplierID
@@ -270,6 +270,132 @@ Begin
 		BEGIN
 			set @contains = null;
 		END
+		IF(@departmentID < 0)
+		BEGIN
+			IF(@contains is null)
+			BEGIN
+				set @departmentID = null;
+			END
+		END
+	END
+
+	declare @text nvarchar(max) = null
+	if(@contains is not null)
+		set @text = ('%' + LOWER(@contains) + '%');
+
+	declare @minStatusID int;
+	declare @minTypeID int;
+
+
+	if(@showRepeating is not null and @showRepeating = 1)
+	BEGIN
+		set @minTypeID = (select top 1 TypeID from Tasks.TaskType order by TypeID desc) + 1
+		set @showAll = 1;
+	END
+	ELSE
+	BEGIN
+		set @minTypeID = 1;
+	END
+
+	if(@showAll is not null and @showAll = 1)
+	BEGin
+		set @minStatusID = (select TOP 1 StatusID from Tasks.TaskStatus order by StatusID desc) +1
+	END
+	ELSE
+	BEGIN
+		set @minStatusID = (select StatusID from Tasks.TaskStatus where StatusDescription = 'Task Finished')
+	END
+
+	select distinct tk.TaskID, tk.TaskDescription, tk.Urguent , tt.TypeID,
+		tt.TypeDescription,tk.ReporterID,ISNULL((select UserName from Users.Users where UserID = tk.ReporterID),tk.ReporterName) as 'ReporterName', 
+		tk.TechnicianID as 'TechnicianID', ISNULL(us.UserName,'None') as Technician,dep.DepartmentID,
+		dep.DepartmentName as 'DepartmentName', tk.LocationID, loc.LocationName,tk.StatusID , 
+		ts.StatusDescription as 'Status' , ISNULL(tk.MachineID,0) as 'MachineID', ISNULL(ma.MachineName,'Not Set') as 'MachineName', 
+		tk.CreationDate, tk.DateLastADjustment, rt.RepeatInterval as 'Interval in days', 
+		TRY_CONVERT(DATE, CAST(rt.ActivationDate as DATETIME),0) as 'Next Planned Date',
+		tk.UserOpened, tk.OpenTimeDue,
+		(Select count(NoteID) from Tasks.Notes where TaskID = tk.TaskID) as 'Notes',
+		(Select count(PhotoID) from Tasks.TaskPhotos where TaskID = tk.TaskID) as 'Photos'
+	from Tasks.Task tk 
+		inner join Tasks.TaskType tt on tk.TypeID = tt.TypeID
+		inner join Tasks.TaskStatus ts on tk.StatusID = ts.StatusID
+		left join Users.Users us on us.UserID=tk.TechnicianID
+		inner join General.Locations loc on loc.LocationID = tk.LocationID
+		inner join General.Department dep on loc.DepartmentID = dep.DepartmentID
+		left join General.CompanyDepartment cd on cd.DepartmentID = dep.DepartmentID
+		left join General.Company cp on cp.CompanyID = cd.CompanyID
+		left join Tasks.RepeatingInfo rt on tk.TaskID = rt.ParentTaskID
+		left join Suppliers.Machine ma on ma.MachineID = tk.MachineID
+		left join Tasks.Notes nt on nt.TaskID = tk.TaskID
+		where ((@TaskID is null) or (tk.TaskID = @TaskID))
+			and cp.CompanyName like @companyName
+			and
+			(
+				(@departmentID is null) or 
+				( 
+					(@departmentID != dep.DepartmentID or @departmentID is null) and
+					(
+						LOWER(dep.DepartmentName) like @text
+						or LOWER(tk.ReporterName) like @text
+						or LOWER(loc.LocationName) like @text
+						or LOWER(us.UserName) like @text
+						or LOWER(ma.MachineName) like @text
+						or LOWER(tk.TaskDescription) like @text
+					)
+				)
+				or
+				(@departmentID = dep.DepartmentID)
+			)
+		and 
+		(
+			( tk.TypeID <= @minTypeID) 
+			and 
+			(
+				( tk.StatusID <= @minStatusID) or
+				( datediff(day,tk.DateLastAdjustment,GETDATE()) < 14  or @showAll > 0)
+			)
+		)
+		
+		
+	order by tt.TypeID asc,dep.DepartmentName asc,loc.LocationName asc,tk.DateLastAdjustment asc, tk.TaskDescription asc
+END
+GO
+
+CREATE PROCEDURE Tasks.GetTasks
+(
+	@companyName nvarchar(max) = '%',
+	@departmentID int = null,
+	@contains nvarchar(max) = '%'
+)
+as
+Begin
+	exec Tasks.GetTask NULL,@companyName,@departmentID,@contains
+END
+GO
+
+CREATE PROCEDURE Tasks.GetTask
+(
+	@TaskID int,
+	@companyName nvarchar(max) = '%',
+	@departmentID int = null,
+	@contains nvarchar(max) = null,
+	@showRepeating bit = 0,
+	@showAll bit = 0
+)
+as
+Begin
+
+	IF(@departmentID is not null)
+	BEGIN
+		if(@departmentID = 0)
+		BEGIN
+		--	set @contains = null;
+			set @departmentID = null;
+		END
+		--IF(@departmentID > 0)
+		--BEGIN
+		--	set @contains = null;
+		--END
 		IF(@departmentID < 0)
 		BEGIN
 			IF(@contains is null)
@@ -541,18 +667,6 @@ END
 
 go
 
-CREATE PROCEDURE Tasks.GetTasks
-(
-	@companyName nvarchar(max) = '%',
-	@departmentID int = null,
-	@contains nvarchar(max) = '%'
-)
-as
-Begin
-	exec Tasks.GetTask NULL,@companyName,@departmentID,@contains
-END
-go
-
 CREATE PROCEDURE Tasks.GetNotes
 (
 	@taskID int = null
@@ -602,7 +716,7 @@ CREATE PROCEDURE General.GetDepartments
 )
 AS
 BEGIN
-	select dep.DepartmentID as 'Department ID',dep.DepartmentName as 'Department Name', ISNULL(ParentDepartmentID,0) as 'Parent ID' 
+	select dep.DepartmentID,dep.DepartmentName, ParentDepartmentID
 	from General.Department dep
 	left join General.CompanyDepartment cd on cd.DepartmentID = dep.DepartmentID
 	left join General.Company com on com.CompanyID = cd.CompanyID
@@ -649,7 +763,7 @@ BEGIN
 	IF(@departmentID is not null and @departmentID <= 0)
 		set @departmentID = null;
 
-	Select loc.LocationID as 'Location ID', loc.LocationName as 'Location Name', dep.DepartmentID as 'Department ID', dep.DepartmentName 'Department Name'
+	Select loc.LocationID as 'LocationID', loc.LocationName as 'LocationName', dep.DepartmentID as 'DepartmentID', dep.DepartmentName 'DepartmentName'
 	From General.Locations loc
 	inner join General.Department dep on dep.DepartmentID = loc.DepartmentID
 	inner join General.CompanyDepartment cd on cd.DepartmentID = dep.DepartmentID
@@ -1031,133 +1145,6 @@ BEGIN
 END
 go
 
-CREATE PROCEDURE Users.ChangeUser
-(
-	@UserID int,
-	@Username nvarchar(35),
-	@Active bit,
-	@CompanyName nvarchar(50) ,
-	@DepartmentID int,
-	@PhotoID integer,
-    @Roles Users.UserRolesTable READONLY,
-	@Password nvarchar(max) = null,
-	@delete bit = null
-)
-AS
-BEGIN
-	IF(
-	(@userID is null or @UserID < 0) or
-	(@Username is null or LEN(@Username) <= 0) or
-	(@Active is null) or 
-	(@DepartmentID is null or @DepartmentID <= 0)
-	)
-	BEGIN
-		RAISERROR('Given values are invalid!',15,1);
-		RETURN 0;
-	END
-
-	declare @rows int = 0;
-	declare @userRoles Users.UserRolesTable;
-
-	insert into @userRoles
-	select * from @Roles
-
-
-	BEGIN TRANSACTION CHANGE_USER
-		IF(@UserID > 0)
-			BEGIN
-				update Users.Users
-				set
-					UserName = @Username,
-					Active = @Active,
-					DepartmentID = @DepartmentID,
-					PhotoID = @PhotoID
-				where UserID = @UserID
-
-				set @rows = @@ROWCOUNT;
-			END
-		ELSE
-		BEGIN
-			RAISERROR('INVALID USERID GIVEN',15,1);
-			ROLLBACK TRANSACTION CHANGE_USER
-			RETURN 0;
-		END
-
-		IF(@rows <= 0)
-			BEGIN
-				ROLLBACK TRANSACTION CHANGE_USER;
-				RAISERROR('FAILURE CHANGING USER!',15,1);
-				RETURN 0;
-			END
-
-		IF(@Password is not null and LEN(@Password) > 0)
-		BEGIN
-			update Users.Users 
-			set 
-				PasswordHash = HASHBytes('SHA2_512',CONCAT(PasswordSalt,HASHBytes('SHA2_512',@Password)) )
-			where UserID = @UserID
-
-			set @rows = @@ROWCOUNT
-			IF(@rows <= 0)
-				BEGIN
-					ROLLBACK TRANSACTION CHANGE_USER;
-					RAISERROR('FAILURE CHANGING USER PASSWORD!',15,1);
-					RETURN 0;
-				END
-		END
-
-		IF(@delete is not null and @delete > 0)
-		BEGIN
-			update USers.Users
-			set
-				DateToDelete = DATEADD(day,7,GETDATE()),
-				Active = 0
-			where
-				UserID = @UserID
-		END
-
-		--and now check what roles are saved in the database.
-		-- for every assigned role to the user we loop:
-		-- if role exists in @roles -> delete from @roles
-		-- if role doesn't exist in @roles -> delete from user
-		-- if by the end @roles isn't empty -> assign roles
-
-		select rl.RoleID,rl.RoleName into #UserRoles 
-		from Users.UserRoles ur
-		left join Users.Roles rl on ur.RoleID = rl.RoleID
-		where ur.UserID = @UserID
-
-
-		While EXISTS(SELECT top 1 * FROM #UserRoles)
-		BEGIN
-			declare @ID integer;
-			select top 1 @ID = RoleID from #UserRoles
-
-			IF(EXISTS(select * from @userRoles rl where rl.roleID = @ID))
-			BEGIN
-				delete from @userRoles where RoleID = @ID;
-			END
-			ELSE
-			BEGIN
-				delete from Users.UserRoles
-				where UserID = @UserID and RoleID = @ID;
-			END
-
-			delete from #UserRoles where RoleID = @ID;
-		END
-
-		exec Users.ReseedTables;
-
-		IF( EXISTS(select top 1 * from @userRoles))
-		BEGIN
-			exec Users.AssignRoles @UserID,@userRoles;
-		END
-
-	COMMIT TRANSACTION CHANGE_USER;
-	RETURN 1;
-END
-go
-
 CREATE PROCEDURE Users.CheckAndDeleteUsers
 AS
 BEGIN
@@ -1194,95 +1181,37 @@ BEGIN
 END
 go
 
-CREATE PROCEDURE Users.CreateUser
+CREATE PROCEDURE Users.AssignPassword
 (
-	@Username NVARCHAR(35),  
-	@Password nvarchar(max), 
-	@PhotoID integer, 
-	@CompanyName nvarchar(50) , 
-	@DepartmentID Integer, 
-	@Roles Users.UserRolesTable READONLY,
-	@Active bit = 1
+	@UserID int,
+	@Password nvarchar(max)
 )
 AS
 BEGIN
-	DECLARE @RolesTable AS Users.UserRolesTable;
-
-	IF not EXISTS (SELECT * FROM @Roles)
-	BEGIN
-		declare @id integer = 0;
-		select @id = RoleID from Users.Roles where RoleName = 'User'
-		INSERT INTO @RolesTable(roleID)
-		values
-			(
-				--@id
-				(select RoleID from Users.Roles where RoleName = 'User')
-			)
-	END
-	else
-	BEGIN
-		insert into @RolesTable(roleID)
-		select roleID from @Roles
-	END
-
-	declare @newUser integer = 0
-	declare @passSalt nvarchar(max) = null
-
-	set @passSalt = CONVERT(nvarchar(max), NEWID());
-
-	declare @company nvarchar(max)
-
-	Select @company = com.CompanyName
-	from General.CompanyDepartment gd
-	left join General.Company com on gd.CompanyID = com.CompanyID
-	where gd.DepartmentID = @DepartmentID
-
 	IF(
-		(@DepartmentID = 0) or
-		(@company != @CompanyName)
-		)
-		BEGIN
-			RAISERROR('DepartmentID is 0 or company name is not correct',15,1);
-			RETURN 0
-		END
-
-	IF(@PhotoID = 0)
+	(@userID is null or @UserID <= 0) OR
+	@Password is null
+	)
 	BEGIN
-		set @PhotoID = null
+		RAISERROR('Given values are invalid!',15,1);
+		RETURN 0;
 	END
 
+	declare @rows int = 0;
 
-	begin transaction AddUser
+	update Users.Users 
+	set 
+		PasswordHash = HASHBytes('SHA2_512',CONCAT(PasswordSalt,HASHBytes('SHA2_512',@Password)) )
+	where UserID = @UserID
 
-	declare @error as int
-	insert into Users.Users(UserName,DepartmentID,PasswordSalt,PasswordHash,PhotoID,Active)
-	values
-	(
-		@Username,
-		@DepartmentID,
-		@passSalt,
-		HASHBytes('SHA2_512',CONCAT(@passSalt,HASHBytes('SHA2_512',@Password)) ),
-		@PhotoID,
-		@Active
-	);
-	set @error = @@ERROR;
-	
-	IF @error > 0
-		begin
-			ROLLBACK transaction AddUser
-			RAISERROR('Error was raised Inserting row',15,1);
-			RETURN 0;
-		end
-	ELSE
-		begin
-			set @newUser = SCOPE_IDENTITY();
-			exec Users.AssignRoles @newUser, @roles
-		end
-		
-	commit transaction AddUser
-	return @newUser
+	set @rows = @@ROWCOUNT
+	IF(@rows <= 0)
+	BEGIN
+		RAISERROR('FAILURE CHANGING USER PASSWORD!',15,1);
+		RETURN 0;
+	END
 END
-go
+GO
 
 CREATE PROCEDURE Users.CheckLogin
 (
@@ -1308,6 +1237,7 @@ BEGIN
 	inner join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	inner join General.Company cp on cp.CompanyID = cd.CompanyID
 	WHERE us.UserID = @userID
+	AND us.PasswordHash is not null
 	AND us.PasswordHash = HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',@password)) )
 	AND cp.CompanyName = @companyName
 	AND us.Active = 1
@@ -1360,6 +1290,7 @@ go
 CREATE PROCEDURE Users.GetUsers
 (
 	@companyName nvarchar(max) = '%',
+	@Active int = null,
 	@search nvarchar(max) = '%',
 	@RoleID int = null
 )
@@ -1373,8 +1304,11 @@ BEGIN
 	END
 	ELSE
 		set @SearchText = '%';
+	
+	if(@RoleID is not null and @RoleID <= 0)
+		set @RoleID = null
 
-	Select DISTINCT us.UserID as 'User ID', us.UserName as 'Username' , us.DepartmentID as 'Department ID', us.PhotoID as 'Photo ID', us.Active, 
+	Select DISTINCT us.UserID as 'User ID', us.UserName as 'Username' , us.DepartmentID as 'DepartmentID', us.PhotoID as 'PhotoID', us.Active, 
 	CAST(
 		CASE 
 			WHEN us.DateToDelete is null or us.DateToDelete = 0
@@ -1394,7 +1328,8 @@ BEGIN
 		(LOWER(us.UserName) like @SearchText or LOWER(dp.DepartmentName) like @SearchText)
 	)
 	AND (us.Deleted is null or us.Deleted = 0)
-	--and us.Active = 1
+	AND ( @Active is null or us.Active = @Active)
+	AND (@Active is null or us.PasswordHash is not null)
 	order by UserName
 END
 go
@@ -1406,7 +1341,7 @@ CREATE PROCEDURE Users.GetUsersByRole
 )
 AS
 BEGIN
-	Select us.UserID,us.Username
+	Select us.UserID,us.UserName,us.DepartmentID,us.Active,us.PhotoID
 	from Users.Users us
 	left join Users.UserRoles ur on us.UserID = ur.UserID
 	left join Users.Roles rs on rs.RoleID = ur.RoleID

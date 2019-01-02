@@ -15,23 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Lists;
+using TechnicalServiceSystem.Entities.General;
+using TechnicalServiceSystem.Entities.Tasks;
 
 namespace TSS_WPF
 {
@@ -46,7 +39,7 @@ namespace TSS_WPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public ChangedTask OutputTask = null;
+        public Task OutputTask = null;
         private Task EditedTask = null;
         public SystemLists Lists
         {
@@ -57,9 +50,9 @@ namespace TSS_WPF
 
         }
 
-        private ObservableCollection<LocationInfo> locations;
+        private ObservableCollection<Location> locations;
 
-        public ObservableCollection<LocationInfo> Locations
+        public ObservableCollection<Location> Locations
         {
             get { return locations; }
             set
@@ -106,7 +99,7 @@ namespace TSS_WPF
 
 
             //make copy of task to use in the window
-            OutputTask = ChangedTask.UpgradeBase(task);
+            OutputTask = task.Clone();
             EditedTask = task.Clone();
 
             if (EditedTask.StatusID <= 0)
@@ -189,7 +182,7 @@ namespace TSS_WPF
                 if (!OutputTask.Compare(EditedTask))
                 {
                     //no changes detected
-                    EditedTask.LastAdjustment = DateTime.Now;
+                    EditedTask.LastModifiedOn = DateTime.Now;
                     OutputTask.Assign(EditedTask);
                     DialogResult = true;
                 }
@@ -212,14 +205,14 @@ namespace TSS_WPF
             GetLocations();
             if (
                 (EditedTask.DepartmentID != OutputTask.DepartmentID) ||
-                (OutputTask.LocationID == 0)
+                (OutputTask.Location?.ID == null || OutputTask.Location.ID == 0)
                )
             {
                 cbLocation.SelectedIndex = 0;
             }
             else
             {
-                cbLocation.SelectedValue = OutputTask.LocationID;
+                cbLocation.SelectedValue = OutputTask.Location.ID;
             }
         }
         private void CloseWindow()

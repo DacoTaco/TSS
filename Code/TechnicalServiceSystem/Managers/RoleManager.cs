@@ -14,157 +14,106 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using TechnicalServiceSystem.Base;
-using static TechnicalServiceSystem.Base.RoleInfo;
+using NHibernate.Util;
+using TechnicalServiceSystem.Entities.Users;
+using TechnicalServiceSystem.Lists;
 
 namespace TechnicalServiceSystem
 {
     /// <summary>
-    /// Role Manager of TSS. This manages all role data of TSS and handles the roles of users
+    ///     Role Manager of TSS. This manages all role data of TSS and handles the roles of users
     /// </summary>
     public static class RoleManager
     {
         /// <summary>
-        /// Checks whether the user has the given role or not
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="RoleName"></param>
-        /// <returns></returns>
-        static public bool UserHasRole(UserInfo user, string RoleName)
-        {
-            if ((user == null) || (user.UserRoles == null) || (user.UserRoles.Count <= 0))
-                return false;
-
-            var role = new RoleInfo(0, RoleName);
-
-            if (user.UserRoles.Contains(role))
-                return true;
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks whether the user has the given role or not
+        ///     Checks whether the user has the given role or not
         /// </summary>
         /// <param name="user"></param>
         /// <param name="RoleID"></param>
         /// <returns></returns>
-        static public bool UserHasRole(UserInfo user, int RoleID)
+        public static bool UserHasRole(User user, int RoleID)
         {
-            if ((user == null) || (user.UserRoles == null) || (user.UserRoles.Count <= 0))
+            if (user == null || user.Roles == null || user.Roles.Count <= 0)
                 return false;
 
-            var role = new RoleInfo(RoleID, "");
-
-            if (user.UserRoles.Contains(role))
-                return true;
-
-            return false;
-        
-        }
-        /// <summary>
-        /// Checks whether the user's RolesList has the given role or not
-        /// </summary>
-        /// <param name="roles"></param>
-        /// <param name="RoleName"></param>
-        /// <returns></returns>
-        static public bool UserHasRole(ObservableCollection<RoleInfo> roles,string RoleName)
-        {
-            if (roles == null)
-                return false;
-
-            var role = new RoleInfo(0, RoleName);
-            if (roles.Contains(role))
+            if (user.Roles.Where(x=>x.ID == RoleID).FirstOrNull() != null)
                 return true;
 
             return false;
         }
 
+        public static bool UserHasRole(User user, Roles role)
+        {
+            return UserHasRole(user, (int) role);
+        }
+
         /// <summary>
-        /// Checks whether the user has the given permissions within the system or not
+        ///     Checks whether the user has the given permissions within the system or not
         /// </summary>
         /// <param name="user"></param>
         /// <param name="permission"></param>
         /// <param name="roleList"></param>
         /// <returns></returns>
-        static public bool UserHasPermission(UserInfo user,RolesPermissions permission,List<RoleInfo> roleList = null)
+        public static bool UserHasPermission(User user, RolesPermissions permission)
         {
-            if (user == null)
-                return false;
+            var roles = GetUserPermissions(user);
 
-            int roles = GetUserPermissions(user, roleList);
-            int permissionRole = (int)permission;
-
-            if ((roles & permissionRole) == permissionRole)
+            if ((roles & (int)permission) > 0)
                 return true;
 
             return false;
         }
 
         /// <summary>
-        /// Retrieves an Int that has a bitwise int of all permissions
+        ///     Retrieves an Int that has a bitwise int of all permissions
         /// </summary>
         /// <param name="user"></param>
         /// <param name="roleList"></param>
         /// <returns></returns>
-        static public int GetUserPermissions(UserInfo user,List<RoleInfo> roleList = null)
+        public static int GetUserPermissions(User user)
         {
-            int roles = 0;
-
-            if(roleList == null)
-            {
-                var usrMngr = new UserManager();
-                roleList = (usrMngr.GetRoles()).ToList<RoleInfo>();
-                if (roleList == null)
-                    return 0;
-            }
+            var roles = 0;
+            IList<Role> roleList = SystemLists.User.Roles;
+            if (roleList == null)
+                return 0;
 
             if (user == null)
-                roles = (int)RoleInfo.RolesPermissions.Tasks;
+                roles = (int) RolesPermissions.Tasks;
             else
-            {
-                foreach (RoleInfo role in roleList)
-                {
-                    if (RoleManager.UserHasRole(user, role.ID))
-                    {
-                        switch (role.ID)//(role.Name)
+                foreach (var role in roleList)
+                    if (UserHasRole(user, role.ID))
+                        switch (role.ID)
                         {
-                            case 1://"Admin":
+                            case (int)Roles.Admin:
                                 roles = int.MaxValue;
                                 break;
 
-                            case 4://"User Manager":
-                                roles |= (int)RoleInfo.RolesPermissions.ManageUsers;
+                            case (int)Roles.UserManager:
+                                roles |= (int) RolesPermissions.ManageUsers;
                                 break;
-                            case 6://"Suppliers Manager":
-                                roles |= (int)RoleInfo.RolesPermissions.ManageSuppliers;
-                                roles |= (int)RoleInfo.RolesPermissions.ViewSuppliers;
-                                roles |= (int)RoleInfo.RolesPermissions.ManageMachines;
+                            case (int)Roles.SupplierManager:
+                                roles |= (int) RolesPermissions.ManageSuppliers;
+                                roles |= (int) RolesPermissions.ViewSuppliers;
+                                roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case 5://"Task Manager":
-                                roles |= (int)RoleInfo.RolesPermissions.ManageTasks;
-                                roles |= (int)RoleInfo.RolesPermissions.Technician;
-                                roles |= (int)RoleInfo.RolesPermissions.ViewSuppliers;
-                                roles |= (int)RoleInfo.RolesPermissions.ManageMachines;
+                            case (int)Roles.TaskManager:
+                                roles |= (int) RolesPermissions.ManageTasks;
+                                roles |= (int) RolesPermissions.Technician;
+                                roles |= (int) RolesPermissions.ViewSuppliers;
+                                roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case 3://"Technician":
-                                roles |= (int)RoleInfo.RolesPermissions.Technician;
-                                roles |= (int)RoleInfo.RolesPermissions.ViewSuppliers;
-                                roles |= (int)RoleInfo.RolesPermissions.ManageMachines;
+                            case (int)Roles.Technician:
+                                roles |= (int) RolesPermissions.Technician;
+                                roles |= (int) RolesPermissions.ViewSuppliers;
+                                roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case 2://"User":
+                            case (int)Roles.User:
                             default:
-                                roles |= (int)RoleInfo.RolesPermissions.Tasks;
+                                roles |= (int) RolesPermissions.Tasks;
                                 break;
                         }
-                    }
-                }
-            }
             return roles;
         }
     }

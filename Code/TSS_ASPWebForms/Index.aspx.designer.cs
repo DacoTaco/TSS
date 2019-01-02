@@ -10,7 +10,7 @@
 namespace TSS_ASPWebForms {
     
     
-    public partial class Index {
+    public partial class index {
         
         /// <summary>
         /// form1 control.
@@ -29,6 +29,24 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField hidTABControl;
+        
+        /// <summary>
+        /// loadingDiv control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl loadingDiv;
+        
+        /// <summary>
+        /// loadingImage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image loadingImage;
         
         /// <summary>
         /// lblUserName control.
@@ -85,6 +103,24 @@ namespace TSS_ASPWebForms {
         protected global::System.Web.UI.WebControls.Button LoginMenu;
         
         /// <summary>
+        /// CloseBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button CloseBtn;
+        
+        /// <summary>
+        /// SaveModal control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button SaveModal;
+        
+        /// <summary>
         /// TasksTab control.
         /// </summary>
         /// <remarks>
@@ -121,24 +157,6 @@ namespace TSS_ASPWebForms {
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl UsersTab;
         
         /// <summary>
-        /// CloseBtn control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button CloseBtn;
-        
-        /// <summary>
-        /// SaveModal control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button SaveModal;
-        
-        /// <summary>
         /// Tasks control.
         /// </summary>
         /// <remarks>
@@ -166,13 +184,13 @@ namespace TSS_ASPWebForms {
         protected global::System.Web.UI.WebControls.TextBox searchbar;
         
         /// <summary>
-        /// TaskView control.
+        /// TaskGrid control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView TaskView;
+        protected global::System.Web.UI.WebControls.GridView TaskGrid;
         
         /// <summary>
         /// TaskSource control.
@@ -227,59 +245,5 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ObjectDataSource UserSource;
-        
-        /// <summary>
-        /// Machines control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl Machines;
-        
-        /// <summary>
-        /// MachineView control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView MachineView;
-        
-        /// <summary>
-        /// MachineSource control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.ObjectDataSource MachineSource;
-        
-        /// <summary>
-        /// Suppliers control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl Suppliers;
-        
-        /// <summary>
-        /// loadingDiv control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl loadingDiv;
-        
-        /// <summary>
-        /// loadingImage control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Image loadingImage;
     }
 }

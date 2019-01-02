@@ -91,7 +91,7 @@
         <!-- ItemsSource="{Binding Path=Locations,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
         SelectedValue="{Binding LocationID,TargetNullValue={StaticResource NotSet}}" Style="{StaticResource comboboxStyle}"-->
         <ComboBox Name="cbLocation" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1" Margin="5"
-                  SelectedValuePath="ID" DisplayMemberPath="Name" Validation.ErrorTemplate="{StaticResource validationTemplate}">
+                  SelectedValuePath="ID" DisplayMemberPath="Description" Validation.ErrorTemplate="{StaticResource validationTemplate}">
             <ComboBox.Style>
                 <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource comboboxStyle}">
                     <Setter Property="SelectedValue" Value="{Binding LocationID}"></Setter>
@@ -145,7 +145,7 @@
         <Label Name="lblState" Grid.Row="6" Content="{DynamicResource State}"></Label>
         <ComboBox Name="cbState" Grid.Column="1" Grid.Row="6" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="5"
                     ItemsSource="{Binding Path=Lists.TaskStatuses,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}" 
-                    DisplayMemberPath="Status" SelectedValuePath="ID" SelectedValue="{Binding StatusID}">
+                    DisplayMemberPath="Description" SelectedValuePath="ID" SelectedValue="{Binding StatusID}">
         </ComboBox>
         <Label Name="lblUrguent" Grid.Column="3" Grid.Row="6" HorizontalAlignment="Left" Margin="5,0,0,0" Content="{DynamicResource Urguent}"></Label>
         <CheckBox Grid.Column="3" Grid.Row="6" VerticalAlignment="Center" Margin="98,0,0,0" IsChecked="{Binding Urguent}"></CheckBox>

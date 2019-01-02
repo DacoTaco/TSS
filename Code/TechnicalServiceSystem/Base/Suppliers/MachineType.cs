@@ -14,38 +14,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace TechnicalServiceSystem.Base
 {
     /// <summary>
-    /// Base class containing all information on the types of machines saved in the database
+    ///     Base class containing all information on the types of machines saved in the database
     /// </summary>
     public class MachineType : BaseClass
     {
-        private string typeName;
-
-        public string TypeName
-        {
-            get { return typeName; }
-            set { typeName = value; }
-        }
-
-
-        public MachineType(int TypeID,string type)
+        public MachineType(int TypeID, string type)
         {
             ID = TypeID;
             TypeName = type;
         }
 
+        public string TypeName { get; set; }
+
         public override string ToString()
         {
             return TypeName;
         }
-
     }
 }

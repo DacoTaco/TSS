@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -38,10 +35,7 @@ namespace TSS_ASPWebForms
                     HttpOnly = true,
                     Value = _antiXsrfTokenValue
                 };
-                if (FormsAuthentication.RequireSSL && Request.IsSecureConnection)
-                {
-                    responseCookie.Secure = true;
-                }
+                if (FormsAuthentication.RequireSSL && Request.IsSecureConnection) responseCookie.Secure = true;
                 Response.Cookies.Set(responseCookie);
             }
 
@@ -54,22 +48,19 @@ namespace TSS_ASPWebForms
             {
                 // Set Anti-XSRF token
                 ViewState[AntiXsrfTokenKey] = Page.ViewStateUserKey;
-                ViewState[AntiXsrfUserNameKey] = Context.User.Identity.Name ?? String.Empty;
+                ViewState[AntiXsrfUserNameKey] = Context.User.Identity.Name ?? string.Empty;
             }
             else
             {
                 // Validate the Anti-XSRF token
-                if ((string)ViewState[AntiXsrfTokenKey] != _antiXsrfTokenValue
-                    || (string)ViewState[AntiXsrfUserNameKey] != (Context.User.Identity.Name ?? String.Empty))
-                {
+                if ((string) ViewState[AntiXsrfTokenKey] != _antiXsrfTokenValue
+                    || (string) ViewState[AntiXsrfUserNameKey] != (Context.User.Identity.Name ?? string.Empty))
                     throw new InvalidOperationException("Validation of Anti-XSRF token failed.");
-                }
             }
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
         }
 
         protected void Unnamed_LoggingOut(object sender, LoginCancelEventArgs e)
@@ -77,5 +68,4 @@ namespace TSS_ASPWebForms
             Context.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
         }
     }
-
 }

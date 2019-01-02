@@ -1,44 +1,49 @@
 ﻿.rotateHorizontal {
-        -moz-transform: scaleX(-1);
-        -o-transform: scaleX(-1);
-        -webkit-transform: scaleX(-1);
-        transform: scaleX(-1);
-        filter: FlipH;
-        -ms-filter: "FlipH";
+    -moz-transform: scaleX(-1);
+    -ms-filter: "FlipH";
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    filter: FlipH;
+    transform: scaleX(-1);
 }
+
 .rotateVertical {
-        -moz-transform: scaleY(-1);
-        -o-transform: scaleY(-1);
-        -webkit-transform: scaleY(-1);
-        transform: scaleY(-1);
-        filter: FlipV;
-        -ms-filter: "FlipV";
+    -moz-transform: scaleY(-1);
+    -ms-filter: "FlipV";
+    -o-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    filter: FlipV;
+    transform: scaleY(-1);
 }
+
 .rotate90 {
-    -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+
 .rotate90Left {
-    -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
     -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
 }
-.rotate180{
-    -webkit-transform: rotate(180deg);
+
+.rotate180 {
     -moz-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
     -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }
-.rotate180Left{
-    -webkit-transform: rotate(-180deg);
+
+.rotate180Left {
     -moz-transform: rotate(-180deg);
-    -o-transform: rotate(-180deg);
     -ms-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
+    -webkit-transform: rotate(-180deg);
     transform: rotate(-180deg);
 }

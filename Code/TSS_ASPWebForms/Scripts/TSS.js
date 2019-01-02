@@ -1,5 +1,5 @@
 ﻿//general code to load a div from a page into a div of the current page
-function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,Async) {
+function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback, Async) {
     var ret = false;
     var mode = true;
     var timeOutId;
@@ -10,28 +10,19 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
     if (parameters == null)
         parameters = "{}";
 
-    var ajaxFn = function () {
+    var ajaxFn = function() {
         $.ajax({
             type: "GET",
             url: pageName,
             async: mode,
             cache: false,
-            datatype: 'html',
+            datatype: "html",
             data: parameters,
             timeout: 30000,
-            success: function (data) {
-                // data is ur summary
-                //var div = $(PageDiv, $(data)).addClass('done').html();
+            success: function(data) {
                 var div = $(data).find(PageDiv);
                 var content = div.html();
                 $(CurrentDiv).html(content);
-
-                // data is our summary
-                //var div = $(PageDiv).html($(data).find(PageDiv).html());
-
-                //google said to set data like this. but this seems to kill some ASP related shit?
-                //$(CurrentDiv).html(div);
-                //document.getElementById('TaskView').innerHTML = div;
 
                 clearTimeout(timeOutId);
                 var loadingdiv = document.getElementById("loadingDiv");
@@ -42,22 +33,29 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
                     callback();
                 }
             },
-            error: function (jqXHR, textStatus, errorThrown) {
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(textStatus);
+                alert(errorThrown);
                 alert("failed!");
             }
 
         });
         return true;
-    }
-    var setLoading = function () {
+    };
+    var setLoading = function() {
         var loadingdiv = document.getElementById("loadingDiv");
         if (loadingdiv)
             loadingdiv.hidden = false;
-    }
+    };
 
-    timeOutId = setTimeout(setLoading, 200);
+    //time out doesn't work on sync ajax calls as it blocks the thread.
+    //however, isn't this the point of timers...?
+    //anyway, force the loading to show up..
+    //timeOutId = setTimeout(setLoading, 200);
+    setLoading();
+
     ret = ajaxFn();
-    $(document).ajaxStop(function () {
+    $(document).ajaxStop(function() {
         clearTimeout(timeOutId);
         var loadingdiv = document.getElementById("loadingDiv");
         if (loadingdiv)
@@ -68,12 +66,12 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
 }
 
 //calls upon the ASP.NET function that will push the changes to the Page which is keeping track of all changes
-function PushNewPropertyValue(PageName,PropertyName, value, Async) {
+function PushNewPropertyValue(PageName, PropertyName, value, Async) {
     var mode = true;
     var ret = false;
     if (Async != null)
         mode = (Async == true);
-    var ajaxFn = function () {
+    var ajaxFn = function() {
         $.ajax({
             type: "POST",
             url: PageName + "/NewPropertyValue",
@@ -82,23 +80,21 @@ function PushNewPropertyValue(PageName,PropertyName, value, Async) {
             dataType: "json",
             async: mode,
             cache: "false",
-            success: function (data) {
+            success: function(data) {
                 if (data.d == true) {
                     ret = true;
                     return true;
-                }
-                else {
+                } else {
                     ret = false;
                     return false;
                 }
             },
-            error: function (jqXHR, textStatus, errorThrown) {
+            error: function(jqXHR, textStatus, errorThrown) {
                 alert("Error saving changes of " + PropertyName + ", error : " + jqXHR.responseText);
             }
         });
-    }
+    };
 
     ajaxFn();
     return ret;
 }
-

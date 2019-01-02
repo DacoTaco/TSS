@@ -1,6 +1,5 @@
-﻿
-/*TSS - Technical Service System , a system build to help Technical Services maintain their reports and equipment
-Copyright(C) 2017 - Joris 'DacoTaco' Vermeylen
+﻿/*TSS - Technical Service System , a system build to help Technical Services maintain their reports and equipment
+Copyright(C) 2019 - Joris 'DacoTaco' Vermeylen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,106 +15,59 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Services;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace TSS_ASPWebForms
 {
-    public partial class LoginUser : System.Web.UI.Page
+    public partial class LoginUser : Page
     {
-        private SystemLists lists = null;
-        public SystemLists Lists
-        {
-            get
-            {
-                if (lists == null)
-                    lists = SystemLists.GetInstance();
-
-                return lists;
-            }
-
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (
                 LoggedInUser.GetUser() != null
-              )
-            {
+            )
                 Response.Redirect("Index");
-            }
 
-            int userIndex = -1;
-            string stringID = Request.Params["ID"];
-            if (!IsPostBack)
-            {
-                if (string.IsNullOrEmpty(stringID) ||
-                    Int32.TryParse(stringID, out userIndex) == false
-                    )
-                {
-                    Response.Redirect("Login");
-                }
-                else
-                {
-                    if(Lists.ActiveUsers == null || Lists.ActiveUsers.Count == 0)
-                        Lists.GetUserLists();
+            if (IsPostBack)
+                return;
 
-                    userList.DataSource = Lists.ActiveUsers;
-                    userList.DataBind();
+            var stringID = Request.Params["ID"];
 
-                    userList.SelectedIndex = userIndex;
-                }
-            }
+            if (string.IsNullOrEmpty(stringID))
+                Response.Redirect("Login");
+
+            var lists = new UserManager().GetUsers(null, null, "UserName ASC");
+
+            userList.DataSource = lists;
+            userList.DataBind();
+
+            userList.SelectItem(stringID);
         }
 
-        protected static bool Login(ref UserInfo user,string password)
+        protected static bool Login(ref User user, string password)
         {
             var usrMngr = new UserManager();
 
-            bool loggedin = usrMngr.LoginUser(ref user, password);
-            //lblLogin.Text += " - " + (loggedin ? "true" : "false");
+            var loggedin = usrMngr.LoginUser(ref user, password);
             return loggedin;
         }
+
         [WebMethod]
-        public static bool Login(int userID,string password)
+        public static bool Login(int userID, string password)
         {
             try
             {
                 if (userID == 0)
                     return false;
 
-                bool ret = false;
-                SystemLists Lists = SystemLists.GetInstance();
-                Lists.GetUserLists();
+                var ret = false;
+                var user = new UserManager().GetUserByID(userID);
 
-                if (Lists.Users == null || Lists.Users.Count == 0)
-                {
-                    Lists.GetUserLists();
-                    if (Lists.Users.Count == 0)
-                        return false;
-                }
-
-                UserInfo user = null;
-                foreach (UserInfo item in Lists.Users)
-                {
-                    if (item.ID == userID)
-                    {
-                        user = item;
-                        break;
-                    }
-                }
-
-                if (user == null)
-                    return false;
-
-                ret = Login(ref user, password);
+                if (user != null)
+                    ret = Login(ref user, password);
 
                 if (ret)
                     LoggedInUser.SetUser(user);
@@ -126,6 +78,7 @@ namespace TSS_ASPWebForms
             }
             catch
             {
+                LoggedInUser.SetUser(null);
                 return false;
             }
         }

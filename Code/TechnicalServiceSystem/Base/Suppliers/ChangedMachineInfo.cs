@@ -16,37 +16,37 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TechnicalServiceSystem.Base
 {
     //TBH i dont think this class is that usefull anymore. just like the changedTask it was made to reduce the data being pushed to the SQL server and 
     //hopefully prevent data from overwriting somebody else's edits. but now that in ASP/MVC we set machines and tasks open AND push the changes instantly its not needed anymore
     /// <summary>
-    /// Class containing the Changed MachineInfo Properties used for syncing
+    ///     Class containing the Changed MachineInfo Properties used for syncing
     /// </summary>
     public class ChangedMachineInfo : MachineInfo
     {
-        protected ChangedMachineInfo() { }
-        public ChangedMachineInfo(int MachineID, string name, string serialNumber, string model_number, string model_name, int supplierId, int typeID) : base(MachineID,name,serialNumber,model_number,model_name,supplierId,typeID) { }
+        protected ChangedMachineInfo()
+        {
+        }
+
+        public ChangedMachineInfo(int MachineID, string name, string serialNumber, string model_number,
+            string model_name, int supplierId, int typeID) : base(MachineID, name, serialNumber, model_number,
+            model_name, supplierId, typeID)
+        {
+        }
 
 
         //a Dictionary list containing all properties that changed (and a boolean to verify it is indeed changed)
-        public Dictionary<String, Boolean> Changed_Properties { get; set; } = new Dictionary<string, bool>();
+        public Dictionary<string, bool> Changed_Properties { get; set; } = new Dictionary<string, bool>();
 
         public new ChangedMachineInfo Clone()
         {
-            ChangedMachineInfo output = (ChangedMachineInfo)base.Clone();
+            var output = (ChangedMachineInfo) base.Clone();
 
             output.Changed_Properties = new Dictionary<string, bool>();
 
-            foreach (var item in this.Changed_Properties)
-            {
-                output.Changed_Properties.Add(item.Key, item.Value);
-            }
+            foreach (var item in Changed_Properties) output.Changed_Properties.Add(item.Key, item.Value);
 
             return output;
         }
@@ -59,33 +59,29 @@ namespace TechnicalServiceSystem.Base
             try
             {
                 //compare and set changed flags!
-                Type type = typeof(ChangedMachineInfo);
-                Type baseType = typeof(MachineInfo);
+                var type = typeof(ChangedMachineInfo);
+                var baseType = typeof(MachineInfo);
 
                 if (Input.GetType() != type && Input.GetType() != baseType)
                     return;
 
-                PropertyInfo[] properties = baseType.GetProperties();
-                foreach (PropertyInfo item in properties)
+                var properties = baseType.GetProperties();
+                foreach (var item in properties)
                 {
-                    object selfValue = type.GetProperty(item.Name).GetValue(this, null);
-                    object toValue = baseType.GetProperty(item.Name).GetValue(Input, null);
+                    var selfValue = type.GetProperty(item.Name).GetValue(this, null);
+                    var toValue = baseType.GetProperty(item.Name).GetValue(Input, null);
 
-                    bool changed = false;
+                    var changed = false;
                     if (
-                        (selfValue == null && toValue != null) ||
-                        (selfValue != null && toValue == null)
-                        )
-                    {
+                        selfValue == null && toValue != null ||
+                        selfValue != null && toValue == null
+                    )
                         changed = true;
-                    }
                     else if (
-                        (selfValue != null && toValue != null) &&
-                        (!(selfValue.ToString() == toValue.ToString()))
-                        )
-                    {
+                        selfValue != null && toValue != null &&
+                        !(selfValue.ToString() == toValue.ToString())
+                    )
                         changed = true;
-                    }
 
                     Changed_Properties[item.Name] = changed;
                 }
@@ -99,31 +95,28 @@ namespace TechnicalServiceSystem.Base
             {
                 throw new Exception("ChangedMachineInfo_Failed_Assign : " + ex.Message);
             }
-
         }
-        static public ChangedMachineInfo UpgradeBase(MachineInfo baseClass,bool forcedChanged)
+
+        public static ChangedMachineInfo UpgradeBase(MachineInfo baseClass, bool forcedChanged)
         {
             if (baseClass == null)
                 return null;
 
-            ChangedMachineInfo ret = new ChangedMachineInfo();
+            var ret = new ChangedMachineInfo();
 
             //use reflection and generic methods to copy all data from the base class into the upgraded class!
             //also setting the changed flag if needed
             try
             {
-                Type type = typeof(ChangedMachineInfo);
-                Type baseType = typeof(MachineInfo);
-                PropertyInfo[] properties = baseType.GetProperties();
-                foreach (PropertyInfo item in properties)
+                var type = typeof(ChangedMachineInfo);
+                var baseType = typeof(MachineInfo);
+                var properties = baseType.GetProperties();
+                foreach (var item in properties)
                 {
-                    object toValue = baseType.GetProperty(item.Name).GetValue(baseClass, null);
+                    var toValue = baseType.GetProperty(item.Name).GetValue(baseClass, null);
                     type.GetProperty(item.Name).SetValue(ret, toValue);
 
-                    if (forcedChanged == true)
-                    {
-                        ret.Changed_Properties.Add(item.Name, forcedChanged);
-                    }
+                    if (forcedChanged) ret.Changed_Properties.Add(item.Name, forcedChanged);
                 }
             }
             catch (Exception ex)
@@ -134,10 +127,10 @@ namespace TechnicalServiceSystem.Base
 
             return ret;
         }
-        static public ChangedMachineInfo UpgradeBase(MachineInfo baseClass)
+
+        public static ChangedMachineInfo UpgradeBase(MachineInfo baseClass)
         {
             return UpgradeBase(baseClass, false);
         }
-
     }
 }

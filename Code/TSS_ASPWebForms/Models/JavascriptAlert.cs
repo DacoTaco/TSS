@@ -14,38 +14,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Text;
 using System.Web.UI;
 
 namespace TSS_ASPWebForms.Models
 {
     /// <summary>
-    /// a static class that injects a javascript alert into the page to display a message upon page rendering/load!
+    ///     a static class that injects a javascript alert into the page to display a message upon page rendering/load!
     /// </summary>
     public static class JavascriptAlert
     {
         /// <summary>
-        /// display given message when page loads
+        ///     display given message when page loads
         /// </summary>
         /// <param name="message"></param>
         public static void Show(string message)
         {
             // Cleans the message to allow single quotation marks
-            string cleanMessage = message.Replace("'", "\\'");
-            string script = "<script type=\"text/javascript\">alert('" + cleanMessage + "');</script>";
+            var cleanMessage = message.Replace("'", "\\'");
+            var script = "<script type=\"text/javascript\">alert('" + cleanMessage + "');</script>";
 
             // Gets the executing web page
-            Page page = HttpContext.Current.CurrentHandler as Page;
+            var page = HttpContext.Current.CurrentHandler as Page;
 
             // Checks if the handler is a Page and that the script isn't allready on the Page
             if (page != null && !page.ClientScript.IsClientScriptBlockRegistered("alertMsg"))
-            {
                 page.ClientScript.RegisterClientScriptBlock(typeof(JavascriptAlert), "alertMsg", script);
-            }
         }
     }
 }

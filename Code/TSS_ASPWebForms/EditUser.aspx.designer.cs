@@ -91,7 +91,7 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList selectDepartment;
+        protected global::TSS_ASPWebForms.DropDownObject selectDepartment;
         
         /// <summary>
         /// UserActive control.

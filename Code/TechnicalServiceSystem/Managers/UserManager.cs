@@ -14,164 +14,61 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using Equin.ApplicationFramework;
+using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.General;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace TechnicalServiceSystem
 {
-    public class UserManager : DatabaseManager
+    [DataObject(true)]
+    public class UserManager : Utilities.DatabaseManager
     {
         /// <summary>
-        /// Retrieve UserInfo of the given ID
+        ///     Retrieve User of the given ID
         /// </summary>
         /// <param name="UserID"></param>
         /// <returns></returns>
-        public UserInfo GetUserByID(int UserID)
+        ///
+        public User GetUserByID(int UserID)
         {
-            UserInfo user = null;
+            var session = GetSession();
             try
             {
-                using (var connection = this.GetConnection())
-                {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.GetUserByID";
-                        var param = command.CreateParameter();
-                        param.ParameterName = "userID";
-                        param.Value = UserID;
-                        command.Parameters.Add(param);
-
-
-                        using (var rdr = command.ExecuteReader())
-                        {
-                            //public UserInfo(int id,string name,string department,int photoid,bool activeUser)
-                            Int32 UsernamePos = rdr.GetOrdinal("Username");
-                            Int32 DepartmentPos = rdr.GetOrdinal("DepartmentID");
-                            Int32 PhotoIDPos = rdr.GetOrdinal("PhotoID");
-                            Int32 ActivePos = rdr.GetOrdinal("Active");
-
-                            if (rdr.Read())
-                            {
-                                user = new UserInfo
-                                    (
-                                    UserID,
-                                    rdr.GetString(UsernamePos),
-                                    rdr.GetInt32(DepartmentPos),
-                                    rdr.GetInt32(PhotoIDPos),
-                                    rdr.GetBoolean(ActivePos)
-                                    );
-
-                                var gnrlManager = new GeneralManager();
-                                int id = user.PhotoID;
-                                string name = gnrlManager.GetPhoto(id);
-                                user.Photo = new PhotoInfo(id, name);
-                            }
-                            else
-                                return null;
-                        }
-                    }
-
-                    if (user == null)
-                        return null;
-
-                    //get all dem user roles!
-                    ObservableCollection<RoleInfo> roles = new ObservableCollection<RoleInfo>();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "Users.GetUserRoles";
-                        command.CommandType = CommandType.StoredProcedure;
-                        var param = command.CreateParameter();
-                        param.ParameterName = "userID";
-                        param.Value = UserID;
-                        command.Parameters.Add(param);
-
-                        using (var rdr = command.ExecuteReader())
-                        {
-                            Int32 roleID = rdr.GetOrdinal("RoleID");
-                            Int32 roleName = rdr.GetOrdinal("RoleName");
-
-                            while (rdr.Read())
-                            {
-                                if (rdr.IsDBNull(roleID) || rdr.IsDBNull(roleName))
-                                    continue;
-
-                                roles.Add(new RoleInfo(
-                                    rdr.GetInt32(roleID),
-                                    rdr.GetString(roleName)
-                                    ));
-                            }
-                        }
-                    }
-                    user.UserRoles = roles;
-                }
+                return session.QueryOver<User>().Where(x => x.ID == UserID).SingleOrDefault();
             }
             catch (Exception ex)
             {
                 throw new Exception("User_Manager_Failed_Get_User_ByID : " + ex.Message, ex);
             }
-            return user;
         }
 
         /// <summary>
-        /// Retrieve a list of all Users of the given roleName & company. default is 'User' and empty, which should return all users. 
+        ///     Retrieve a list of all Users of the given roleName & company. default is 'User' and empty, which should return all
+        ///     users.
         /// </summary>
         /// <param name="rolename"></param>
         /// <param name="company"></param>
-        /// <returns>ObservableCollection<UserInfo></returns>
-        public ObservableCollection<UserInfo> GetUsersByRole(string rolename = "User", string company = "")
+        /// <returns>ObservableCollection<User></returns>
+        public ObservableCollection<User> GetUsersByRole(string rolename = "User", string company = "")
         {
-            ObservableCollection<UserInfo> list = new ObservableCollection<UserInfo>();
+            var list = new ObservableCollection<User>();
 
             try
             {
-                using (var connection = this.GetConnection())
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.GetUsersByRole";
-
-                        var role = command.CreateParameter();
-                        role.ParameterName = "roles";
-                        role.Value = rolename;
-                        command.Parameters.Add(role);
-
-                        if (!String.IsNullOrWhiteSpace(company))
-                        {
-                            var companyParam = command.CreateParameter();
-                            companyParam.Value = company;
-                            companyParam.ParameterName = "companyName";
-                            command.Parameters.Add(companyParam);
-                        }
-
-                        connection.Open();
-                        using (var rdr = command.ExecuteReader())
-                        {
-
-                            Int32 UserIDPos = rdr.GetOrdinal("UserID");
-                            Int32 UsernamePos = rdr.GetOrdinal("Username");
-                            while (rdr.Read())
-                            {
-                                int id = rdr.GetInt32(UserIDPos);
-                                string name = rdr.GetString(UsernamePos);
-
-                                UserInfo user = GetUserByID(id);
-                                if (user != null)
-                                    list.Add(user);
-                            }
-                        }
-                    }
-                }
+                var session = GetSession();
+                list = new ObservableCollection<User>(session
+                    .CreateSQLQuery("exec Users.GetUsersByRole :roles, :companyName")
+                    .AddEntity(typeof(User))
+                    .SetParameter("roles", rolename)
+                    .SetParameter("companyName", string.IsNullOrWhiteSpace(company) ? "%" : company, NHibernateUtil.String)
+                    .List<User>());
             }
             catch (Exception ex)
             {
@@ -182,201 +79,151 @@ namespace TechnicalServiceSystem
         }
 
         /// <summary>
-        /// Retrieves a list of all users saved in the database from given company. by default this is all users
+        ///     Retrieves a list of all users saved in the database from given company. by default this is all users
         /// </summary>
         /// <param name="company"></param>
         /// <returns>ObservableCollection<UserInfo></returns>
-        public ObservableCollection<UserInfo> GetUsers(string company = "",string searchText = "",int roleID = 0)
+        [DataObjectMethod(DataObjectMethodType.Select)]
+        public BindingListView<User> GetUsers(string contains, int? RoleID, string SortBy = null,bool? activeOnly = true)
         {
-            ObservableCollection<UserInfo> ret = new ObservableCollection<UserInfo>();
+            BindingListView<User> ret = null;
+            ObservableCollection<User> list = GetUsers(Settings.GetCompanyName(), contains, 
+                RoleID.HasValue?RoleID.Value:0,
+                activeOnly);
+            ret = new BindingListView<User>(list.ToList());
+
+            if (!String.IsNullOrWhiteSpace(SortBy))
+                ret.Sort = SortBy;
+
+            return ret;
+        }
+        public ObservableCollection<User> GetUsers(string company, string searchText = null, int roleID = 0,bool? activeOnly = true)
+        {
+            var session = GetSession();
             try
             {
-                using (var connection = this.GetConnection())
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.GetUsers";
-
-                        if (!String.IsNullOrWhiteSpace(company))
-                        {
-                            var companyParam = command.CreateParameter();
-                            companyParam.Value = company;
-                            companyParam.ParameterName = "companyName";
-                            command.Parameters.Add(companyParam);
-                        }
-
-                        if(!String.IsNullOrWhiteSpace(searchText))
-                        {
-                            var search = command.CreateParameter();
-                            search.Value = searchText;
-                            search.ParameterName = "search";
-                            command.Parameters.Add(search);
-                        }
-
-                        if(roleID > 0)
-                        {
-                            var department = command.CreateParameter();
-                            department.ParameterName = "RoleID";
-                            department.Value = roleID;
-                            command.Parameters.Add(department);
-                        }
-
-                        connection.Open();
-                        using (var rdr = command.ExecuteReader())
-                        {
-
-                            Int32 UserIDPos = rdr.GetOrdinal("User ID");
-                            while (rdr.Read())
-                            {
-                                int id = rdr.GetInt32(UserIDPos);
-
-                                UserInfo user = GetUserByID(id);
-                                if (user != null)
-                                    ret.Add(user);
-                            }
-                        }
-                    }
-                }
+                return new ObservableCollection<User>(session.CreateSQLQuery("exec Users.GetUsers :company, :active, :search, :roleID")
+                    .AddEntity(typeof(User))
+                    .SetParameter("company", string.IsNullOrWhiteSpace(company) ? "%" : company)
+                    .SetParameter("active", activeOnly.HasValue ? (activeOnly.Value ? 1 : 0) : (object)DBNull.Value, NHibernateUtil.Int32)
+                    .SetParameter("search", string.IsNullOrWhiteSpace(searchText) ? "%" : searchText)
+                    .SetParameter("roleID", roleID > 0? roleID:0)
+                    .List<User>());
             }
             catch (Exception ex)
             {
                 throw new Exception("User_Manager_Failed_Get_Users : " + ex.Message, ex);
             }
-
-
-            return ret;
+            
         }
-
-        public ObservableCollection<RoleInfo> GetRoles()
+        public ObservableCollection<Role> GetRoles()
         {
-            ObservableCollection<RoleInfo> ret = new ObservableCollection<RoleInfo>();
+            ObservableCollection<Role> ret = null;
 
             try
             {
-                using (var connection = this.GetConnection())
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.CommandText = "Select * from Users.Roles";
-
-                        connection.Open();
-                        using (var rdr = command.ExecuteReader())
-                        {
-
-                            Int32 RoleIDPos = rdr.GetOrdinal("RoleID");
-                            Int32 RoleNamePos = rdr.GetOrdinal("RoleName");
-                            while (rdr.Read())
-                            {
-                                ret.Add(new RoleInfo(rdr.GetInt32(RoleIDPos), rdr.GetString(RoleNamePos)));
-                            }
-                        }
-                    }
-                }
+                var session = GetSession();
+                ret = new ObservableCollection<Role>(session.QueryOver<Role>().List());
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw new Exception("User_Manager_Failed_Get_Users : " + ex.Message, ex);
+                throw e;
             }
+
+            if(ret == null)
+                return new ObservableCollection<Role>();
+
             return ret;
         }
+
         /// <summary>
-        /// Checks user login information. if the login is correct, the user info is altered with a unique user hash and will return true
+        ///     Checks user login information. if the login is correct, the user info is altered with a unique user hash and will
+        ///     return true
         /// </summary>
         /// <param name="user"></param>
         /// <param name="password"></param>
         /// <returns>bool correct y/n</returns>
-        public bool LoginUser(ref UserInfo user, string password)
+        public bool LoginUser(ref User user, string password)
         {
-            if (user == null || String.IsNullOrWhiteSpace(password) || user.Active == false)
+            if (user == null || string.IsNullOrWhiteSpace(password) || user.IsActive == false)
                 return false;
 
-            bool ret = false;
-            string company = "";
+            var ret = false;
+            var company = "";
 
             try
             {
-                using (var connection = GetConnection())
+                var connection = GetSession()?.Connection;
+                using (var command = connection.CreateCommand())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "General.GetDepartmentCompany";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "General.GetDepartmentCompany";
 
-                        var depID = command.CreateParameter();
-                        depID.Value = user.DepartmentID;
-                        depID.ParameterName = "departmentID";
-                        command.Parameters.Add(depID);
+                    var depID = command.CreateParameter();
+                    depID.Value = user.Department.ID;
+                    depID.ParameterName = "departmentID";
+                    command.Parameters.Add(depID);
 
+                    if(connection.State == ConnectionState.Closed)
                         connection.Open();
 
-                        using (var rdr = command.ExecuteReader())
-                        {
-                            Int32 CompanyNamePos = rdr.GetOrdinal("CompanyName");
-
-                            if (rdr.Read())
-                            {
-                                company = rdr.GetString(CompanyNamePos);
-                            }
-
-                            if (String.IsNullOrWhiteSpace(company))
-                            {
-                                throw new Exception("Company not found!");
-                            }
-
-                            string SettingCompany = Settings.GetAppSetting("company");
-
-                            if (SettingCompany != company)
-                            {
-                                throw new Exception("User is not from the setup company!");
-                            }
-
-                        }
-                    }
-
-                    using (var command = connection.CreateCommand())
+                    using (var rdr = command.ExecuteReader())
                     {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.CheckLogin";
+                        var CompanyNamePos = rdr.GetOrdinal("CompanyName");
 
-                        var userID = command.CreateParameter();
-                        userID.Value = user.ID;
-                        userID.ParameterName = "userID";
-                        command.Parameters.Add(userID);
+                        if (rdr.Read()) company = rdr.GetString(CompanyNamePos);
 
-                        var passwordParam = command.CreateParameter();
-                        passwordParam.Value = password;
-                        passwordParam.ParameterName = "password";
-                        command.Parameters.Add(passwordParam);
+                        if (string.IsNullOrWhiteSpace(company)) throw new Exception("Company not found!");
 
-                        var companyName = command.CreateParameter();
-                        companyName.Value = company;
-                        companyName.ParameterName = "companyName";
-                        command.Parameters.Add(companyName);
+                        var SettingCompany = Settings.GetCompanyName();
 
-                        var userHash = command.CreateParameter();
-                        userHash.Direction = ParameterDirection.Output;
-                        userHash.ParameterName = "UserHash";
-                        userHash.Size = 265;
-                        command.Parameters.Add(userHash);
+                        if (SettingCompany != company) throw new Exception("User is not from the setup company!");
+                    }
+                }
 
-                        command.ExecuteNonQuery();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "Users.CheckLogin";
 
-                        if (String.IsNullOrWhiteSpace(userHash.Value.ToString()))
+                    var userID = command.CreateParameter();
+                    userID.Value = user.ID;
+                    userID.ParameterName = "userID";
+                    command.Parameters.Add(userID);
+
+                    var passwordParam = command.CreateParameter();
+                    passwordParam.Value = password;
+                    passwordParam.ParameterName = "password";
+                    command.Parameters.Add(passwordParam);
+
+                    var companyName = command.CreateParameter();
+                    companyName.Value = company;
+                    companyName.ParameterName = "companyName";
+                    command.Parameters.Add(companyName);
+
+                    var userHash = command.CreateParameter();
+                    userHash.Direction = ParameterDirection.Output;
+                    userHash.ParameterName = "UserHash";
+                    userHash.Size = 265;
+                    command.Parameters.Add(userHash);
+
+                    command.ExecuteNonQuery();
+
+                    if (string.IsNullOrWhiteSpace(userHash.Value.ToString()))
+                    {
+                        ret = false;
+                    }
+                    else
+                    {
+                        user.UserHash = userHash.Value.ToString();
+                        if (user.UserHash != null && user.UserHash.Length > 0)
                         {
-                            ret = false;
+                            ret = true;
                         }
                         else
                         {
-                            user.UserHash = userHash.Value.ToString();
-                            if (user.UserHash != null && user.UserHash.Length > 0)
-                                ret = true;
-                            else
-                            {
-                                ret = false;
-                                user.UserHash = string.Empty;
-                            }
+                            ret = false;
+                            user.UserHash = string.Empty;
                         }
                     }
                 }
@@ -390,102 +237,95 @@ namespace TechnicalServiceSystem
         }
 
         /// <summary>
-        /// Check whether the user's hash is correct or not
+        ///     Check whether the user's hash is correct or not
         /// </summary>
         /// <param name="user"></param>
         /// <returns>boolean</returns>
-        public bool CheckUserHash(UserInfo user)
+        public bool CheckUserHash(User user)
         {
-            if (user == null || user.ID <= 0 || String.IsNullOrWhiteSpace(user.UserHash))
+            if (user == null || user.ID <= 0 || string.IsNullOrWhiteSpace(user.UserHash))
                 return false;
 
-            bool ret = false;
-            //Users.CheckLoginHash @UserID,@UserHash
+            var ret = false;
             try
             {
-                using (var connection = GetConnection())
+                var connection = GetSession()?.Connection;
+                using (var command = connection.CreateCommand())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.CheckLoginHash";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "Users.CheckLoginHash";
 
-                        var IDparam = command.CreateParameter();
-                        IDparam.Value = user.ID;
-                        IDparam.ParameterName = "UserID";
-                        command.Parameters.Add(IDparam);
+                    var IDparam = command.CreateParameter();
+                    IDparam.Value = user.ID;
+                    IDparam.ParameterName = "UserID";
+                    command.Parameters.Add(IDparam);
 
-                        var hashParam = command.CreateParameter();
-                        hashParam.Value = user.UserHash;
-                        hashParam.ParameterName = "UserHash";
-                        command.Parameters.Add(hashParam);
+                    var hashParam = command.CreateParameter();
+                    hashParam.Value = user.UserHash;
+                    hashParam.ParameterName = "UserHash";
+                    command.Parameters.Add(hashParam);
 
-                        var retValue = command.CreateParameter();
-                        retValue.Direction = ParameterDirection.ReturnValue;
-                        retValue.Value = 0;
-                        command.Parameters.Add(retValue);
+                    var retValue = command.CreateParameter();
+                    retValue.Direction = ParameterDirection.ReturnValue;
+                    retValue.Value = 0;
+                    command.Parameters.Add(retValue);
 
+                    if (connection.State == ConnectionState.Closed)
                         connection.Open();
 
-                        command.ExecuteNonQuery();
-                        int? value = retValue.Value as int?;
-                        if (!value.HasValue || value.Value <= 0)
-                            ret = false;
-                        else
-                            ret = true;
-                    }
+                    command.ExecuteNonQuery();
+                    var value = retValue.Value as int?;
+                    if (!value.HasValue || value.Value <= 0)
+                        ret = false;
+                    else
+                        ret = true;
                 }
             }
             catch
             {
                 ret = false;
             }
-
             return ret;
         }
 
         //user opened state stuff. its +/- the same as in task manager. for information go check there :P
         public bool UserEditable(int UserID, string userHash)
         {
-            bool ret = false;
+            var ret = false;
 
             try
             {
-                using (var connection = this.GetConnection())
+                var connection = GetSession().Connection;
+                using (var command = connection.CreateCommand())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "Users.IsUserEditable";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "Users.IsUserEditable";
 
-                        var param = command.CreateParameter();
-                        param.ParameterName = "UserID";
-                        param.Value = UserID;
-                        command.Parameters.Add(param);
+                    var param = command.CreateParameter();
+                    param.ParameterName = "UserID";
+                    param.Value = UserID;
+                    command.Parameters.Add(param);
 
-                        var hashParam = command.CreateParameter();
-                        hashParam.Value = userHash;
-                        hashParam.ParameterName = "userHash";
-                        command.Parameters.Add(hashParam);
+                    var hashParam = command.CreateParameter();
+                    hashParam.Value = userHash;
+                    hashParam.ParameterName = "userHash";
+                    command.Parameters.Add(hashParam);
 
-                        var retValue = command.CreateParameter();
-                        retValue.Direction = ParameterDirection.ReturnValue;
-                        command.Parameters.Add(retValue);
+                    var retValue = command.CreateParameter();
+                    retValue.Direction = ParameterDirection.ReturnValue;
+                    command.Parameters.Add(retValue);
 
+                    if (connection.State == ConnectionState.Closed)
                         connection.Open();
-                        bool? temp = null;
-                        if (command.ExecuteNonQuery() >= -1)
-                        {
-                            if (retValue.Value != null)
-                                temp = (retValue.Value.ToString() == "1");
-                        }
+                    bool? temp = null;
+                    if (command.ExecuteNonQuery() >= -1)
+                        if (retValue.Value != null)
+                            temp = retValue.Value.ToString() == "1";
 
-                        if (temp.HasValue)
-                            ret = temp.Value;
-                        else
-                            throw new Exception("SQL error in retrieving User opened state");
-
-                    }
+                    if (temp.HasValue)
+                        ret = temp.Value;
+                    else
+                        throw new Exception("SQL error in retrieving User opened state");
                 }
             }
             catch (Exception ex)
@@ -495,7 +335,6 @@ namespace TechnicalServiceSystem
 
 
             return ret;
-
         }
 
         public bool SetUserOpened(int UserID, string userHash)
@@ -507,50 +346,48 @@ namespace TechnicalServiceSystem
         {
             return SetUserOpenedState(UserID, userHash, false);
         }
-        public bool SetUserOpenedState(int UserID, string userHash, bool openedState)
+
+        protected bool SetUserOpenedState(int UserID, string userHash, bool openedState)
         {
-            bool ret = false;
+            var ret = false;
             try
             {
-                using (var connection = this.GetConnection())
+                var connection = GetSession().Connection;
+                using (var command = connection.CreateCommand())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                        if (openedState)
-                            command.CommandText = "Users.SetUserOpened";
-                        else
-                            command.CommandText = "Users.SetUserClosed";
+                    if (openedState)
+                        command.CommandText = "Users.SetUserOpened";
+                    else
+                        command.CommandText = "Users.SetUserClosed";
 
-                        var param = command.CreateParameter();
-                        param.ParameterName = "UserID";
-                        param.Value = UserID;
-                        command.Parameters.Add(param);
+                    var param = command.CreateParameter();
+                    param.ParameterName = "UserID";
+                    param.Value = UserID;
+                    command.Parameters.Add(param);
 
-                        var hashParam = command.CreateParameter();
-                        hashParam.Value = userHash;
-                        hashParam.ParameterName = "userHash";
-                        command.Parameters.Add(hashParam);
+                    var hashParam = command.CreateParameter();
+                    hashParam.Value = userHash;
+                    hashParam.ParameterName = "userHash";
+                    command.Parameters.Add(hashParam);
 
-                        var retValue = command.CreateParameter();
-                        retValue.Direction = ParameterDirection.ReturnValue;
-                        command.Parameters.Add(retValue);
+                    var retValue = command.CreateParameter();
+                    retValue.Direction = ParameterDirection.ReturnValue;
+                    command.Parameters.Add(retValue);
 
+                    if (connection.State == ConnectionState.Closed)
                         connection.Open();
-                        bool? temp = null;
-                        if (command.ExecuteNonQuery() >= -1)
-                        {
-                            if (retValue.Value != null)
-                                temp = (retValue.Value.ToString() == "1");
-                        }
 
-                        if (temp.HasValue)
-                            ret = temp.Value;
-                        else
-                            throw new Exception("SQL error in setting User opened state");
+                    bool? temp = null;
+                    if (command.ExecuteNonQuery() >= -1)
+                        if (retValue.Value != null)
+                            temp = retValue.Value.ToString() == "1";
 
-                    }
+                    if (temp.HasValue)
+                        ret = temp.Value;
+                    else
+                        throw new Exception("SQL error in setting User opened state");
                 }
             }
             catch (Exception ex)
@@ -561,189 +398,91 @@ namespace TechnicalServiceSystem
             return ret;
         }
 
-        public bool AddUser(List<UserInfo> users, string company = "")
+        public bool AddUser(List<User> users)
         {
-            return AddOrChangeUser(users, company);
+            return AddOrChangeUser(users);
         }
-        public bool AddUser(UserInfo user, string company = "")
+
+        public bool AddUser(User user)
         {
-            List<UserInfo> users = new List<UserInfo>();
+            var users = new List<User>();
             users.Add(user);
 
-            return AddOrChangeUser(users, company);
+            return AddOrChangeUser(users);
         }
 
-        public bool ChangeUser(List<UserInfo> users, string company = "")
+        public bool ChangeUser(List<User> users)
         {
-            return AddOrChangeUser(users, company);
+            return AddOrChangeUser(users);
         }
-        public bool ChangeUser(UserInfo user, string company = "")
+
+        public bool ChangeUser(User user)
         {
-            List<UserInfo> users = new List<UserInfo>();
+            var users = new List<User>();
             users.Add(user);
-    
-            return AddOrChangeUser(users, company);
+
+            return AddOrChangeUser(users);
         }
 
-        public bool AddOrChangeUser(List<UserInfo> users, string company = "")
+        public bool AddOrChangeUser(User user)
+        {
+            var users = new List<User>();
+            users.Add(user);
+
+            return AddOrChangeUser(users);
+        }
+
+        public bool AddOrChangeUser(ICollection<User> users)
         {
             if (users == null || users.Count <= 0)
                 return false;
-
+            
             try
             {
-                using (var connection = GetConnection())
+                var session = GetSession();
+                var connection = session.Connection;
+                foreach (var user in users)
                 {
-                    if (!(connection is SqlConnection))
-                        return false;
-
-                    SqlConnection con = connection as SqlConnection;
-                    con.Open();
-
-                    foreach (UserInfo user in users)
+                    try
                     {
-                        if (user == null || (user.ID == 0 && String.IsNullOrWhiteSpace(user.Password)) || user.ID < 0)
-                            continue;
-
-                        int userID = 0;
-                        int photoID = 0;
-
-                        if (user.ID > 0)
-                            userID = user.ID;
-
-                        using (var trans = con.BeginTransaction())
+                        session.BeginTransaction();
+                        //first handle the image
+                        if (user.Photo != null && user.Photo.ID <= 0)
                         {
-                            try
-                            {
-                                //before doing the user stuff we need to make sure the photo is saved to server! :)
-                                if (user.PhotoID == 0 && user.Photo != null && !String.IsNullOrWhiteSpace(user.Photo.PhotoSource))
-                                {
-                                    //the photo ID is 0, and has data, so time to add it!
-                                    var gnrlManager = new GeneralManager();
-                                    var photoInfo = user.Photo;
-                                    photoID = gnrlManager.SavePhotoToServer(ref photoInfo);
-                                }
-                                else
-                                {
-                                    photoID = user.PhotoID;
-                                }
-
-                                if(photoID <= 0)
-                                {
-                                    trans.Rollback();
-                                    continue;
-                                }
-
-                                using (SqlCommand command = con.CreateCommand())
-                                {
-                                    command.Transaction = trans;
-                                    command.CommandType = CommandType.StoredProcedure;
-                                    if (user.ID > 0)
-                                    {
-                                        command.CommandText = "Users.ChangeUser";
-
-                                        var paramID = command.CreateParameter();
-                                        paramID.Value = user.ID;
-                                        paramID.ParameterName = "UserID";
-                                        command.Parameters.Add(paramID);
-                                    }
-                                    else
-                                    {
-                                        command.CommandText = "Users.CreateUser";
-                                    }
-
-                                    var paramPhoto = command.CreateParameter();
-                                    paramPhoto.ParameterName = "PhotoID";
-                                    paramPhoto.Value = photoID;
-                                    command.Parameters.Add(paramPhoto);
-
-                                    var paramUserName = command.CreateParameter();
-                                    paramUserName.Value = user.Username;
-                                    paramUserName.ParameterName = "Username";
-                                    command.Parameters.Add(paramUserName);
-
-                                    if(
-                                        (user.ID > 0 && !String.IsNullOrWhiteSpace(user.Password)) ||
-                                        user.ID == 0)
-                                    {
-                                        var paramPassword = command.CreateParameter();
-                                        paramPassword.Value = user.Password;
-                                        paramPassword.ParameterName = "Password";
-                                        command.Parameters.Add(paramPassword);
-                                    }
-
-                                    var paramUserActive = command.CreateParameter();
-                                    paramUserActive.ParameterName = "Active";
-                                    paramUserActive.Value = user.Active;
-                                    command.Parameters.Add(paramUserActive);
-
-                                    var paramDepartmentID = command.CreateParameter();
-                                    paramDepartmentID.ParameterName = "DepartmentID";
-                                    paramDepartmentID.Value = user.DepartmentID;
-                                    command.Parameters.Add(paramDepartmentID);
-
-                                    var paramCompany = command.CreateParameter();
-                                    paramCompany.ParameterName = "CompanyName";
-                                    paramCompany.Value = company;
-                                    command.Parameters.Add(paramCompany);
-
-                                    SqlParameter paramRoles = command.CreateParameter();
-                                    paramRoles.SqlDbType = SqlDbType.Structured;
-                                    paramRoles.ParameterName = "Roles";
-                                    paramRoles.Value = RoleInfo.GenerateRolesTable(user.UserRoles.ToList());
-                                    command.Parameters.Add(paramRoles);
-
-                                    var retValue = command.CreateParameter();
-                                    retValue.Direction = ParameterDirection.ReturnValue;
-                                    retValue.Value = null;
-                                    command.Parameters.Add(retValue);
-
-                                    if (command.ExecuteNonQuery() <= 0 || retValue.Value == null || (retValue.Value as int?) == null)
-                                    {
-                                        trans.Rollback();
-                                        continue;
-                                    }
-
-                                    if(user.ID == 0)
-                                    {
-                                        user.ID = (int)retValue.Value;
-                                        userID = (int)retValue.Value;
-                                    }
-
-                                    if(userID <= 0)
-                                    {
-                                        trans.Rollback();
-                                        continue;
-                                    }
-                                }
-                            }
-                            catch(Exception ex)
-                            {
-                                trans.Rollback();
-                                continue;
-                            }
-                            trans.Commit();
+                            //save photo
+                            var gnrlManager = new GeneralManager();
+                            Photo photo = user.Photo;
+                            gnrlManager.SavePhotoToServer(ref photo);
+                            user.Photo = photo;
                         }
+                        
+                        //user
+                        session.SaveOrUpdate(user);
+
+                        //if the password has a value it means it was set somewhere, so lets push the change to the database through the stored procedure
+                        if (!String.IsNullOrWhiteSpace(user.Password))
+                        {
+                            session.CreateSQLQuery("exec Users.AssignPassword :UserID, :Password")
+                                .SetParameter("UserID", user.ID)
+                                .SetParameter("Password", user.Password)
+                                .ExecuteUpdate();
+                        }
+                        session.Transaction.Commit();
                     }
+                    catch
+                    {
+                        session.Transaction.Rollback();
+                        throw;
+                    }
+                    
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                throw new Exception($"User_Manager_Failed_Save_User : {ex.Message} {ex?.InnerException?.Message??""}", ex);
             }
 
-            return true;
-        }
-        public bool AddOrChangeUser(UserInfo user, string company = "")
-        {
-            if(user == null)
-            {
-                return false;
-            }
-
-            List<UserInfo> users = new List<UserInfo>();
-            users.Add(user);
-            return AddOrChangeUser(users,company);
+            return false;
         }
     }
 }
