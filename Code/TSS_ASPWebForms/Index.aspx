@@ -41,6 +41,7 @@
 </head>
 <body>
     <form id="form1" runat="server" autocomplete="off">
+        <asp:HiddenField ID="hidTABControl" runat="server" Value="#Tasks"/>
         <!-- loading div -->
         <div id="loadingDiv" class="blocker" hidden="hidden" runat="server" style="z-index:999;">
             <div class="blocker-content">
