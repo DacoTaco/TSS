@@ -439,10 +439,6 @@ namespace TSS_ASPWebForms
                         found = true;
 
                         var statusChanged = Task.StatusID != OriginalTask.StatusID;
-                        /*if (Task.Changed_Properties.ContainsKey("Technician"))
-                            Task.Changed_Properties["Technician"] = statusChanged;
-                        else
-                            Task.Changed_Properties.Add("Technician", statusChanged);*/
                     }
                     catch
                     {
@@ -459,10 +455,6 @@ namespace TSS_ASPWebForms
                         found = true;
 
                         var statusChanged = Task.StatusID != OriginalTask.StatusID;
-                        /*if (Task.Changed_Properties.ContainsKey("StatusID"))
-                            Task.Changed_Properties["StatusID"] = statusChanged;
-                        else
-                            Task.Changed_Properties.Add("StatusID", statusChanged);*/
                     }
                     catch
                     {

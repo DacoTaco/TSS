@@ -1304,17 +1304,17 @@ BEGIN
 	END
 	ELSE
 		set @SearchText = '%';
-	
+
 	if(@RoleID is not null and @RoleID <= 0)
 		set @RoleID = null
 
-	Select DISTINCT us.UserID as 'User ID', us.UserName as 'Username' , us.DepartmentID as 'DepartmentID', us.PhotoID as 'PhotoID', us.Active, 
+	Select DISTINCT us.UserID, us.UserName, us.DepartmentID, us.PhotoID, us.Active, 
 	CAST(
-		CASE 
-			WHEN us.DateToDelete is null or us.DateToDelete = 0
-				THEN 0
-			ELSE 1
-		END AS bit) as 'Delete'
+             CASE 
+                  WHEN us.DateToDelete is null or us.DateToDelete = 0
+                     THEN 0
+                  ELSE 1
+             END AS bit) as 'Delete'
 	from Users.Users us
 	left join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
