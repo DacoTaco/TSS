@@ -5,7 +5,6 @@ function searchTaskPage() {
 
 function getTasksPage(department, callback) {
     var contains = $("#searchbar").val();
-    var timeOutId = 0;
     var depNumber = Number(department);
     var parameters = { "Search": "", "depID": -2 };
 
@@ -34,7 +33,6 @@ function onDepartmentChanged() {
     getTasksPage(department);
     return false;
 }
-
 
 //calls upon the ASP.NET function that will push the changes to the task which is keeping track of all changes
 function PushTaskPropertyChange(PropertyName, value, Async) {

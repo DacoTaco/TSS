@@ -51,8 +51,8 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
     //time out doesn't work on sync ajax calls as it blocks the thread.
     //however, isn't this the point of timers...?
     //anyway, force the loading to show up..
-    //timeOutId = setTimeout(setLoading, 200);
-    setLoading();
+    timeOutId = setTimeout(setLoading, 200);
+    //setLoading();
 
     ret = ajaxFn();
     $(document).ajaxStop(function() {

@@ -47,6 +47,7 @@ namespace TSS_ASPWebForms
             get { return Settings.GetSessionSetting<string>("ActiveTab"); }
             set { Settings.SetSessionSetting("ActiveTab", value); }
         }
+
         protected void Setup_UserContent()
         {
             User user = null;
@@ -158,6 +159,7 @@ namespace TSS_ASPWebForms
                     if (!String.IsNullOrWhiteSpace(searchText))
                         searchField.DefaultValue = searchText;
                 }
+
                 //set the department parameter
                 TaskSource.SelectParameters["DepartmentID"] = departmentField;
                 TaskSource.SelectParameters["SearchText"] = searchField;
