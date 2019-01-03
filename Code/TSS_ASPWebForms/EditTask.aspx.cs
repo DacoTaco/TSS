@@ -70,8 +70,8 @@ namespace TSS_ASPWebForms
         //Functions
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(), RolesPermissions.ManageUsers) == false)
-                Response.Redirect("Index.aspx");
+            if (LoggedInUser.IsUserLoggedIn == false && (Settings.GetAppSetting("RequireLogin")??"0") != "0" )
+                    Response.Redirect("Login.aspx");
 
             if (IsPostBack)
                 return;

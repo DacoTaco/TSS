@@ -266,10 +266,10 @@ Begin
 		--	set @contains = null;
 			set @departmentID = null;
 		END
-		IF(@departmentID > 0)
-		BEGIN
-			set @contains = null;
-		END
+		--IF(@departmentID > 0)
+		--BEGIN
+		--	set @contains = null;
+		--END
 		IF(@departmentID < 0)
 		BEGIN
 			IF(@contains is null)
@@ -657,8 +657,10 @@ BEGIN
 	declare @name as nvarchar(60) = null
 
 	select @name=dep.DepartmentName 
-	from Department dep
-	where (dep.DepartmentID = null) or (dep.DepartmentID = @departmentID)
+	from General.Department dep
+	left join General.CompanyDepartment cd on cd.DepartmentID = dep.DepartmentID
+	left join General.Company cp on cp.CompanyID = cd.CompanyID
+	where (@departmentID is null) or (dep.DepartmentID = @departmentID)
 
 	if(@name is null)
 		set @name = '%'
@@ -898,7 +900,7 @@ BEGIN
 
 	select @permission = 1 
 	from Users.Users us
-	where us.UserID = @UserID and
+	where us.UserID = @UserID and 
 	(
 	( (us.UserOpened is null) or (us.UserOpened = @userHash)) or
 	( (DATEDIFF(minute,us.OpenTimeDue,GETDATE()) > 30) or (us.OpenTimeDue is null))
@@ -1188,14 +1190,14 @@ BEGIN
 	declare @ret nvarchar(128)
 
 	--declare @passSalt nvarchar(max)
-	--select @passSalt = us.PasswordSalt from Users.Users us where us.UserName like @userName
+	--select @passSalt = us.PasswordSalt from Users.Users us where us.UserID = @userID
 	--declare @hash varbinary(128)
-	--select @hash = us.PasswordHash from Users.Users us where us.UserName like @userName
-	--select @passSalt as 'PassSalt',CONCAT('(',@userName,')') as 'username',@hash as 'pass hash',HASHBytes('SHA2_512',CONCAT(@passSalt,HASHBytes('SHA2_512',@password)) ) as 'generated password'
+	--select @hash = us.PasswordHash from Users.Users us where us.UserID = @userID
+	--select @passSalt as 'PassSalt',CONCAT('(',@userID,')') as 'userID',@hash as 'pass hash',HASHBytes('SHA2_512',CONCAT(@passSalt,HASHBytes('SHA2_512',@password)) ) as 'generated password'
 	--select Username,PasswordHash,'0x' + CONVERT(nvarchar(max),PasswordHash,2),CONVERT(nvarchar(max),(HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',CONCAT(us.UserID,':',us.UserName))) )),2)
 	--from Users.Users us
 
-	SELECT @ret = CONVERT(nvarchar(max),(HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',CONCAT(us.UserID,':',us.UserName))) )),2)
+	SELECT @ret = CONVERT(nvarchar(128),(HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',CONCAT(us.UserID,':',us.UserName))) )),2)
 	FROM Users.Users us
 	inner join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	inner join General.Company cp on cp.CompanyID = cd.CompanyID
@@ -1273,11 +1275,11 @@ BEGIN
 
 	Select DISTINCT us.UserID, us.UserName, us.DepartmentID, us.PhotoID, us.Active, 
 	CAST(
-             CASE 
-                  WHEN us.DateToDelete is null or us.DateToDelete = 0
-                     THEN 0
-                  ELSE 1
-             END AS bit) as 'Delete'
+		 CASE 
+			  WHEN us.DateToDelete is null or us.DateToDelete = 0
+				 THEN 0
+			  ELSE 1
+		 END AS bit) as 'Delete'
 	from Users.Users us
 	left join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
