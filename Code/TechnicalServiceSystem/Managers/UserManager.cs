@@ -88,7 +88,7 @@ namespace TechnicalServiceSystem
         {
             BindingListView<User> ret = null;
             ObservableCollection<User> list = GetUsers(Settings.GetCompanyName(), contains, 
-                RoleID.HasValue?RoleID.Value:0,
+                RoleID ?? 0,
                 activeOnly);
             ret = new BindingListView<User>(list.ToList());
 
@@ -125,9 +125,9 @@ namespace TechnicalServiceSystem
                 var session = GetSession();
                 ret = new ObservableCollection<Role>(session.QueryOver<Role>().List());
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                throw;
             }
 
             if(ret == null)
@@ -405,8 +405,10 @@ namespace TechnicalServiceSystem
 
         public bool AddUser(User user)
         {
-            var users = new List<User>();
-            users.Add(user);
+            var users = new List<User>
+            {
+                user
+            };
 
             return AddOrChangeUser(users);
         }
@@ -418,16 +420,20 @@ namespace TechnicalServiceSystem
 
         public bool ChangeUser(User user)
         {
-            var users = new List<User>();
-            users.Add(user);
+            var users = new List<User>
+            {
+                user
+            };
 
             return AddOrChangeUser(users);
         }
 
         public bool AddOrChangeUser(User user)
         {
-            var users = new List<User>();
-            users.Add(user);
+            var users = new List<User>
+            {
+                user
+            };
 
             return AddOrChangeUser(users);
         }

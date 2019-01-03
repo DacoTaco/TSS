@@ -21,7 +21,6 @@
     <link href="CSS/lightbox.css" rel="stylesheet" type="text/css"/>
     <script src="Scripts/lightbox.js"></script>
     <!-- script to set the bootstrap tab again -->
-    <!-- TODO : talk this over with tom -->
     <script type="text/javascript">
         function setTab() {
             var url = document.location.toString();

@@ -64,7 +64,7 @@ namespace TechnicalServiceSystem
                 var filename = string.Format(@".\Lang\{0}_{1}.xaml", fileName,
                     ConfigurationManager.AppSettings["Lang"]);
                 if (!File.Exists(filename))
-                    filename = string.Format(@".\Lang\{0}_EN.xaml", fileName, ConfigurationManager.AppSettings["Lang"]);
+                    filename = $".\\Lang\\{fileName}_{ConfigurationManager.AppSettings["Lang"]??"EN"}.xaml";
 
                 dict.Source = new Uri(filename, UriKind.Relative);
                 collection.Add(dict);

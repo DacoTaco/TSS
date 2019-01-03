@@ -36,16 +36,6 @@ namespace TechnicalServiceSystem.Utilities
             get
             {
                 ISessionFactory ret = null;
-                /*if (Settings.IsWebEnvironment)
-                {
-                    ret = Settings.GetSessionSetting<ISessionFactory>(_sessionFactoryKey);
-                    if (ret == null)
-                    {
-                        ret = CreateSessionFactory();
-                        Settings.SetSessionSetting(_sessionFactoryKey, ret);
-                    }            
-                }
-                else*/
                 {           
                     if(factory == null)
                         factory = CreateSessionFactory();

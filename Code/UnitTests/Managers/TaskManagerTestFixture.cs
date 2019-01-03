@@ -31,10 +31,10 @@ namespace UnitTests.Managers
         [Test]
         public void CanRetrieveSingleTask()
         {
-            var _task = _taskManager.GetTasks(Settings.GetCompanyName(), 4);
+            var _task = _taskManager.GetTasks(Settings.GetCompanyName(), 7);
 
             Assert.NotNull(_task);
-            Assert.AreEqual(4, _task.ID);
+            Assert.AreEqual(7, _task.ID);
             Assert.That(_task.Photos, Is.Not.Null, "Photos List not null");
             Assert.That(_task.Photos.Count, Is.GreaterThan(0), "Photos List is empty");
             Assert.That(_task.Notes.Count, Is.GreaterThan(0), "Notes list is empty");

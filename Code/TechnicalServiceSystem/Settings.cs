@@ -57,14 +57,17 @@ namespace TechnicalServiceSystem
 
         public static string GetServerPath()
         {
-            string path = @"~\";
+            string path = @".\";
             if (IsWebEnvironment && String.IsNullOrWhiteSpace(GetAppSetting("ServerPath")))
             {
                 path = HttpContext.Current.Server.MapPath(@".\");
             }
             else
             {
-                path = Path.Combine(GetAppSetting("ServerPath") ?? "~", @"\");
+                path = GetAppSetting("ServerPath");
+                if (String.IsNullOrWhiteSpace(path))
+                    path = @".\";
+                path = Path.GetFullPath(Path.Combine(path, @".\"));
             }
 
             return Path.GetFullPath(path);

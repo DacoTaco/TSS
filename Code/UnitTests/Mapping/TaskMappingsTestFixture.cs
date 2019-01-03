@@ -27,12 +27,12 @@ namespace UnitTests.Mapping
         public void CanMapTasks()
         {
             var _task = TestSession.QueryOver<Task>()
-                .Where(x => x.ID == 4)
+                .Where(x => x.ID == 7)
                 .List()
                 .First();
 
             Assert.NotNull(_task);
-            Assert.AreEqual(4,_task.ID);
+            Assert.AreEqual(7,_task.ID);
             Assert.NotNull(_task.Technician);
             Assert.That(_task.TechnicianID,Is.Not.Null,"Technician ID");
             Assert.That(_task.Photos,Is.Not.Null,"Photos List not null");

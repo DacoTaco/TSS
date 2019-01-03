@@ -29,8 +29,8 @@ namespace UnitTests.Managers
         [SetUp]
         public void SetUp()
         {
-            if (!Directory.Exists(@"C:\images"))
-                Directory.CreateDirectory(@"C:\images");
+            if (!Directory.Exists(@".\images"))
+                Directory.CreateDirectory(Path.GetFullPath(@".\images"));
         }
         [TearDown]
         public void TearDown()
@@ -38,10 +38,10 @@ namespace UnitTests.Managers
             gnrlManager.GetSession()
                 .CreateSQLQuery("delete from General.Photo where photoname like '%temp.%'")
                 .ExecuteUpdate();
-            if(File.Exists(@"C:\images\temp.png"))
-                File.Delete(@"C:\images\temp.png");
-            if (Directory.Exists(@"C:\images"))
-                Directory.Delete(@"C:\images");
+            if(File.Exists(@".\images\temp.png"))
+                File.Delete(@".\images\temp.png");
+            if (Directory.Exists(@".\images"))
+                Directory.Delete(@".\images");
         }
         [Test]
         public void CanRetrieveSingleLocation()
@@ -60,7 +60,7 @@ namespace UnitTests.Managers
             var photo = gnrlManager.GetPhoto("./system/DefaultUser.jpg");
 
             Assert.NotNull(photo);
-            Assert.AreEqual(1007,photo.ID);
+            Assert.AreEqual(1,photo.ID);
             Assert.That(photo.FileName, Is.EqualTo("./system/DefaultUser.jpg"));
         }
 
@@ -77,7 +77,7 @@ namespace UnitTests.Managers
             Assert.True(photo.ID > 0);
             Assert.Null(photo.PhotoSource);
             Assert.AreEqual("./images/temp.png",photo.FileName.ToLower());
-            Assert.True(File.Exists(Path.Combine(@"C:\",photo.FileName)));
+            Assert.True(File.Exists(Path.Combine(@".\",photo.FileName)));
         }
     }
 }
