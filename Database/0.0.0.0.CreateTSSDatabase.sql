@@ -58,7 +58,7 @@ Create Table General.Photo
 
 insert into General.Photo(PhotoName)
 values(
-	'DefaultUser'
+	'./system/DefaultUser.jpg'
 );
 
 create table General.Addresses
