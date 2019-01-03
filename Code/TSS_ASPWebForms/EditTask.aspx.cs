@@ -69,8 +69,11 @@ namespace TSS_ASPWebForms
 
         //Functions
         protected void Page_Load(object sender, EventArgs e)
-        {          
-            if(IsPostBack)
+        {
+            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(), RolesPermissions.ManageUsers) == false)
+                Response.Redirect("Index.aspx");
+
+            if (IsPostBack)
                 return;
 
             try
@@ -383,7 +386,6 @@ namespace TSS_ASPWebForms
                 return false;
 
             var changed = false;
-            var found = false;
             //see which property we are changing, verify value and set value as changed and found if its all ok
             switch (PropertyName)
             {
@@ -402,7 +404,6 @@ namespace TSS_ASPWebForms
                     photo.PhotoSource = data;
                     Task.Photos.Add(photo);
                     changed = true;
-                    found = true;
                     break;
                 case "Notes":
                     var descr = value as string;
@@ -413,20 +414,17 @@ namespace TSS_ASPWebForms
                     var note = new Note(descr, DateTime.Now);
                     Task.Notes.Add(note);
                     changed = true;
-                    found = true;
                     break;
                 case "Location":
                     try
                     {
                         var locID = int.Parse(value as string);
                         Task.Location = new GeneralManager().GetLocation(locID);
-                        found = true;
                         changed = (Task.Location.ID != OriginalTask.Location.ID);
                     }
                     catch
                     {
                         changed = false;
-                        found = false;
                     }
                     
                     break;
@@ -436,14 +434,12 @@ namespace TSS_ASPWebForms
                         var statusID = int.Parse(value as string);
                         Task.StatusID = statusID;
                         changed = Task.StatusID != OriginalTask.StatusID;
-                        found = true;
 
                         var statusChanged = Task.StatusID != OriginalTask.StatusID;
                     }
                     catch
                     {
                         changed = false;
-                        found = false;
                     }
                     break;
                 case "Technician":
@@ -452,14 +448,12 @@ namespace TSS_ASPWebForms
                         var userID = int.Parse(value as string);
                         Task.Technician = (User)SystemLists.User.Technicians.Where(t => t.ID == userID).FirstOrNull();
                         changed = Task.TechnicianID != OriginalTask.TechnicianID;
-                        found = true;
 
                         var statusChanged = Task.StatusID != OriginalTask.StatusID;
                     }
                     catch
                     {
                         changed = false;
-                        found = false;
                     }
                     break;
                 case "Machine":
@@ -467,13 +461,11 @@ namespace TSS_ASPWebForms
                     {
                         var machineID = int.Parse(value as string);
                         Task.Device = new SupplierManager().GetMachine(machineID);
-                        found = true;
                         changed = Task.Device?.ID != OriginalTask.Device?.ID;
                     }
                     catch
                     {
                         changed = false;
-                        found = false;
                     }
                     break;
                 case "DepartmentID":
@@ -513,7 +505,6 @@ namespace TSS_ASPWebForms
                 case "Generic"://Generic is kinda our "default push change" case :P 
                     //Generic awesomeness!!
                     //basically, we take the value, try and convert it to the needed type, and assign the value. if the conversion fails it means we didn't get the right type anyway, so no change
-                    found = true;
                     try
                     {
                         var variableType = property.PropertyType;
@@ -526,7 +517,6 @@ namespace TSS_ASPWebForms
                     catch
                     { 
                         changed = false;
-                        found = false;
                     }
 
                     break;

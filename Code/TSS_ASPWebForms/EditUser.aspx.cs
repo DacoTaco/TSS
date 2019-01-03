@@ -66,8 +66,8 @@ namespace TSS_ASPWebForms
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            /*if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
-                Response.Redirect("Index.aspx");*/
+            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
+                Response.Redirect("Index.aspx");
 
             if (IsPostBack)
                 return;
@@ -80,7 +80,6 @@ namespace TSS_ASPWebForms
             }
             catch (Exception ex)
             {
-                throw;
                 Session["exceptionMessage"] = ex.Message;
                 Response.Redirect("DisplayError");
             }
@@ -422,7 +421,7 @@ namespace TSS_ASPWebForms
                     var jObject = objectData as JObject;
                     return jObject.ToObject<ChangedRole>();
                 }
-                catch (Exception e)
+                catch
                 {
                     return null;
                 }              

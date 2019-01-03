@@ -252,6 +252,9 @@ namespace TSS_ASPWebForms
         }
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(), RolesPermissions.ManageUsers) == false)
+                Response.Redirect("Index.aspx");
+
             if (IsPostBack)
                 return;
 
@@ -260,7 +263,15 @@ namespace TSS_ASPWebForms
             if (!String.IsNullOrWhiteSpace(requireLogin) && requireLogin == "1" && !LoggedInUser.IsUserLoggedIn)
                 Response.Redirect("Login");
 
-            Setup_Page();
+            try
+            {
+                Setup_Page();
+            }
+            catch (Exception ex)
+            {
+                Session["exceptionMessage"] = ex.Message;
+                Response.Redirect("DisplayError");
+            } 
         }
         //Click event handler for the Login/Logout button in the user menu
         protected void LoginMenu_Click(object sender, EventArgs e)
