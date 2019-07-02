@@ -21,7 +21,7 @@ using TechnicalServiceSystem.Entities.Suppliers;
 namespace UnitTests.Mapping
 {
     [TestFixture]
-    public class ContactMappingsTestFixture : NhibernateTestFixture
+    public class ContactMapTestFixture : NhibernateTestFixture
     {
         [Test]
         public void CanMapContactInfo()

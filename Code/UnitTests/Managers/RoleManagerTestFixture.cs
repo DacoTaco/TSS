@@ -21,7 +21,7 @@ using TechnicalServiceSystem.Entities.Users;
 namespace UnitTests.Managers
 {
     [TestFixture]
-    class RoleManagerTestFixture
+    class RoleManagerTestFixture : NhibernateTestFixture
     {
         private UserManager userManager = new UserManager();
         [Test]

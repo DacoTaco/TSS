@@ -24,10 +24,16 @@ namespace UnitTests
     public class NhibernateTestFixture : DatabaseManager
     {
         protected ISession TestSession = null;
+        [TearDown]
+        public void TearDown()
+        {
+            TestSession.Transaction.Rollback();
+        }
         [SetUp]
         public void SetUp()
         {
             TestSession = GetSession();
+            TestSession.BeginTransaction();
             Assert.NotNull(TestSession,"Unable to retrieve the TestSession");
             TestSession.FlushMode = FlushMode.Never;
         }

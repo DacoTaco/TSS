@@ -14,14 +14,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using System.Linq;
+using FluentNHibernate.Testing;
 using NUnit.Framework;
+using System;
+using System.Linq;
+using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
 
 namespace UnitTests.Mapping
 {
     [TestFixture]
-    public class TaskMappingsTestFixture : NhibernateTestFixture
+    public class TaskMapTestFixture : NhibernateTestFixture
     {
         [Test]
         public void CanMapTasks()
@@ -38,6 +41,27 @@ namespace UnitTests.Mapping
             Assert.That(_task.Photos,Is.Not.Null,"Photos List not null");
             Assert.That(_task.Photos.Count,Is.GreaterThan(0),"Photos List is empty");
             Assert.That(_task.Notes.Count,Is.GreaterThan(0),"Notes list is empty");
+        }
+        [Test]
+        public void CanInsertTask()
+        {
+            //Arrange
+            var task = new Task()
+            {
+                Description = "TestFixture",
+                IsUrguent = false,
+                CreationDate = DateTime.Now,
+                LastModifiedOn = DateTime.Now,
+                Reporter = "TestFixture",
+                TypeID = 1,
+                StatusID = 1,
+                Location = TestSession.QueryOver<Location>().Where(l => l.ID == 1).SingleOrDefault()
+            };
+            task.Notes.Clear();
+
+            //Act&Assert
+            new PersistenceSpecification<Task>(TestSession)
+                .VerifyTheMappings(task);
         }
     }
 }

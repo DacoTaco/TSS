@@ -20,7 +20,7 @@ using TechnicalServiceSystem;
 namespace UnitTests.Managers
 {
     [TestFixture]
-    public class TaskManagerTestFixture
+    public class TaskManagerTestFixture : NhibernateTestFixture
     {
         private TaskManager _taskManager = null;
         [SetUp]

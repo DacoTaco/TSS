@@ -22,7 +22,7 @@ using TechnicalServiceSystem.Entities.General;
 namespace UnitTests.Managers
 {
     [TestFixture]
-    class GeneralManagerTestFixture
+    class GeneralManagerTestFixture : NhibernateTestFixture
     {
         private GeneralManager gnrlManager = new GeneralManager();
 

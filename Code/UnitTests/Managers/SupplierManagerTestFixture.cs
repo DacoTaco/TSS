@@ -21,7 +21,7 @@ using TechnicalServiceSystem.Entities.Suppliers;
 namespace UnitTests.Managers
 {
     [TestFixture]
-    class SupplierManagerTestFixture
+    class SupplierManagerTestFixture : NhibernateTestFixture
     {
         private SupplierManager supplierManager = new SupplierManager();
         [Test]
