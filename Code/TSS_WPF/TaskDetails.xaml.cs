@@ -33,6 +33,7 @@ namespace TSS_WPF
     /// </summary>
     public partial class TaskDetails : Window, INotifyPropertyChanged
     {
+        public ObservableCollection<TaskStatus> TaskStatuses { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
         {
@@ -96,6 +97,7 @@ namespace TSS_WPF
                 this.Name = "TaskDetails";
             LanguageFiles.LoadLanguageFile(this, "Details");
             LanguageFiles.LoadLanguageFile(this, "Generic");
+            TaskStatuses = SystemLists.Tasks.GetTranslatedTaskStatuses((string[])TryFindResource("StatusArray"));
 
 
             //make copy of task to use in the window

@@ -88,52 +88,5 @@ namespace TechnicalServiceSystem.Lists
         {
             return Instance;
         }
-
-        //----------------------------
-        // List retrieval functions
-        //----------------------------
-
-        /// <summary>
-        ///     Retrieves all lists from the database. Also sets the text of status descriptions,type descriptions and the not set
-        ///     string for machines. this is meant for translations and localisations
-        /// </summary>
-        /// <param name="StatusDescriptions">string array that contains translations of the Task statuses</param>
-        /// <param name="TypeDescriptions">string array that contains translations for the Task Types</param>
-        /// <param name="MachineNotSetString">string that contains translation for the words "Not Set"</param>
-        public void GetLists(string[] StatusDescriptions, string[] TypeDescriptions, string[] RoleNames,
-            string MachineNotSetString = null, int? departmentID = null)
-        {
-            GetLists(null, StatusDescriptions, TypeDescriptions, RoleNames, MachineNotSetString, departmentID);
-        }
-
-        /// <summary>
-        ///     Retrieves all lists from the database. Also lets the system give a string that tasks may contain
-        ///     and sets the text of status descriptions,type descriptions and the not set string for machines.
-        ///     this is meant for translations and localisations
-        /// </summary>
-        /// <param name="tasksContain">string that may contain within a task</param>
-        /// <param name="StatusDescriptions">string array that contains translations of the Task statuses</param>
-        /// <param name="TypeDescriptions">string array that contains translations for the Task Types</param>
-        /// <param name="RoleNames">string array that contains the translations for the roles</param>
-        /// <param name="NotSetString">string that contains translation for the words "Not Set"</param>
-        /// <param name="departmentID">ID of the department in which to look for tasks</param>
-        public void GetLists(string tasksContain, string[] StatusDescriptions, string[] TypeDescriptions,
-            string[] RoleNames, string NotSetString = null, int? departmentID = null)
-        {
-            //All partial classes of the systemlists class should have a main function that retrieves all lists from that part of the class.
-            //then its main function should be placed here so that by calling GetLists it gets the lists of all parts of the system
-
-            //the string arrays containing translations. if they are null we make them empty arrays so it doesn't crash somewhere down the line
-            if (StatusDescriptions == null)
-                StatusDescriptions = new string[0];
-            if (TypeDescriptions == null)
-                TypeDescriptions = new string[0];
-            if (RoleNames == null)
-                RoleNames = new string[0];
-
-            //retrival of the lists
-            GetSuppliersLists(NotSetString);
-            GetTaskList(tasksContain, StatusDescriptions, TypeDescriptions, departmentID);
-        }
     }
 }

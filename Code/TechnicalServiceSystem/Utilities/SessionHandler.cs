@@ -24,9 +24,8 @@ using TechnicalServiceSystem.Mappings;
 
 namespace TechnicalServiceSystem.Utilities
 {
-    public class SessionHandler
+    public static class SessionHandler
     {
-        private static readonly string _sessionFactoryKey = "TSS_SessionFactory";
         public static ISession TSS_Session => GetSession();
 
         private static ISessionFactory factory = null;
@@ -78,7 +77,6 @@ namespace TechnicalServiceSystem.Utilities
         {
             if (Settings.IsWebEnvironment)
             {
-                ISession session;
                 if (!CurrentSessionContext.HasBind(GetSessionFactory))
                 {
                     CurrentSessionContext.Bind(GetSessionFactory.OpenSession());

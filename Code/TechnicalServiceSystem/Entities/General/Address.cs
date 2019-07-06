@@ -21,7 +21,7 @@ namespace TechnicalServiceSystem.Entities.General
         public virtual string AddressLine { get; set; }
         public virtual string ExtraAddressLine { get; set; }
         public virtual int Nr { get; set; }
-        public virtual int Bus { get; set; }
+        public virtual string Bus { get; set; }
         public virtual string PostCode { get; set; }
         public virtual string City { get; set; }
         public virtual string Region { get; set; }

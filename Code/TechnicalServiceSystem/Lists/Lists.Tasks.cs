@@ -24,6 +24,7 @@ namespace TechnicalServiceSystem.Lists
     public class TaskList
     {
         private readonly string TaskStatusList = "TaskStatusList";
+        private readonly string TaskTypesList = "TaskTypesList";
 
         private ObservableCollection<TaskStatus> _taskStatuses;
         public ObservableCollection<TaskStatus> TaskStatuses
@@ -58,6 +59,39 @@ namespace TechnicalServiceSystem.Lists
             }
         }
 
+        private ObservableCollection<TaskType> _taskTypes;
+        public ObservableCollection<TaskType> TaskTypes
+        {
+            get
+            {
+                ObservableCollection<TaskType> ret;
+                if (Settings.IsWebEnvironment)
+                    ret = Settings.GetSessionSetting<ObservableCollection<TaskType>>(TaskTypesList);
+                else
+                    ret = _taskTypes;
+
+                if (ret == null)
+                {
+                    var TaskMngr = new TaskManager();
+                    ret = TaskMngr.GetTaskTypes();
+
+                    if (Settings.IsWebEnvironment)
+                        Settings.SetSessionSetting(TaskTypesList, ret);
+                    else
+                        _taskTypes = ret;
+                }
+                return _taskTypes;
+            }
+            protected set
+            {
+                if (Settings.IsWebEnvironment)
+                    Settings.SetSessionSetting(TaskTypesList, value);
+                else
+                    _taskTypes = value;
+            }
+        }
+
+
         public ObservableCollection<TaskStatus> GetTranslatedTaskStatuses(string[] translations)
         {
             try
@@ -75,6 +109,26 @@ namespace TechnicalServiceSystem.Lists
             catch (Exception ex)
             {
                 throw new Exception("Lists_Failed_Get_TaskStatuses : " + ex.Message, ex);
+            }
+        }
+        public ObservableCollection<TaskType> GetTranslatedTaskTypes(string[] translations)
+        {
+            try
+            {
+                if (
+                    (TaskTypes.First().ToString() != translations[TaskTypes.First().ID].ToString()) &&
+                    (translations != null || translations.Length > TaskTypes.Count)
+                   )
+                {
+                    foreach (var item in TaskTypes)
+                        item.Description = translations[item.ID];
+                    //TaskTypes.ToList().ForEach(t => t.Description = translations[t.ID]);
+                }
+                return TaskTypes;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lists_Failed_Get_TaskTypes : " + ex.Message, ex);
             }
         }
     }

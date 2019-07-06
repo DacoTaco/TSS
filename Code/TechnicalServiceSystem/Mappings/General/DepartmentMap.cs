@@ -29,6 +29,7 @@ namespace TechnicalServiceSystem.Mappings
 
             References(d => d.ParentDepartment)
                 .Column("ParentDepartmentID")
+                .Cascade.SaveUpdate()
                 .NotFound.Ignore();
 
             HasMany<Location>(d => d.Locations)
@@ -41,6 +42,7 @@ namespace TechnicalServiceSystem.Mappings
                 .Table("CompanyDepartment")
                 .Schema("General")
                 .AsSet()
+                .Cascade.SaveUpdate()
                 .NotFound.Ignore();
         }
     }

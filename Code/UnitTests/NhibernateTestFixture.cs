@@ -25,12 +25,12 @@ namespace UnitTests
     {
         protected ISession TestSession = null;
         [TearDown]
-        public void TearDown()
+        protected void TearDownSession()
         {
             TestSession.Transaction.Rollback();
         }
         [SetUp]
-        public void SetUp()
+        protected void SetUpSession()
         {
             TestSession = GetSession();
             TestSession.BeginTransaction();

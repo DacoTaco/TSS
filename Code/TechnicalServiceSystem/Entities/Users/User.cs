@@ -56,5 +56,25 @@ namespace TechnicalServiceSystem.Entities.Users
 
             return table;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            try
+            {
+                if (!(obj is User user))
+                    return false;
+
+                if ( user.ID == this.ID && user.UserName == this.UserName && user.IsActive == this.IsActive)
+                    return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+            return false;
+        }
     }
 }

@@ -1,4 +1,6 @@
---drop database TechnicalServiceSystem
+use master
+drop database TechnicalServiceSystem
+go
 --create database and its schema's
 create database TechnicalServiceSystem
 go
@@ -15,7 +17,7 @@ GRANT INSERT TO [public]
 GRANT REFERENCES TO [public]
 GRANT SELECT TO [public]
 GRANT UPDATE TO [public]
-GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public]
+--GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public]
 GRANT VIEW DATABASE STATE TO [public]
 go
 
@@ -67,7 +69,7 @@ create table General.Addresses
 	AddressLine nvarchar(max) not null,
 	AddressLine2 nvarchar(max),
 	AddressNr integer not null,
-	AddressBus integer,
+	AddressBus nvarchar(15),
 	Postcode nvarchar(15) not null,
 	City nvarchar(35) not null,
 	Region nvarchar(max),

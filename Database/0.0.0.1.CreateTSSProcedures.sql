@@ -1775,7 +1775,7 @@ go
 
 CREATE PROCEDURE General.AddAddress
 (
-	@addressLine1 nvarchar(max), @addressLine2 nvarchar(max), @addressNr int, @addressBus int,
+	@addressLine1 nvarchar(max), @addressLine2 nvarchar(max), @addressNr int, @addressBus nvarchar(15),
 	@postcode nvarchar(15), @city nvarchar(35) , @region nvarchar(max) , @country nvarchar(35)
 )
 AS

@@ -25,7 +25,7 @@ namespace TechnicalServiceSystem.Mappings
             Id(l => l.ID).Column("LocationID");
 
             Map(l => l.Description).Column("LocationName");
-            References(l => l.Department).Column("DepartmentID");
+            References(l => l.Department).Column("DepartmentID").Cascade.SaveUpdate();
         }
     }
 }

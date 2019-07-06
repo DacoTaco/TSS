@@ -68,9 +68,19 @@
     <Compile Include="Managers\UserManagerTestFixture.cs" />
     <Compile Include="Managers\GeneralManagerTestFixture.cs" />
     <Compile Include="Managers\TaskManagerTestFixture.cs" />
-    <Compile Include="Mapping\ContactMapTestFixture.cs" />
-    <Compile Include="Mapping\NoteMapTestFixture.cs" />
-    <Compile Include="Mapping\TaskMapTestFixture.cs" />
+    <Compile Include="Mapping\General\AddressMapTestFixture.cs" />
+    <Compile Include="Mapping\General\CompanyMapTestFixture.cs" />
+    <Compile Include="Mapping\General\DepartmentMapTestFixture.cs" />
+    <Compile Include="Mapping\General\LocationMapTestFixture.cs" />
+    <Compile Include="Mapping\General\PhotoMapTestFixture.cs" />
+    <Compile Include="Mapping\Suppliers\ContactMapTestFixture.cs" />
+    <Compile Include="Mapping\Tasks\RepeatingInfoMapTestFixture.cs" />
+    <Compile Include="Mapping\Tasks\TaskStatusMapTestFixture.cs" />
+    <Compile Include="Mapping\Tasks\TaskTypeMapTestFixture.cs" />
+    <Compile Include="Mapping\Tasks\NoteMapTestFixture.cs" />
+    <Compile Include="Mapping\Tasks\TaskMapTestFixture.cs" />
+    <Compile Include="Mapping\Users\RolesMapTestFixture.cs" />
+    <Compile Include="Mapping\Users\UserMapTestFixture.cs" />
     <Compile Include="NhibernateTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionTestFixture.cs" />
@@ -88,6 +98,7 @@
       <Name>Backbone</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

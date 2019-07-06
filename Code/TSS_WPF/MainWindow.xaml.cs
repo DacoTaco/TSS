@@ -15,13 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TechnicalServiceSystem;
 using TechnicalServiceSystem.Base;
+using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
+using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Lists;
 
 namespace TSS_WPF
@@ -39,6 +42,12 @@ namespace TSS_WPF
             }
 
         }
+
+        public ObservableCollection<Task> TasksList { get; set; }
+        public ObservableCollection<TaskStatus> TaskStatuses { get; set; }
+        public ObservableCollection<TaskType> TaskTypes { get; set; }
+        public ObservableCollection<Department> Departments => SystemLists.General.Departments;
+        public ObservableCollection<User> Technicians => SystemLists.User.Technicians;
 
         // ok SO. dynamic resource binding is not allowed for TargetNullValue in multibinding. le suck. SO, we use this variable, use it as a static resource in wpf.
         // done and done :P
@@ -75,7 +84,9 @@ namespace TSS_WPF
             //Collect all data before initing window...
             try
             {
-                Lists.GetLists((string[])TryFindResource("StatusArray"), (string[])TryFindResource("TypesArray"), (string[])TryFindResource("RoleNames"));
+                TasksList = new TaskManager().GetTasks(null, Settings.GetCompanyName(), null, null);
+                TaskStatuses = SystemLists.Tasks.GetTranslatedTaskStatuses((string[])TryFindResource("StatusArray"));
+                TaskTypes = SystemLists.Tasks.GetTranslatedTaskTypes((string[])TryFindResource("TypesArray"));
             }
             catch (Exception ex)
             {
@@ -88,7 +99,7 @@ namespace TSS_WPF
             TaskGrid.DataContext = this;
             MachinesGrid.DataContext = this;
 
-            lsbNotes.DataContext = Lists.TasksList[0];
+            lsbNotes.DataContext = TasksList[0];
 
             SystemTabs.SelectedIndex = 1;
         }
@@ -141,12 +152,12 @@ namespace TSS_WPF
         {
             DataGridRow row = (DataGridRow)sender;
             Task targetTask = (Task)row.Item;
-            int index = Lists.TasksList.IndexOf(targetTask);
+            int index = TasksList.IndexOf(targetTask);
             Editting = true;
 
             if (GetTaskDetails(ref targetTask))
             {
-                Lists.TasksList[index] = targetTask;
+                TasksList[index] = targetTask;
             }
             Editting = false;
         }
@@ -155,7 +166,7 @@ namespace TSS_WPF
             Task task = null;
             if (GetTaskDetails(ref task, true))
             {
-                Lists.TasksList.Add(task);
+                TasksList.Add(task);
             }
         }
         private void btnSyncTasks_Click(object sender, RoutedEventArgs e)
@@ -202,7 +213,8 @@ namespace TSS_WPF
             }
 
             //reget the tasks y0
-            Lists.GetTasks();
+            //Lists.GetTasks();
+            TasksList = new TaskManager().GetTasks(null, Settings.GetCompanyName(), null, null);
 
             MessageBox.Show("Sync Complete!");
         }
@@ -222,7 +234,7 @@ namespace TSS_WPF
             object o = TaskGrid.ItemContainerGenerator.ItemFromContainer(e.Row);
 
             //if we aren't editting a task, add it to the list of changes to push to the Database!
-            if (Lists.TasksList.Contains(o) && Editting == false)
+            if (TasksList.Contains(o) && Editting == false)
             {
                 Task task = (o as Task).Clone();
                 Lists.EditedTasks.Add(task);
