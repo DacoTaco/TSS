@@ -506,7 +506,7 @@ namespace TechnicalServiceSystem
             var session = GetSession();
             var connection = session.Connection;
             foreach (var task in tasks)
-            {
+            { 
                 using (var trans = session.BeginTransaction())
                 {
                     try

@@ -15,7 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using NUnit.Framework;
+using System.Linq;
 using TechnicalServiceSystem;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace UnitTests.Managers
 {
@@ -45,6 +47,19 @@ namespace UnitTests.Managers
 
             Assert.NotNull(userList);
             Assert.AreEqual(userListCount,userList.Count);
+        }
+
+        [Test]
+        public void CanLoginUser()
+        {
+            //Arrange
+            var user = userManager.GetUsers("Sint-Elisabeth", "test", 0, true).SingleOrDefault();
+
+            //Act&Arrange
+            Assert.NotNull(user);
+            Assert.IsTrue(userManager.LoginUser(ref user, "test"));
+            Assert.AreEqual(user.UserHash,"69A7455D2BA647835B8BBA43CB0C1CBAF36914D39E45055F1188E6D63D14A54B5508A9DB9C93B3BFB5343CDA822E3131B5963B78A7D2E95AB38D12F6E51572EF");
+            Assert.IsTrue(string.IsNullOrWhiteSpace(user.Password));
         }
     }
 }
