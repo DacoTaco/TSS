@@ -18,6 +18,8 @@ using FluentNHibernate.Mapping;
 
 namespace TechnicalServiceSystem.Mappings
 {
+    public interface IEntityMapper { }
+
     public class EntityMapper<T> : ClassMap<T>, IEntityMapper
     {
         public EntityMapper(string TableName)

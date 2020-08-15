@@ -70,7 +70,6 @@
     <Compile Include="Entities\General\Department.cs" />
     <Compile Include="Entities\General\Location.cs" />
     <Compile Include="Entities\General\Photo.cs" />
-    <Compile Include="Entities\IBaseEntity.cs" />
     <Compile Include="Entities\Suppliers\Documentation.cs" />
     <Compile Include="Entities\Suppliers\Machine.cs" />
     <Compile Include="Entities\Suppliers\MachineType.cs" />
@@ -102,7 +101,6 @@
     <Compile Include="Mappings\General\DepartmentMap.cs" />
     <Compile Include="Mappings\General\LocationMap.cs" />
     <Compile Include="Mappings\General\PhotoMap.cs" />
-    <Compile Include="Mappings\IEntityMapper.cs" />
     <Compile Include="Mappings\SupplierSchemaMapper.cs" />
     <Compile Include="Mappings\Suppliers\ContactMap.cs" />
     <Compile Include="Mappings\Suppliers\DocumentationMap.cs" />

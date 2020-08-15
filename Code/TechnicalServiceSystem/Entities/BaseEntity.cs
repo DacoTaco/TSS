@@ -20,6 +20,11 @@ using System.ComponentModel;
 
 namespace TechnicalServiceSystem.Entities
 {
+    internal interface IBaseEntity
+    {
+        int ID { get; }
+    }
+
     public class BaseEntity : IBaseEntity, INotifyPropertyChanged
     {
         protected int _id;
