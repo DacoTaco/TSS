@@ -27,7 +27,6 @@ namespace TechnicalServiceSystem.Utilities
     public static class SessionHandler
     {
         public static ISession TSS_Session => GetSession();
-
         private static ISessionFactory factory = null;
 
         public static ISessionFactory GetSessionFactory
@@ -43,24 +42,35 @@ namespace TechnicalServiceSystem.Utilities
                 return ret;
             }
         }
+
         private static ISessionFactory CreateSessionFactory()
         {
             var conSetting = ConfigurationManager.ConnectionStrings["TSSDatabase"];
-            FluentConfiguration config = null;
 
-            if (conSetting == null || String.IsNullOrWhiteSpace(conSetting.ProviderName))
+            if (conSetting == null || String.IsNullOrWhiteSpace(conSetting.ProviderName) || string.IsNullOrWhiteSpace(conSetting.ConnectionString))
                 return null;
 
+            var connectionString = conSetting.ConnectionString;
+            if(ConfigurationManager.AppSettings["ConnectionEncrypted"] == "1")
+                connectionString = AES_Handler.DecryptString(connectionString);
+
+
+            IPersistenceConfigurer databaseConfig = null;
             switch (conSetting.ProviderName)
             {
                 case "System.Data.SqlClient":
-                    config = Fluently.Configure()
-                        .Database(MsSqlConfiguration.MsSql2008.ConnectionString(c =>
-                            c.FromConnectionStringWithKey("TSSDatabase")));
+                    databaseConfig = MsSqlConfiguration.MsSql2008.ConnectionString(connectionString);
                     break;
                 default:
                     break;
             }
+
+            if (databaseConfig == null)
+                return null;
+
+            FluentConfiguration config = Fluently.Configure()
+                .Database(databaseConfig)
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<IEntityMapper>());
 
             if (config == null)
                 return null;
@@ -68,9 +78,7 @@ namespace TechnicalServiceSystem.Utilities
             if (Settings.IsWebEnvironment)
                 config = config.CurrentSessionContext<WebSessionContext>();
 
-            return config
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<IEntityMapper>())
-                .BuildSessionFactory();
+            return config.BuildSessionFactory();
         }
 
         public static ISession GetSession()

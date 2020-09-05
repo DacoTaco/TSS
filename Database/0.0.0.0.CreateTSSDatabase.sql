@@ -1,9 +1,16 @@
 use master
 drop database TechnicalServiceSystem
+DROP LOGIN TssUser
 go
+
 --create database and its schema's
 create database TechnicalServiceSystem
 go
+
+--create login that is linked to TSS's database
+CREATE LOGIN [TssUser] WITH PASSWORD='TssDbTest', DEFAULT_DATABASE=[TechnicalServiceSystem], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+DENY VIEW ANY DATABASE TO TssUser
+GO
 
 use TechnicalServiceSystem
 go
@@ -20,7 +27,7 @@ GRANT UPDATE TO [public]
 --GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public]
 GRANT VIEW DATABASE STATE TO [public]
 go
-
+ 
 --create all schema's
 create SCHEMA Users AUTHORIZATION [public]
 go
@@ -30,6 +37,25 @@ create SCHEMA Suppliers AUTHORIZATION [public]
 go 
 create SCHEMA Tasks AUTHORIZATION [public]
 go
+
+--create server role
+CREATE ROLE TssRole AUTHORIZATION db_securityadmin
+GRANT CONNECT TO TssRole
+GRANT EXECUTE TO TssRole
+GRANT INSERT TO TssRole
+GRANT SELECT TO TssRole
+GRANT UPDATE TO TssRole
+
+DENY SELECT ON SCHEMA::sys TO TssRole
+DENY CREATE TABLE TO TssRole
+DENY ALTER TO TssRole
+GO
+
+CREATE USER TssUser FOR LOGIN TssUser
+GO
+ALTER ROLE TssRole ADD MEMBER TssUser
+GO
+
 
 --begin transaction of all database stuff
 Begin Tran Create_Database
@@ -89,7 +115,6 @@ create table General.Department
 	ParentDepartmentID int foreign key references General.Department(DepartmentID)
 );
 
---TODO : ask tom about classes like these, what do we do with these when writing the classes
 create table General.CompanyDepartment
 (
 	ID int not null identity(1,1) primary key,

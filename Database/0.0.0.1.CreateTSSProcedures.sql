@@ -540,32 +540,6 @@ END
 
 go
 
-CREATE PROCEDURE Tasks.GetNotes
-(
-	@taskID int = null
-)
-AS
-BEGIN
-	select tk.TaskID as 'Task ID',tk.TaskDescription as 'Task Description',nt.NoteID as 'Note ID',nt.Note, nt.NoteDate as 'Note Date' , tt.TypeDescription as 'Task Type' ,
-	tk.ReporterName as Reporter,ISNULL(us.UserName,'None') as Technician, dep.DepartmentName as 'Department',loc.LocationName as 'Location',
-	ts.StatusDescription as 'Status' , ma.MachineName as 'Machine'
-	from Tasks.Notes nt
-	inner join Tasks.Task tk on tk.TaskID = nt.TaskID
-	inner join Tasks.TaskType tt on tk.TypeID = tt.TypeID
-	inner join Tasks.TaskStatus ts on tk.StatusID = ts.StatusID
-	left join Users.Users us on us.UserID=tk.TechnicianID
-	inner join General.Locations loc on loc.LocationID = tk.LocationID
-	inner join General.Department dep on loc.DepartmentID = dep.DepartmentID
-	left join Tasks.RepeatingInfo rt on tk.TaskID = rt.ParentTaskID
-	left join Suppliers.Machine ma on ma.MachineID = tk.MachineID
-	where (@TaskID is null) or (tk.TaskID = @TaskID)
-	order by dep.DepartmentName,tt.TypeDescription asc,tk.TaskDescription asc
-
-
-END
-go
-
-
 CREATE PROCEDURE General.GetDepartmentID
 (
 @departmentName nvarchar(50),@companyName nvarchar(50)
@@ -1754,24 +1728,6 @@ BEGIN
 	AND stop_execution_date is null;
 END
 GO
-
-CREATE PROCEDURE Tasks.AssignTechnician
-(
-	@TaskID int,
-	@TechnicianID int
-)
-as
-Begin
-	update Tasks.Task
-	set TechnicianID = @TechnicianID,DateLastAdjustment=GetDate(),
-	StatusID = CASE WHEN (StatusID = (Select StatusID from Tasks.TaskStatus where StatusDescription like 'Being Processed') )
-	THEN (Select StatusID from Tasks.TaskStatus where StatusDescription like 'Assigned')
-	ELSE StatusID
-	END
-	where 
-	TaskID = @TaskID 
-END
-go
 
 CREATE PROCEDURE General.AddAddress
 (
