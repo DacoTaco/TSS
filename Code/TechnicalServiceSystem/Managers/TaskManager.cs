@@ -232,11 +232,10 @@ namespace TechnicalServiceSystem
         {
             try
             {
-                var session = GetSession();
                 return new ObservableCollection<TaskType>(
-                    session.QueryOver<TaskType>()
+                    Session.QueryOver<TaskType>()
+                        .OrderBy(x => x.ID).Asc
                         .List()
-                        .ToList()
                 );
             }
             catch (Exception ex)
@@ -253,11 +252,10 @@ namespace TechnicalServiceSystem
         {
             try
             {
-                var session = GetSession();
                 return new ObservableCollection<TaskStatus>(
-                    session.QueryOver<TaskStatus>()
+                    Session.QueryOver<TaskStatus>()
+                        .OrderBy(x => x.ID).Asc
                         .List()
-                        .ToList()
                 );
             }
             catch (Exception ex)
@@ -286,10 +284,145 @@ namespace TechnicalServiceSystem
             if (task == null)
                 return;
 
-            var list = new List<Task>();
-            list.Add(task);
+            var session = GetSession();
+            var connection = session.Connection;
+            using (var trans = session.BeginTransaction())
+            {
+                try
+                {
+                    using (var command = session.Connection.CreateCommand())
+                    {
+                        trans.Enlist(command);
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText = "Tasks.ChangeTask";
 
-            ChangeTasks(list);
+                        var taskID = command.CreateParameter();
+                        taskID.ParameterName = "TaskID";
+                        taskID.Value = task.ID;
+                        command.Parameters.Add(taskID);
+
+                        var changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "Description";
+                        changed_parameter.Value = task.Description;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "Urguent";
+                        changed_parameter.Value = task.IsUrguent;
+                        command.Parameters.Add(changed_parameter);
+
+                        //we need SqlParameter sadly... 
+                        //but the casting seems to work fine since our connection is probably SQL, so meh :P
+                        changed_parameter = command.CreateParameter();
+                        var parReporterInfo = (SqlParameter)command.CreateParameter();
+                        parReporterInfo.ParameterName = "reporterInfo";
+                        parReporterInfo.Value = User.GenerateUserTable(
+                            task.ReporterUser?.ID ?? 0,
+                            task.Reporter);
+                        parReporterInfo.SqlDbType = SqlDbType.Structured;
+                        parReporterInfo.TypeName = "Users.UserInfo";
+                        changed_parameter = parReporterInfo;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "TechnicianID";
+                        changed_parameter.Value = (task.TechnicianID == 0) ? (object)DBNull.Value : (object)task.TechnicianID;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "MachineID";
+                        changed_parameter.Value = ((task.Device?.ID ?? 0) == 0) ? (object)DBNull.Value : (object)task.Device?.ID;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "StatusID";
+                        changed_parameter.Value = task.StatusID;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "locationID";
+                        changed_parameter.Value = task.Location.ID;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "ActivationDate";
+                        changed_parameter.Value = (object)task.RepeatingInfo?.ActivationDate ?? (object)DBNull.Value;
+                        command.Parameters.Add(changed_parameter);
+
+                        changed_parameter = command.CreateParameter();
+                        changed_parameter.ParameterName = "DaysToRepeat";
+                        changed_parameter.Value = (object)task.RepeatingInfo?.Interval ?? (object)DBNull.Value;
+                        command.Parameters.Add(changed_parameter);
+
+                        if (command.Parameters.Count < 1 || command.ExecuteNonQuery() == 0)
+                        {
+                            trans.Rollback();
+                            return;
+                        }
+
+                        foreach (var note in task.Notes)
+                        {
+                            if (note.ID > 0)
+                                continue;
+
+                            using (var noteCommand = connection.CreateCommand())
+                            {
+                                trans.Enlist(noteCommand);
+                                noteCommand.CommandType = CommandType.StoredProcedure;
+                                noteCommand.CommandText = "Tasks.AddNote";
+
+                                var paraNote = noteCommand.CreateParameter();
+                                paraNote.ParameterName = "Note";
+                                paraNote.Value = note.Text;
+                                noteCommand.Parameters.Add(paraNote);
+
+                                var parTaskID = noteCommand.CreateParameter();
+                                parTaskID.ParameterName = "TaskID";
+                                parTaskID.Value = task.ID;
+                                noteCommand.Parameters.Add(parTaskID);
+
+                                if (noteCommand.ExecuteNonQuery() == 0) continue;
+                            }
+                        }
+
+                        //assign new photos
+                        foreach (var photo in task.Photos)
+                        {
+                            if (photo.ID > 0) continue;
+
+                            var gnrlManager = new GeneralManager();
+                            var item = photo;
+
+                            if (!gnrlManager.SavePhotoToServer(ref item) && item.ID <= 0) continue;
+
+                            using (var photoCommand = connection.CreateCommand())
+                            {
+                                trans.Enlist(photoCommand);
+                                photoCommand.CommandType = CommandType.StoredProcedure;
+                                photoCommand.CommandText = "Tasks.AssignPhoto";
+
+                                var parTaskID = photoCommand.CreateParameter();
+                                parTaskID.ParameterName = "taskID";
+                                parTaskID.Value = task.ID;
+                                photoCommand.Parameters.Add(parTaskID);
+
+                                var parPhoto = photoCommand.CreateParameter();
+                                parPhoto.ParameterName = "photoName";
+                                parPhoto.Value = item.FileName;
+                                photoCommand.Parameters.Add(parPhoto);
+
+                                if (photoCommand.ExecuteNonQuery() == 0) continue;
+                            }
+                        }
+                        trans.Commit();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    throw ex;
+                }
+            }
         }
 
 
@@ -494,168 +627,6 @@ namespace TechnicalServiceSystem
                 }
 
                 transaction.Commit();
-            }
-        }
-
-        [DataObjectMethod(DataObjectMethodType.Update)]
-        public void ChangeTasks(List<Task> tasks)
-        {
-            if (tasks == null || tasks.Count <= 0 )
-                return;
-
-            var session = GetSession();
-            var connection = session.Connection;
-            foreach (var task in tasks)
-            { 
-                using (var trans = session.BeginTransaction())
-                {
-                    try
-                    {                      
-                        using (var command = session.Connection.CreateCommand())
-                        {
-                            trans.Enlist(command);
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.CommandText = "Tasks.ChangeTask";
-
-                            var taskID = command.CreateParameter();
-                            taskID.ParameterName = "TaskID";
-                            taskID.Value = task.ID;
-                            command.Parameters.Add(taskID);
-
-                            var changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "Description";
-                            changed_parameter.Value = task.Description;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "Urguent";
-                            changed_parameter.Value = task.IsUrguent;
-                            command.Parameters.Add(changed_parameter);
-
-                            //we need SqlParameter sadly... 
-                            //but the casting seems to work fine since our connection is probably SQL, so meh :P
-                            changed_parameter = command.CreateParameter();
-                            var parReporterInfo = (SqlParameter)command.CreateParameter();
-                            parReporterInfo.ParameterName = "reporterInfo";
-                            parReporterInfo.Value = User.GenerateUserTable(
-                                task.ReporterUser != null ? task.ReporterUser.ID : 0,
-                                task.Reporter);
-                            parReporterInfo.SqlDbType = SqlDbType.Structured;
-                            parReporterInfo.TypeName = "Users.UserInfo";
-                            changed_parameter = parReporterInfo;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "TechnicianID";
-                            if ((task.TechnicianID) == 0)
-                                changed_parameter.Value = DBNull.Value;
-                            else
-                                changed_parameter.Value = task.TechnicianID;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "MachineID";
-                            if ((task.Device?.ID ?? 0) == 0)
-                                changed_parameter.Value = DBNull.Value;
-                            else
-                                changed_parameter.Value = task.Device?.ID;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "StatusID";
-                            changed_parameter.Value = task.StatusID;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "locationID";
-                            changed_parameter.Value = task.Location.ID;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "ActivationDate";
-                            if (task.RepeatingInfo?.ActivationDate == null)
-                                changed_parameter.Value = DBNull.Value;
-                            else
-                                changed_parameter.Value = task.RepeatingInfo.ActivationDate;
-                            command.Parameters.Add(changed_parameter);
-
-                            changed_parameter = command.CreateParameter();
-                            changed_parameter.ParameterName = "DaysToRepeat";
-                            if (task.RepeatingInfo?.Interval == null)
-                                changed_parameter.Value = DBNull.Value;
-                            else
-                                changed_parameter.Value = task.RepeatingInfo.Interval;
-                            command.Parameters.Add(changed_parameter);
-
-                            if (command.Parameters.Count < 1 || command.ExecuteNonQuery() == 0)
-                            {
-                                trans.Rollback();
-                                continue;
-                            }
-
-                            foreach (var note in task.Notes)
-                            {
-                                if (note.ID > 0)
-                                    continue;
-
-                                using (var noteCommand = connection.CreateCommand())
-                                {
-                                    trans.Enlist(noteCommand);
-                                    noteCommand.CommandType = CommandType.StoredProcedure;
-                                    noteCommand.CommandText = "Tasks.AddNote";
-
-                                    var paraNote = noteCommand.CreateParameter();
-                                    paraNote.ParameterName = "Note";
-                                    paraNote.Value = note.Text;
-                                    noteCommand.Parameters.Add(paraNote);
-
-                                    var parTaskID = noteCommand.CreateParameter();
-                                    parTaskID.ParameterName = "TaskID";
-                                    parTaskID.Value = task.ID;
-                                    noteCommand.Parameters.Add(parTaskID);
-
-                                    if (noteCommand.ExecuteNonQuery() == 0) continue;
-                                }
-                            }
-
-                            //assign new photos
-                            foreach (var photo in task.Photos)
-                            {
-                                if (photo.ID > 0) continue;
-
-                                var gnrlManager = new GeneralManager();
-                                var item = photo;
-
-                                if (!gnrlManager.SavePhotoToServer(ref item) && item.ID <= 0) continue;
-
-                                using (var photoCommand = connection.CreateCommand())
-                                {
-                                    trans.Enlist(photoCommand);
-                                    photoCommand.CommandType = CommandType.StoredProcedure;
-                                    photoCommand.CommandText = "Tasks.AssignPhoto";
-
-                                    var parTaskID = photoCommand.CreateParameter();
-                                    parTaskID.ParameterName = "taskID";
-                                    parTaskID.Value = task.ID;
-                                    photoCommand.Parameters.Add(parTaskID);
-
-                                    var parPhoto = photoCommand.CreateParameter();
-                                    parPhoto.ParameterName = "photoName";
-                                    parPhoto.Value = item.FileName;
-                                    photoCommand.Parameters.Add(parPhoto);
-
-                                    if (photoCommand.ExecuteNonQuery() == 0) continue;
-                                }
-                            }
-                            trans.Commit();                           
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        trans.Rollback();
-                        throw ex;
-                    }
-                }
             }
         }
 

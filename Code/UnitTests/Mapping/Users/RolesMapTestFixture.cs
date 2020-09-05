@@ -17,7 +17,7 @@ namespace UnitTests.Mapping.Users
             };
 
             //Act&Assert
-            new PersistenceSpecification<Role>(TestSession)
+            new PersistenceSpecification<Role>(Session)
                 .VerifyTheMappings(role);
         }
     }

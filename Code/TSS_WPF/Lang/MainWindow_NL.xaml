@@ -17,7 +17,6 @@
     <system:String x:Key="Interval">Herhaling (in dagen)</system:String>
 
     <system:String x:Key="NewTask">Nieuwe Taak</system:String>
-    <system:String x:Key="SyncTasks">Aanpassingen opslaan</system:String>
 
     <system:String x:Key="TasksTab">Taken</system:String>
     <system:String x:Key="MachinesTab">Machines</system:String>

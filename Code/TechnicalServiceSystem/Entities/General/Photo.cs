@@ -22,10 +22,10 @@ namespace TechnicalServiceSystem.Entities.General
         {
         }
 
-        public Photo(int id, string filepath)
+        public Photo(int id, string filename)
         {
             ID = id;
-            FileName = filepath;
+            FileName = filename;
         }
 
         public virtual string FileName { get; set; }

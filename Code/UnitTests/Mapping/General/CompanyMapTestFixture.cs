@@ -16,7 +16,7 @@ namespace UnitTests.Mapping.General
                 Name = "ATLANTIS LTD"
             };
             //Act&Assert
-            new PersistenceSpecification<Company>(TestSession)
+            new PersistenceSpecification<Company>(Session)
                 .VerifyTheMappings(company);
         }
     }

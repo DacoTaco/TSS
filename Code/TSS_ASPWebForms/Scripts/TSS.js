@@ -2,7 +2,7 @@
 function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback, Async) {
     var ret = false;
     var mode = true;
-    var timeOutId;
+    var timeOutId = 0;
 
     if (Async != null)
         mode = (Async == true);
@@ -10,25 +10,19 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
     if (parameters == null)
         parameters = "{}";
 
-    var ajaxFn = function() {
+    function LoadPage() {
         $.ajax({
             type: "GET",
             url: pageName,
-            async: mode,
             cache: false,
+            async: mode,
             datatype: "html",
             data: parameters,
             timeout: 30000,
             success: function(data) {
-                var div = $(data).find(PageDiv);
-                var content = div.html();
+                let div = $(data).find(PageDiv);
+                let content = div.html();
                 $(CurrentDiv).html(content);
-
-                clearTimeout(timeOutId);
-                var loadingdiv = document.getElementById("loadingDiv");
-                if (loadingdiv)
-                    loadingdiv.hidden = true;
-
                 if (callback) {
                     callback();
                 }
@@ -38,7 +32,6 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
                 alert(errorThrown);
                 alert("failed!");
             }
-
         });
         return true;
     };
@@ -48,20 +41,24 @@ function LoadPageDivIntoDiv(pageName, PageDiv, CurrentDiv, parameters, callback,
             loadingdiv.hidden = false;
     };
 
-    //time out doesn't work on sync ajax calls as it blocks the thread.
-    //however, isn't this the point of timers...?
-    //anyway, force the loading to show up..
-    timeOutId = setTimeout(setLoading, 200);
-    //setLoading();
+    
+    $(document).ajaxStart(function () {
+        //time out doesn't work on sync ajax calls as it blocks the thread.
+        //however, isn't this the point of timers & async calls ...?
+        //anyway, force the loading to show up..
+        //timeOutId = setTimeout(setLoading, 1);
+        setLoading();
+    });
 
-    ret = ajaxFn();
-    $(document).ajaxStop(function() {
+    //and clear the image when we are done
+    $(document).ajaxStop(function () {
         clearTimeout(timeOutId);
         var loadingdiv = document.getElementById("loadingDiv");
         if (loadingdiv)
             loadingdiv.hidden = true;
     });
 
+    ret = LoadPage();
     return ret;
 }
 

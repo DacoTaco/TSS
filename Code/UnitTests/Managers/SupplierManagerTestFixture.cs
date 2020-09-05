@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using NUnit.Framework;
+using System.Linq;
 using TechnicalServiceSystem;
 using TechnicalServiceSystem.Entities.Suppliers;
 
@@ -23,7 +24,8 @@ namespace UnitTests.Managers
     [TestFixture]
     class SupplierManagerTestFixture : NhibernateTestFixture
     {
-        private SupplierManager supplierManager = new SupplierManager();
+        private readonly SupplierManager supplierManager = new SupplierManager();
+
         [Test]
         public void CanRetrieveSingleMachine()
         {
@@ -37,5 +39,19 @@ namespace UnitTests.Managers
             Assert.IsTrue(_machine.Photos.Count > 0);
         }
 
+        [Test]
+        public void GetMachineTypesRetrievesAllMachineTypes()
+        {
+            //Arrange & Act
+            var result = supplierManager.GetMachineTypes();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.That(result, Has.Count.EqualTo(11));
+            Assert.AreEqual(1, result.First().ID);
+            Assert.AreEqual("Hoog Laag Bed", result.First().TypeName);
+            Assert.AreEqual(11, result.Last().ID);
+            Assert.AreEqual("Andere", result.Last().TypeName);
+        }
     }
 }

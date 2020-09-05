@@ -18,7 +18,7 @@ using System.Linq;
 using NUnit.Framework;
 using TechnicalServiceSystem.Entities.Suppliers;
 
-namespace UnitTests.Mapping
+namespace UnitTests.Mapping.Suppliers
 {
     [TestFixture]
     public class ContactMapTestFixture : NhibernateTestFixture
@@ -26,7 +26,7 @@ namespace UnitTests.Mapping
         [Test]
         public void CanMapContactInfo()
         {
-            var _contacts = TestSession.QueryOver<Contact>()
+            var _contacts = Session.QueryOver<Contact>()
                 .Where(x => x.Supplier.ID == 1)
                 .OrderBy(c => c.ID).Asc
                 .List();

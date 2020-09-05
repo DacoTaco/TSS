@@ -22,8 +22,7 @@ namespace TechnicalServiceSystem.Mappings.General
     {
         public PhotoMap() : base("Photo")
         {
-            Id(p => p.ID)
-                .Column("PhotoID");
+            Id(p => p.ID, "PhotoID").GeneratedBy.Identity();
 
             Map(p => p.FileName)
                 .Column("PhotoName");

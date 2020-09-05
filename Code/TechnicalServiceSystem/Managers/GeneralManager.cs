@@ -140,7 +140,7 @@ namespace TechnicalServiceSystem
 
             Image image = null;
             ImageFormat imageFormat = null;
-            Photo _photo = new Photo() {ID = photo.ID, FileName = photo.FileName, PhotoSource = photo.PhotoSource};
+            Photo _photo = new Photo(photo.ID, photo.FileName) {PhotoSource = photo.PhotoSource};
             var filename = "";
 
             if (_photo.PhotoSource.StartsWith("data:"))
@@ -176,7 +176,7 @@ namespace TechnicalServiceSystem
 
             try
             {
-                filename = $"./images/{_photo.FileName}.{imageFormat.ToString()}";
+                filename = $"./images/{_photo.FileName}.{imageFormat.ToString().ToLower()}";
                 var imageStream = new MemoryStream();
                 image.Save(imageStream, imageFormat);
                 imageStream.Position = 0;

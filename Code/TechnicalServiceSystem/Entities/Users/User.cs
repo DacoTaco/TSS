@@ -26,6 +26,10 @@ namespace TechnicalServiceSystem.Entities.Users
         {
             Roles = new List<Role>();
         }
+        public User(int id) : base()
+        { 
+            ID = id; 
+        }
 
         public virtual string UserName { get; set; }
         public virtual string UserHash { get; set; }
@@ -75,6 +79,18 @@ namespace TechnicalServiceSystem.Entities.Users
                 return false;
             }
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1882703150;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(UserName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(UserHash);
+            hashCode = hashCode * -1521134295 + IsActive.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<ICollection<Role>>.Default.GetHashCode(Roles);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Photo>.Default.GetHashCode(Photo);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Department>.Default.GetHashCode(Department);
+            return hashCode;
         }
     }
 }

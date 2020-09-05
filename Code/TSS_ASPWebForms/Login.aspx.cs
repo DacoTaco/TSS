@@ -62,22 +62,6 @@ namespace TSS_ASPWebForms
         }
 
         [WebMethod]
-        public static bool RequireLogin()
-        {
-            var ret = false;
-
-            try
-            {
-                var requireLogin = Settings.GetAppSetting("RequireLogin");
-                if (string.IsNullOrWhiteSpace(requireLogin) || requireLogin != "0")
-                    ret = true;
-            }
-            catch
-            {
-                ret = false;
-            }
-
-            return ret;
-        }
+        public static bool RequireLogin() => Settings.RequireLogin();
     }
 }

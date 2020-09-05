@@ -17,7 +17,7 @@ namespace UnitTests.Mapping.Tasks
             };
 
             //Act&Assert
-            new PersistenceSpecification<TaskType>(TestSession)
+            new PersistenceSpecification<TaskType>(Session)
                 .VerifyTheMappings(taskType);
         }
     }

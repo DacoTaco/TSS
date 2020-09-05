@@ -20,6 +20,9 @@ namespace TechnicalServiceSystem.Entities.General
 {
     public class Department : BaseEntity
     {
+        public Department() { }
+        public Department(int id) { ID = id; }
+
         public virtual string Description { get; set; }
         public virtual Department ParentDepartment { get; set; }
         public virtual ICollection<Company> Company { get; set; }

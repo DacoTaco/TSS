@@ -21,9 +21,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using TechnicalServiceSystem.Base;
 using TechnicalServiceSystem.Entities.Suppliers;
-using TechnicalServiceSystem.Utilities;
 
 namespace TechnicalServiceSystem
 {
@@ -61,110 +59,30 @@ namespace TechnicalServiceSystem
                 throw new Exception("SuppliesManager : GetMachines Failure : " + ex.Message,ex);
             }
         }
-        public ObservableCollection<MachineInfo> GetBaseMachines()
-        {
-            var ret = new ObservableCollection<MachineInfo>();
-
-            try
-            {
-                var connection = GetConnection();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "Suppliers.GetMachines";
-
-                    if(connection.State == ConnectionState.Closed)
-                        connection.Open();
-                    using (var rdr = command.ExecuteReader())
-                    {
-                        var MachineIDPos = rdr.GetOrdinal("MachineID");
-                        var MachineNamePos = rdr.GetOrdinal("MachineName");
-                        var SerialNumberPos = rdr.GetOrdinal("SerialNumber");
-                        var ModelNumberPos = rdr.GetOrdinal("ModelNumber");
-                        var ModelNamePos = rdr.GetOrdinal("ModelName");
-                        var SupplierPos = rdr.GetOrdinal("SupplierID");
-                        var TypeNumberPos = rdr.GetOrdinal("TypeID");
-
-                        while (rdr.Read())
-                        {
-                            var id = rdr.GetInt32(MachineIDPos);
-                            var name = rdr.GetString(MachineNamePos);
-                            string serial;
-                            if (rdr.IsDBNull(SerialNumberPos))
-                                serial = null;
-                            else
-                                serial = rdr.GetString(SerialNumberPos);
-
-                            string modelNumber;
-                            if (rdr.IsDBNull(ModelNumberPos))
-                                modelNumber = null;
-                            else
-                                modelNumber = rdr.GetString(ModelNumberPos);
-
-                            ret.Add(new MachineInfo(
-                                id,
-                                name,
-                                serial,
-                                modelNumber,
-                                rdr.GetString(ModelNamePos),
-                                rdr.GetInt32(SupplierPos),
-                                rdr.GetInt32(TypeNumberPos)
-                            ));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Supplier_Manager_Failed_GetMachines : " + ex.Message, ex);
-            }
-
-
-            return ret;
-        }
 
         /// <summary>
         ///     Retrieve a list of all known machine types
         /// </summary>
         /// <returns></returns>
-        public ObservableCollection<Base.MachineType> GetMachineTypes()
+        public ObservableCollection<MachineType> GetMachineTypes()
         {
-            var ret = new ObservableCollection<Base.MachineType>();
-
             try
             {
-                var connection = GetConnection();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
-                    command.CommandText = "select * from Suppliers.MachineType";
-
-                    if(connection.State == ConnectionState.Closed)
-                        connection.Open();
-
-                    using (var rdr = command.ExecuteReader())
-                    {
-                        var TypeIDPos = rdr.GetOrdinal("TypeID");
-                        var TypeNamePos = rdr.GetOrdinal("TypeName");
-
-                        while (rdr.Read())
-                            ret.Add(new Base.MachineType(rdr.GetInt32(TypeIDPos), rdr.GetString(TypeNamePos)));
-                    }
-                }
+                return new ObservableCollection<MachineType>(
+                    Session.QueryOver<MachineType>()
+                    .OrderBy(x => x.ID).Asc
+                    .List());
             }
             catch (Exception ex)
             {
                 throw new Exception("SuppliesManager : GetMachinesType Failure : " + ex.Message);
             }
-
-            return ret;
         }
 
         public Machine GetMachine(int machineID)
         {
             return GetSession().QueryOver<Machine>()
                 .Where(m => m.ID == machineID)
-                .List<Machine>()
                 .SingleOrDefault();
         }
 
@@ -178,7 +96,7 @@ namespace TechnicalServiceSystem
         ///     Add machine to the database
         /// </summary>
         /// <param name="MachineList"></param>
-        public void AddMachine(List<MachineInfo> MachineList)
+        public void AddMachine(List<Machine> MachineList)
         {
             if (MachineList == null || MachineList.Count <= 0)
                 throw new ArgumentException("Machine_Manager : AddMachines failure, arguments should not be null");
@@ -204,7 +122,7 @@ namespace TechnicalServiceSystem
                             command.CommandText = "Suppliers.AddMachine";
 
                             var Name = command.CreateParameter();
-                            Name.Value = machine.Name;
+                            Name.Value = machine.Description;
                             Name.ParameterName = "MachineName";
                             command.Parameters.Add(Name);
 
@@ -234,12 +152,12 @@ namespace TechnicalServiceSystem
 
                             var Supplier = command.CreateParameter();
                             Supplier.ParameterName = "SupplierID";
-                            Supplier.Value = machine.SupplierID;
+                            Supplier.Value = machine.Supplier.ID;
                             command.Parameters.Add(Supplier);
 
                             var Type = command.CreateParameter();
                             Type.ParameterName = "TypeID";
-                            Type.Value = machine.TypeID;
+                            Type.Value = machine.Type.ID;
                             command.Parameters.Add(Type);
 
                             var NewID = command.CreateParameter();
@@ -332,12 +250,12 @@ namespace TechnicalServiceSystem
             }
         }
 
-        public void AddMachine(MachineInfo Machine)
+        public void AddMachine(Machine Machine)
         {
             if (Machine == null)
                 return;
 
-            var machine = new List<MachineInfo>();
+            var machine = new List<Machine>();
             machine.Add(Machine);
             AddMachine(machine);
         }
@@ -346,7 +264,7 @@ namespace TechnicalServiceSystem
         ///     Delete machines from the database
         /// </summary>
         /// <param name="MachineList"></param>
-        public void DeleteMachine(List<MachineInfo> MachineList)
+        public void DeleteMachine(List<Machine> MachineList)
         {
             if (MachineList == null || MachineList.Count <= 0)
                 return;
@@ -427,12 +345,12 @@ namespace TechnicalServiceSystem
             }
         }
 
-        public void DeleteMachine(MachineInfo machine)
+        public void DeleteMachine(Machine machine)
         {
             if (machine == null)
                 return;
 
-            var machines = new List<MachineInfo>();
+            var machines = new List<Machine>();
             DeleteMachine(machines);
         }
 
@@ -440,7 +358,7 @@ namespace TechnicalServiceSystem
         ///     Update machines in the database
         /// </summary>
         /// <param name="MachineList"></param>
-        public void ChangeMachine(List<ChangedMachineInfo> MachineList)
+        public void ChangeMachine(List<Machine> MachineList)
         {
             if (MachineList == null || MachineList.Count <= 0)
                 return;
@@ -467,49 +385,35 @@ namespace TechnicalServiceSystem
                             machineID.ParameterName = "machineID";
                             command.Parameters.Add(machineID);
 
-                            foreach (var entry in machine.Changed_Properties)
-                                if (entry.Value)
-                                {
-                                    var changed_parameter = command.CreateParameter();
+                            var changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "machineName";
+                            changed_parameter.Value = machine.Description;
 
-                                    switch (entry.Key)
-                                    {
-                                        case "Name":
-                                            changed_parameter.ParameterName = "machineName";
-                                            changed_parameter.Value = machine.Name;
-                                            break;
-                                        case "SerialNumber":
-                                            changed_parameter.ParameterName = "serialNumber";
-                                            changed_parameter.Value = machine.SerialNumber;
-                                            break;
-                                        case "ModelNumber":
-                                            changed_parameter.ParameterName = "modelNumber";
-                                            changed_parameter.Value = machine.ModelNumber;
-                                            break;
-                                        case "ModelName":
-                                            changed_parameter.ParameterName = "modelName";
-                                            changed_parameter.Value = machine.ModelName;
-                                            break;
-                                        case "SupplierID":
-                                            changed_parameter.ParameterName = "supplierID";
-                                            changed_parameter.Value = machine.SupplierID;
-                                            break;
-                                        case "TypeID":
-                                            changed_parameter.ParameterName = "typeID";
-                                            changed_parameter.Value = machine.TypeID;
-                                            break;
-                                    }
+                            changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "serialNumber";
+                            changed_parameter.Value = machine.SerialNumber;
 
-                                    if (!string.IsNullOrWhiteSpace(changed_parameter.ParameterName))
-                                        command.Parameters.Add(changed_parameter);
-                                }
+                            changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "modelNumber";
+                            changed_parameter.Value = machine.ModelNumber;
 
-                            if (command.Parameters.Count > 1)
-                                if (command.ExecuteNonQuery() == 0)
-                                {
-                                    trans.Rollback();
-                                    continue;
-                                }
+                            changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "modelName";
+                            changed_parameter.Value = machine.ModelName;
+
+                            changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "supplierID";
+                            changed_parameter.Value = machine.Supplier.ID;
+
+                            changed_parameter = command.CreateParameter();
+                            changed_parameter.ParameterName = "typeID";
+                            changed_parameter.Value = machine.Type.ID;
+
+                            if (command.Parameters.Count > 1 && command.ExecuteNonQuery() == 0)
+                            {
+                                trans.Rollback();
+                                continue;
+                            }
                         }
 
                         //edditing machine done, add photos and documentations :)
@@ -589,12 +493,12 @@ namespace TechnicalServiceSystem
                 }
         }
 
-        public void ChangeMachine(ChangedMachineInfo machine)
+        public void ChangeMachine(Machine machine)
         {
             if (machine == null)
                 return;
 
-            var list = new List<ChangedMachineInfo>();
+            var list = new List<Machine>();
             list.Add(machine);
             ChangeMachine(list);
         }

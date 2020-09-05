@@ -20,11 +20,11 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using TechnicalServiceSystem;
 using TechnicalServiceSystem.Lists;
 using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
+using System.Linq;
 
 namespace TSS_WPF
 {
@@ -41,25 +41,20 @@ namespace TSS_WPF
         }
 
         public Task OutputTask = null;
-        private Task EditedTask = null;
-        public SystemLists Lists
-        {
-            get
-            {
-                return SystemLists.GetInstance();
-            }
+        protected Task EditedTask = null;
 
-        }
-
-        private ObservableCollection<Location> locations;
+        private ObservableCollection<Location> locations = new ObservableCollection<Location>();
 
         public ObservableCollection<Location> Locations
         {
             get { return locations; }
             set
             {
-                locations = value;
-                OnPropertyChanged("Locations");
+                locations.Clear();
+                foreach(var item in value ?? new ObservableCollection<Location>())
+                    locations.Add(item);
+
+                OnPropertyChanged(nameof(Locations));
             }
         }
 
@@ -85,9 +80,6 @@ namespace TSS_WPF
             }
         }
 
-
-        private ObservableCollection<BitmapImage> ImageList = new ObservableCollection<BitmapImage>();
-
         private TaskDetails() { }
 
         public TaskDetails(Task task, bool UserMode)
@@ -107,14 +99,11 @@ namespace TSS_WPF
             if (EditedTask.StatusID <= 0)
                 EditedTask.StatusID = 1;
 
-            //get the locations of the department
-            GetLocations();
-
-
             //Init Window
             InitializeComponent();
 
             //set datagrid for the bindings
+            cbLocation.ItemsSource = Locations;
             gridMain.DataContext = EditedTask;
 
             //add the key handler of the window (aka for esc)
@@ -128,8 +117,8 @@ namespace TSS_WPF
                 cbTechnician.IsEditable = false;
                 cbTechnician.IsHitTestVisible = false;
 
-                cbMachine.IsEditable = false;
-                cbMachine.IsHitTestVisible = false;
+                cbDevices.IsEditable = false;
+                cbDevices.IsHitTestVisible = false;
 
                 cbState.AllowDrop = false;
                 cbState.IsHitTestVisible = false;
@@ -172,28 +161,27 @@ namespace TSS_WPF
             if (
                 String.IsNullOrEmpty(txtReporter.Text) ||
                 String.IsNullOrEmpty(txtDescription.Text) ||
-                cbLocation.SelectedIndex == -1 ||
-                cbMachine.SelectedIndex == -1 ||
+                cbLocation.SelectedIndex == -1 || EditedTask.Location == null || 
+                cbDevices.SelectedIndex == -1 ||
                 cbState.SelectedIndex == -1
                 )
             {
                 MessageBox.Show("Some fields are not correct!");
+                return;
+            }
+
+            if (OutputTask.HasDifferences(EditedTask))
+            {
+                //no changes detected
+                EditedTask.LastModifiedOn = DateTime.Now;
+                OutputTask.Assign(EditedTask);
+                DialogResult = true;
             }
             else
             {
-                if (!OutputTask.Compare(EditedTask))
-                {
-                    //no changes detected
-                    EditedTask.LastModifiedOn = DateTime.Now;
-                    OutputTask.Assign(EditedTask);
-                    DialogResult = true;
-                }
-                else
-                {
-                    DialogResult = false;
-                } 
-                CloseWindow();
-            }
+                DialogResult = false;
+            } 
+            CloseWindow();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -203,30 +191,28 @@ namespace TSS_WPF
         }
 
         private void Departments_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            GetLocations();
-            if (
-                (EditedTask.DepartmentID != OutputTask.DepartmentID) ||
-                (OutputTask.Location?.ID == null || OutputTask.Location.ID == 0)
-               )
-            {
+        {           
+            var departmentID = (((Department)cbDepartment.SelectedItem)?.ID) ?? SystemLists.General.Departments.First().ID;
+            GetLocations(departmentID);
+            if (departmentID != OutputTask.DepartmentID || (OutputTask.Location?.ID ?? 0) == 0)
                 cbLocation.SelectedIndex = 0;
-            }
             else
-            {
-                cbLocation.SelectedValue = OutputTask.Location.ID;
-            }
+                cbLocation.SelectedValue = OutputTask.Location;
+
+            EditedTask.Location = (Location)cbLocation.SelectedItem;
         }
+
         private void CloseWindow()
         {
             this.Close();
         }
-        private void GetLocations()
+
+        private void GetLocations(int departmentID)
         {
             try
             {
                 var generalMgr = new GeneralManager();
-                Locations = generalMgr.GetLocations(EditedTask.DepartmentID);
+                Locations = generalMgr.GetLocations(departmentID);
             }
             catch (Exception ex)
             {

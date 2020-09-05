@@ -26,12 +26,17 @@ namespace TechnicalServiceSystem.Entities.Suppliers
             Documentations = new List<Documentation>();
             Photos = new List<Photo>();
         }
+        public Machine(int id) : base()
+        {
+            ID = id;
+        }
 
         public virtual string Description { get; set; }
         public virtual string SerialNumber { get; set; }
         public virtual string ModelNumber { get; set; }
         public virtual string ModelName { get; set; }
 
+        public virtual Supplier Supplier { get; set; }
         public virtual MachineType Type { get; set; }
         public virtual ICollection<Documentation> Documentations { get; set; }
         public virtual ICollection<Photo> Photos { get; set; }

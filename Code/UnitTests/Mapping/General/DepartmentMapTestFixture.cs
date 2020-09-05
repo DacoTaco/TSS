@@ -19,7 +19,7 @@ namespace UnitTests.Mapping.General
                 Company = new List<Company>() { new Company() { Name = "LoL" } }
             };
             //Act&Assert
-            new PersistenceSpecification<Department>(TestSession)
+            new PersistenceSpecification<Department>(Session)
                 .VerifyTheMappings(department);
         }
     }

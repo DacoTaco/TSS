@@ -74,6 +74,7 @@
     <Compile Include="Mapping\General\LocationMapTestFixture.cs" />
     <Compile Include="Mapping\General\PhotoMapTestFixture.cs" />
     <Compile Include="Mapping\Suppliers\ContactMapTestFixture.cs" />
+    <Compile Include="Mapping\Suppliers\MachineMapTestFixture.cs" />
     <Compile Include="Mapping\Tasks\RepeatingInfoMapTestFixture.cs" />
     <Compile Include="Mapping\Tasks\TaskStatusMapTestFixture.cs" />
     <Compile Include="Mapping\Tasks\TaskTypeMapTestFixture.cs" />

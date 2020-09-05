@@ -23,7 +23,7 @@ namespace UnitTests.Mapping.General
                 Country = "ATLANTIS"
             };
             //Act&Assert
-            new PersistenceSpecification<Address>(TestSession)
+            new PersistenceSpecification<Address>(Session)
                 .VerifyTheMappings(address);
         }
     }

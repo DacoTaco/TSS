@@ -27,11 +27,20 @@ namespace TechnicalServiceSystem
     /// </summary>
     public class Settings
     {
-        /// <summary>
-        ///     boolean to check weither we are running in a ASP/MVC web environment or in a Windows(WPF) environment
-        /// </summary>
-        public static bool IsWebEnvironment => (HttpRuntime.AppDomainAppId != null);
+        public static T GetSessionSetting<T>(string setting)
+        {
+            //return object in session settings or default of the object type (null for classes, 0 for int, '\0' for character, ...)
+            return IsWebEnvironment ?
+                (T)(HttpContext.Current?.Session?[setting] ?? default(T)) :
+                default(T);
+        }
 
+        public static void SetSessionSetting(string setting, object value)
+        {
+            if (!IsWebEnvironment || HttpContext.Current?.Session == null)
+                return;
+            HttpContext.Current.Session[setting] = value;
+        }
 
         /// <summary>
         ///     function to load an application setting. In ASP/MVC it will load from web.config, in WPF it will load from
@@ -39,7 +48,7 @@ namespace TechnicalServiceSystem
         /// </summary>
         /// <param name="settingName"></param>
         /// <returns></returns>
-        public static string GetAppSetting(string settingName)
+        private static string GetAppSetting(string settingName)
         {
             var ret = string.Empty;
 
@@ -65,37 +74,21 @@ namespace TechnicalServiceSystem
             else
             {
                 path = GetAppSetting("ServerPath");
-                if (String.IsNullOrWhiteSpace(path))
-                    path = @".\";
+                if (string.IsNullOrWhiteSpace(path))
+                    path = AppDomain.CurrentDomain.BaseDirectory;
                 path = Path.GetFullPath(Path.Combine(path, @".\"));
             }
 
             return Path.GetFullPath(path);
         }
 
-        public static string GetCompanyName()
-        {
-            return GetAppSetting("company");
-        }
+        /// <summary>
+        ///     boolean to check weither we are running in a ASP/MVC web environment or in a Windows(WPF) environment
+        /// </summary>
+        public static bool IsWebEnvironment => (HttpRuntime.AppDomainAppId != null);
 
-        public static T GetSessionSetting<T>(string setting)
-        {
-            return (T) GetSessionSetting(setting);
-        }
+        public static string GetCompanyName() => GetAppSetting("company");
 
-        public static object GetSessionSetting(string setting)
-        {
-            if (!IsWebEnvironment)
-                return null;
-
-            return HttpContext.Current?.Session?[setting];
-        }
-
-        public static void SetSessionSetting(string setting, object value)
-        {
-            if (!IsWebEnvironment || HttpContext.Current?.Session == null)
-                return;
-            HttpContext.Current.Session[setting] = value;
-        }
+        public static bool RequireLogin() => int.Parse(GetAppSetting("RequireLogin") ?? "0") > 0;
     }
 }

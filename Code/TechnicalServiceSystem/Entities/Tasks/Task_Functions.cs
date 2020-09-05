@@ -29,6 +29,11 @@ namespace TechnicalServiceSystem.Entities.Tasks
             Photos = new ObservableCollection<Photo>();
         }
 
+        public Task(int id) : base()
+        {
+            ID = id;
+        }
+
         public override string ToString()
         {
             return Description;
@@ -118,14 +123,14 @@ namespace TechnicalServiceSystem.Entities.Tasks
         //handlers for the CollectionChanged
         protected void Photos_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            OnPropertyChanged("Photos");
+            OnPropertyChanged(nameof(Photos));
         }
 
         protected void Notes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             //send msg to the interface that the string needs to be updated
-            OnPropertyChanged("strNotes");
-            OnPropertyChanged("Notes");
+            OnPropertyChanged(nameof(strNotes));
+            OnPropertyChanged(nameof(Notes));
         }
 
         /// <summary>

@@ -120,9 +120,7 @@ namespace TechnicalServiceSystem.Lists
                     (translations != null || translations.Length > TaskTypes.Count)
                    )
                 {
-                    foreach (var item in TaskTypes)
-                        item.Description = translations[item.ID];
-                    //TaskTypes.ToList().ForEach(t => t.Description = translations[t.ID]);
+                    TaskTypes.ToList().ForEach(t => t.Description = translations[t.ID]);
                 }
                 return TaskTypes;
             }

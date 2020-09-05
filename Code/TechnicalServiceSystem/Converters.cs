@@ -24,7 +24,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
-using TechnicalServiceSystem.Base;
 using TechnicalServiceSystem.Entities;
 using TechnicalServiceSystem.Entities.Tasks;
 
@@ -56,18 +55,11 @@ namespace TechnicalServiceSystem
             object Class = null;
 
             for (var i = 0; i < status.Count; i++)
-                if (status[i] is BaseClass)
-                {
-                    var temp = status[i] as BaseClass;
-                    if (temp != null && temp.ID == id)
-                        Class = temp;
-                }
-                else
-                {
-                    var temp = status[i] as BaseEntity;
-                    if (temp != null && temp.ID == id)
-                        Class = temp;
-                }
+            {
+                var temp = status[i] as BaseEntity;
+                if (temp != null && temp.ID == id)
+                    Class = temp;
+            }
 
             if (Class == null)
                 return null;
@@ -88,18 +80,11 @@ namespace TechnicalServiceSystem
             object Class = null;
 
             for (var i = 0; i < list.Count; i++)
-                if (list[i] is BaseClass)
-                {
-                    var temp = list[i] as BaseClass;
-                    if (temp != null && temp.ID == TargetID)
-                        Class = temp;
-                }
-                else
-                {
-                    var temp = list[i] as BaseEntity;
-                    if (temp != null && temp.ID == TargetID)
-                        Class = temp;
-                }
+            {
+                var temp = list[i] as BaseEntity;
+                if (temp != null && temp.ID == TargetID)
+                    Class = temp;
+            }
 
             if (Class == null)
                 return null;

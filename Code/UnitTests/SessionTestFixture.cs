@@ -25,7 +25,7 @@ namespace UnitTests
         public void GetSessionReturnsSharedSession()
         {
             var _session = GetSession();
-            Assert.AreSame(TestSession,_session);
+            Assert.AreSame(Session,_session);
         }
     }
 }

@@ -67,7 +67,13 @@ namespace TechnicalServiceSystem.Lists
                 if (ret == null)
                 {
                     var UserMngr = new UserManager();
-                    ret = UserMngr.GetUsersByRole("Technician", Settings.GetCompanyName());
+                    ret = new ObservableCollection<User>();
+                    ret.Add(new User(0)
+                    {
+                        UserName = "",
+                        IsActive = false
+                    });
+                    UserMngr.GetUsersByRole("Technician", Settings.GetCompanyName()).ToList().ForEach(t => ret.Add(t));
 
                     if (Settings.IsWebEnvironment)
                         Settings.SetSessionSetting(TechnicianList, ret);
@@ -85,7 +91,7 @@ namespace TechnicalServiceSystem.Lists
                 return Technicians;
 
             var newList = new ObservableCollection<User>();
-            newList.Add(new User() {ID = 0,UserName = TranslationNotSet});
+            newList.Add(new User(0) {UserName = TranslationNotSet});
             foreach (var technician in Technicians)
             {
                 newList.Add(technician);

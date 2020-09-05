@@ -36,11 +36,11 @@ namespace UnitTests.Managers
 
         private static object[] UserCases = 
         {
-            new object[] { 12,null },
-            new object[] { 11,true },
+            new object[] { 13, null },
+            new object[] { 12, true },
             new object[] { 1, false }
         };
-        [Test, TestCaseSource("UserCases")]
+        [Test, TestCaseSource(nameof(UserCases))]
         public void CanRetrieveUsersList(int userListCount,bool? activeOnly)
         {
             var userList = userManager.GetUsers(null,null,0,activeOnly);
@@ -58,7 +58,7 @@ namespace UnitTests.Managers
             //Act&Arrange
             Assert.NotNull(user);
             Assert.IsTrue(userManager.LoginUser(ref user, "test"));
-            Assert.AreEqual(user.UserHash,"69A7455D2BA647835B8BBA43CB0C1CBAF36914D39E45055F1188E6D63D14A54B5508A9DB9C93B3BFB5343CDA822E3131B5963B78A7D2E95AB38D12F6E51572EF");
+            Assert.AreEqual("B0668584D7E16CC479B6F225AD166E2F89C44E1449182392B3333F6A1B98918037E1FFADE1DCE623E96589FEBA9C9E2481131FD09AF1F1698EE10E067C225017", user.UserHash);
             Assert.IsTrue(string.IsNullOrWhiteSpace(user.Password));
         }
     }

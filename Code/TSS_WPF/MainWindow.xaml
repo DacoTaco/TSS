@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TSS_WPF"
         xmlns:library="clr-namespace:TechnicalServiceSystem;assembly=TechnicalServiceSystem"
+        xmlns:systemLists="clr-namespace:TechnicalServiceSystem.Lists;assembly=TechnicalServiceSystem"
         mc:Ignorable="d"
         Title="MainWindow">
     <Window.Resources>
@@ -67,11 +67,10 @@
 
                     <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" >
                         <Button Name="btnNewTask" Content="{DynamicResource NewTask}" Click="btnNewTask_Click"/>
-                        <Button Name="btnSyncTasks" Content="{DynamicResource SyncTasks}" Click="btnSyncTasks_Click"/>
                     </StackPanel>
 
                     <DataGrid x:Name="TaskGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=TasksList}" 
-                      AutoGenerateColumns="False" ColumnWidth="Auto" SelectionUnit="FullRow" CanUserDeleteRows="False" RowEditEnding="TaskGrid_RowEditEnding">
+                      AutoGenerateColumns="False" ColumnWidth="Auto" SelectionUnit="FullRow" CanUserDeleteRows="False" CanUserAddRows="false" RowEditEnding="TaskGrid_RowEditEnding">
                         <DataGrid.RowDetailsTemplate>
                             <DataTemplate>
                                 <TextBlock Background="Orange" Text="{Binding strNotes,UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"
@@ -109,8 +108,9 @@
                             <DataGridTemplateColumn Header="{StaticResource TechnicianHeader}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ComboBox ItemsSource="{Binding Path=Technicians,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}" 
-                                          DisplayMemberPath="UserName" SelectionChanged="Technician_Changed" SelectedValue="{Binding Technician, UpdateSourceTrigger=PropertyChanged}">
+                                        <ComboBox ItemsSource="{Binding Source={x:Static systemLists:SystemLists.User}, Path=Technicians}" 
+                                          DisplayMemberPath="UserName" SelectionChanged="Technician_Changed" SelectedValuePath="ID"
+                                                  SelectedValue="{Binding Technician.ID, UpdateSourceTrigger=PropertyChanged}">
                                         </ComboBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -119,15 +119,15 @@
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
                                         <Binding Path="DepartmentID"></Binding>
-                                        <Binding Path="Departments" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                                        <Binding Source="{x:Static systemLists:SystemLists.General}" Path="Departments"></Binding>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="{StaticResource LocationHeader}" IsReadOnly="True">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
-                                        <Binding Path="LocationID"></Binding>
-                                        <Binding Path="Lists.Locations" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                                        <Binding Path="Location.ID"></Binding>
+                                        <Binding Source="{x:Static systemLists:SystemLists.General}" Path="Locations"></Binding>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
@@ -142,64 +142,14 @@
                             <DataGridTextColumn Header="{StaticResource MachineHeader}" IsReadOnly="True">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
-                                        <Binding Path="DeviceID"></Binding>
-                                        <Binding Path="Lists.Machines" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
+                                        <Binding Path="Device.ID"></Binding>
+                                        <Binding Source="{x:Static systemLists:SystemLists.Supplier}" Path="Machines"></Binding>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTextColumn Binding="{Binding LastModifiedOn}" ClipboardContentBinding="{x:Null}" Header="{StaticResource AdjustmentHeader}" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding RepeatingInfo.ActivationDate,Converter={StaticResource dateTimeToString}}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding RepeatingInfo.Interval}" ClipboardContentBinding="{x:Null}" Header="{StaticResource IntervalHeader}" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-            <TabItem Header="{DynamicResource MachinesTab}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"></RowDefinition>
-                        <RowDefinition Height="2*"></RowDefinition>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" >
-                        <Button Name="btnNewMachine" Content="New Machine" Click="btnNewMachine_Click"></Button>
-                        <Button Name="btnSyncMachines" Content="{DynamicResource SyncTasks}" Click="btnSyncMachines_Click"/>
-                    </StackPanel>
-
-
-                    <DataGrid x:Name="MachinesGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Lists.ActualMachines}" 
-                      AutoGenerateColumns="false" ColumnWidth="Auto" SelectionUnit="FullRow" RowEditEnding="MachineGrid_RowEditEnding">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <EventSetter Event="MouseDoubleClick" Handler="RowMachine_DoubleClick"/>
-                            </Style>
-                        </DataGrid.RowStyle>
-
-                        <DataGrid.Columns>
-                            <!-- TODO : fill in the rest of the data -->
-                            <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="{StaticResource MachineNameHeader}" IsReadOnly="True"/>
-                            <DataGridTextColumn ClipboardContentBinding="{x:Null}" Header="{StaticResource MachineTypeHeader}" IsReadOnly="True">
-                                <DataGridTextColumn.Binding>
-                                    <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
-                                        <Binding Path="TypeID"></Binding>
-                                        <Binding Path="Lists.MachineTypes" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
-                                    </MultiBinding>
-                                </DataGridTextColumn.Binding>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding ModelName}" ClipboardContentBinding="{x:Null}" Header="{StaticResource MachineModelHeader}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="{StaticResource SupplierHeader}">
-                                <DataGridTextColumn.Binding>
-                                    <MultiBinding Converter="{StaticResource baseClassListIndexConverter}">
-                                        <Binding Path="SupplierID"></Binding>
-                                        <Binding Path="Lists.Suppliers" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}"></Binding>
-                                    </MultiBinding>
-                                </DataGridTextColumn.Binding>
-                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

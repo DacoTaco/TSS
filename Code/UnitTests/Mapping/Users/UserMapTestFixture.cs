@@ -16,11 +16,12 @@ namespace UnitTests.Mapping.Users
             {
                 UserName = "TextFixture Username",
                 IsActive = false,
-                Department = new Department() { ID = 5, Description = "test department"}
+                Department = new Department(5) {Description = "test department"},
+                Photo = new Photo() { FileName = "UserMapTest.jpg"}
             };
 
             //Act&Assert
-            new PersistenceSpecification<User>(TestSession)
+            new PersistenceSpecification<User>(Session)
                 .VerifyTheMappings(user);
         }
     }

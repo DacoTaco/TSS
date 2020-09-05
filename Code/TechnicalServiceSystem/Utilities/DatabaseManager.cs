@@ -23,28 +23,26 @@ namespace TechnicalServiceSystem.Utilities
 
     public class DatabaseManager : IDisposable
     {
-        
-        //TODO : make protected once everything switched to Nhibernate
-        private ISession session = null;
+        protected ISession Session = null;
 
         public DatabaseManager()
         {
-            session = SessionHandler.TSS_Session;
+            Session = SessionHandler.TSS_Session;
         }
         public ISession GetSession()
         {
-            return session;
+            return Session;
         }
 
         protected IDbConnection GetConnection()
         {
-            return session?.Connection;
+            return Session?.Connection;
         }
 
         public void Dispose()
         {
-            SessionHandler.FreeSession(session);
-            session = null;
+            SessionHandler.FreeSession(Session);
+            Session = null;
         }
     }
 }

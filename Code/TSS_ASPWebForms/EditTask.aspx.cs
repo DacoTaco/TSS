@@ -24,7 +24,6 @@ using System.Text.RegularExpressions;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
-using System.Windows.Shapes;
 using TechnicalServiceSystem;
 using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Suppliers;
@@ -70,7 +69,7 @@ namespace TSS_ASPWebForms
         //Functions
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (LoggedInUser.IsUserLoggedIn == false && (Settings.GetAppSetting("RequireLogin")??"0") != "0" )
+            if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                     Response.Redirect("Login.aspx");
 
             if (IsPostBack)
@@ -112,9 +111,8 @@ namespace TSS_ASPWebForms
                 if (LoggedInUser.IsUserLoggedIn)
                     user = LoggedInUser.GetUser();
 
-                OriginalTask = new Task()
+                OriginalTask = new Task(0)
                 {
-                    ID = 0,
                     Description = "",
                     IsUrguent = false,
                     TypeID = 0,
@@ -151,7 +149,7 @@ namespace TSS_ASPWebForms
             if (selectMachines.Visible)
             {
                 var list = new ObservableCollection<Machine>();
-                list.Add(new Machine() {ID = 0,Description = (string)GetGlobalResourceObject("NotSet", "0")});
+                list.Add(new Machine(0) {Description = (string)GetGlobalResourceObject("NotSet", "0")});
                 foreach (var machine in SystemLists.Supplier.Machines)
                 {
                     list.Add(machine);
@@ -389,7 +387,7 @@ namespace TSS_ASPWebForms
             //see which property we are changing, verify value and set value as changed and found if its all ok
             switch (PropertyName)
             {
-                case "Photos":
+                case nameof(Task.Photos):
                     var data = value as string;
 
                     if (data == null)
@@ -405,7 +403,7 @@ namespace TSS_ASPWebForms
                     Task.Photos.Add(photo);
                     changed = true;
                     break;
-                case "Notes":
+                case nameof(Task.Notes):
                     var descr = value as string;
 
                     if (string.IsNullOrWhiteSpace(descr) || Regex.IsMatch(descr, @"^[A-Za-z0-9?!,.:; ]+$") == false)
@@ -415,7 +413,7 @@ namespace TSS_ASPWebForms
                     Task.Notes.Add(note);
                     changed = true;
                     break;
-                case "Location":
+                case nameof(Task.Location):
                     try
                     {
                         var locID = int.Parse(value as string);
@@ -428,7 +426,7 @@ namespace TSS_ASPWebForms
                     }
                     
                     break;
-                case "StatusID":
+                case nameof(Task.StatusID):
                     try
                     {
                         var statusID = int.Parse(value as string);
@@ -442,7 +440,7 @@ namespace TSS_ASPWebForms
                         changed = false;
                     }
                     break;
-                case "Technician":
+                case nameof(Task.Technician):
                     try
                     {
                         var userID = int.Parse(value as string);

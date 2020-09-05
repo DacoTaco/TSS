@@ -16,7 +16,7 @@ namespace UnitTests.Mapping.General
                 FileName = @"..\lol\random\long\ass\PathNameToCheckIfDataBaseCanHandleItCorrectly\And\Because\we\Can.jpg"
             };
             //Act&Assert
-            new PersistenceSpecification<Photo>(TestSession)
+            new PersistenceSpecification<Photo>(Session)
                 .VerifyTheMappings(photo);
         }
     }

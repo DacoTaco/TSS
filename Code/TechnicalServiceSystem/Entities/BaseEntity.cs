@@ -16,27 +16,28 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace TechnicalServiceSystem.Entities
 {
-    internal interface IBaseEntity
+    internal interface IBaseEntity<T>
     {
-        int ID { get; }
+        T ID { get; }
     }
 
-    public class BaseEntity : IBaseEntity, INotifyPropertyChanged
-    {
-        protected int _id;
+    public class BaseEntity : BaseEntity<int> { }
 
+    public class BaseEntity<T> : IBaseEntity<T>, INotifyPropertyChanged
+    {
         protected BaseEntity()
         {
         }
 
-        public virtual int ID
+        public virtual T ID
         {
-            get { return _id; }
-            set { _id = value; }
+            get;
+            set;
         }
 
         public virtual event PropertyChangedEventHandler PropertyChanged;
@@ -52,7 +53,7 @@ namespace TechnicalServiceSystem.Entities
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public virtual bool Compare(object obj)
+        public virtual bool HasDifferences(object obj)
         {
             if (obj == null)
                 return false;
@@ -79,15 +80,37 @@ namespace TechnicalServiceSystem.Entities
 
                     for (var i = 0; i < SelfList.Count; i++)
                         if (SelfList[i] != ToList[i])
-                            return false;
+                            return true;
                 }
-                else
-                {
-                    if (selfValue != toValue && (selfValue == null || !selfValue.Equals(toValue))) return false;
-                }
+                else if (selfValue != toValue && (selfValue == null || !selfValue.Equals(toValue)))
+                    return true;
             }
 
-            return true;
+            return false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null && this != null ||
+                this == null && obj != null)
+                return false;
+
+            var type = obj.GetType();
+            if (!GetType().IsAssignableFrom(type))
+                return false;
+
+            var objID = (T)type.GetProperty(nameof(ID)).GetValue(obj, null);
+            var IDsEqual = EqualityComparer<T>.Default.Equals(ID, objID);
+
+            if (IDsEqual && EqualityComparer<T>.Default.Equals(ID))
+                return GetHashCode() == obj.GetHashCode();
+
+            return IDsEqual;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public virtual void Assign(object Input)
@@ -105,6 +128,10 @@ namespace TechnicalServiceSystem.Entities
                 var type = Input.GetType();
                 var properties = type.GetProperties();
                 foreach (var item in properties)
+                {
+                    if (item.SetMethod == null)
+                        continue;
+
                     if (type.GetProperty(item.Name) != null && GetType().GetProperty(item.Name) != null)
                     {
                         var selfValue = type.GetProperty(item.Name).GetValue(this, null);
@@ -127,6 +154,7 @@ namespace TechnicalServiceSystem.Entities
                         //just to be sure, raise a propertychanged event so all data bindings are refreshed from the assigning!
                         OnPropertyChanged(item.Name);
                     }
+                }    
             }
             catch (Exception ex)
             {
@@ -138,10 +166,10 @@ namespace TechnicalServiceSystem.Entities
         ///     Creates a clone of the current instance. clones all properties
         /// </summary>
         /// <returns>a cloned object of type T</returns>
-        protected virtual T _clone<T>()
+        protected virtual Y _clone<Y>()
         {
             //this is the base of cloning. because we use Generic Type here, it also works with inheritance!
-            var GenericOutput = (T) MemberwiseClone();
+            var GenericOutput = (Y) MemberwiseClone();
 
             return GenericOutput;
         }

@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using NUnit.Framework;
+using System.Linq;
 using TechnicalServiceSystem;
 
 namespace UnitTests.Managers
@@ -22,12 +23,8 @@ namespace UnitTests.Managers
     [TestFixture]
     public class TaskManagerTestFixture : NhibernateTestFixture
     {
-        private TaskManager _taskManager = null;
-        [SetUp]
-        public void SetupTestFixture()
-        {
-            _taskManager = new TaskManager();
-        }
+        private readonly TaskManager _taskManager = new TaskManager();
+
         [Test]
         public void CanRetrieveSingleTask()
         {
@@ -38,6 +35,34 @@ namespace UnitTests.Managers
             Assert.That(_task.Photos, Is.Not.Null, "Photos List not null");
             Assert.That(_task.Photos.Count, Is.GreaterThan(0), "Photos List is empty");
             Assert.That(_task.Notes.Count, Is.GreaterThan(0), "Notes list is empty");
+        }
+
+        [Test]
+        public void GetTaskStatusesRetrievesCorrectList()
+        {
+            //Arrange & Act
+            var result = _taskManager.GetTaskStatuses();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.That(result, Has.Count.EqualTo(9));
+            Assert.AreEqual(1, result.First().ID);
+            Assert.AreEqual("Being Processed", result.First().Description);
+            Assert.AreEqual(9, result.Last().ID);
+        }
+
+        [Test]
+        public void GetTaskTypesRetrievesCorrectList()
+        {
+            //Arrange & Act
+            var result = _taskManager.GetTaskTypes();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.AreEqual(1, result.First().ID);
+            Assert.AreEqual("Normal Task", result.First().Description);
+            Assert.AreEqual(2, result.Last().ID);
         }
     }
 }

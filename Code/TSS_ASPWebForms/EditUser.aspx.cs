@@ -66,7 +66,7 @@ namespace TSS_ASPWebForms
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (LoggedInUser.IsUserLoggedIn == false && (Settings.GetAppSetting("RequireLogin") ?? "0") != "0")
+            if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                 Response.Redirect("Login.aspx");
 
             if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
@@ -97,7 +97,7 @@ namespace TSS_ASPWebForms
             //retrieve UserID and load user
             if (!int.TryParse(Request.Params["UserID"], out UserID) || UserID <= 0)
             {
-                OriginalUser = new User() { ID = 0, UserName = "", IsActive = true };
+                OriginalUser = new User(0) { UserName = "", IsActive = true };
 
                 var gnrlManager = new GeneralManager();
                 var photo = gnrlManager.GetPhoto("./system/DefaultUser.jpg");

@@ -18,6 +18,13 @@ namespace TechnicalServiceSystem.Entities.Suppliers
 {
     public class MachineType : BaseEntity
     {
+        protected MachineType() { }
+        public MachineType(int TypeID, string type)
+        {
+            ID = TypeID;
+            TypeName = type;
+        }
+
         public virtual string TypeName { get; set; }
 
         public override string ToString()

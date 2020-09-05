@@ -21,7 +21,7 @@ namespace TechnicalServiceSystem.Lists
     //a singleton so we can keep the lists and use them all over the application. not caring about instances, reloading the list etc etc.
     //i do love myself a singleton :P
     //this is a partial class so we can split it up depending on what part of the system we are working on   
-    public partial class SystemLists : INotifyPropertyChanged
+    public partial class SystemLists
     {
         //----------------------
         //new implementation
@@ -73,20 +73,10 @@ namespace TechnicalServiceSystem.Lists
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         /// <summary>
         ///     Retrieves the current SystemList Object
         /// </summary>
         /// <returns></returns>
-        public static SystemLists GetInstance()
-        {
-            return Instance;
-        }
+        public static SystemLists GetInstance() => Instance;
     }
 }

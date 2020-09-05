@@ -16,11 +16,11 @@ namespace UnitTests.Mapping.Tasks
             {
                 ActivationDate = DateTime.Now,
                 Interval = TimeSpan.FromDays(20),
-                ParentTask = TestSession.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault()
+                ParentTask = Session.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault()
             };
 
             //Act&Assert
-            new PersistenceSpecification<RepeatingInfo>(TestSession)
+            new PersistenceSpecification<RepeatingInfo>(Session)
                 .VerifyTheMappings(repeatingInfo);
         }
     }

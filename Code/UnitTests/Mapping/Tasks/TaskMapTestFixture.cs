@@ -29,7 +29,7 @@ namespace UnitTests.Mapping
         [Test]
         public void CanMapTasks()
         {
-            var _task = TestSession.QueryOver<Task>()
+            var _task = Session.QueryOver<Task>()
                 .Where(x => x.ID == 7)
                 .List()
                 .First();
@@ -55,12 +55,12 @@ namespace UnitTests.Mapping
                 Reporter = "TestFixture",
                 TypeID = 1,
                 StatusID = 1,
-                Location = TestSession.QueryOver<Location>().Where(l => l.ID == 1).SingleOrDefault()
+                Location = Session.QueryOver<Location>().Where(l => l.ID == 1).SingleOrDefault()
             };
             task.Notes.Clear();
 
             //Act&Assert
-            new PersistenceSpecification<Task>(TestSession)
+            new PersistenceSpecification<Task>(Session)
                 .VerifyTheMappings(task);
         }
     }

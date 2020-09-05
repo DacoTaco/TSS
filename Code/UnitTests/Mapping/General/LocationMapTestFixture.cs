@@ -17,7 +17,7 @@ namespace UnitTests.Mapping.General
                 Description = "SOME Random Location"
             };
             //Act&Assert
-            new PersistenceSpecification<Location>(TestSession)
+            new PersistenceSpecification<Location>(Session)
                 .VerifyTheMappings(location);
         }
     }

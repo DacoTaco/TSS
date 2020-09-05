@@ -16,11 +16,11 @@ namespace UnitTests.Mapping
             {
                 NoteDate = DateTime.Now,
                 Text = "TestFixture",
-                NoteTask = TestSession.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault()
+                NoteTask = Session.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault()
             };
 
             //Act&Assert
-            new PersistenceSpecification<Note>(TestSession)
+            new PersistenceSpecification<Note>(Session)
                 .VerifyTheMappings(note);
         }
     }

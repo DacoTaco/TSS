@@ -56,9 +56,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MachineDetails.xaml.cs">
-      <DependentUpon>MachineDetails.xaml</DependentUpon>
-    </Compile>
     <Compile Include="TaskDetails.xaml.cs">
       <DependentUpon>TaskDetails.xaml</DependentUpon>
     </Compile>
@@ -120,10 +117,6 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Page Include="MachineDetails.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

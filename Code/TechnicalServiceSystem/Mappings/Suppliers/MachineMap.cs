@@ -29,6 +29,7 @@ namespace TechnicalServiceSystem.Mappings.Suppliers
             Map(m => m.ModelName).Column("ModelName");
 
             References(m => m.Type).Column("TypeID");
+            References(m => m.Supplier).Column("SupplierID");
 
             HasManyToMany(t => t.Photos)
                 .ParentKeyColumn("MachineID")
@@ -36,6 +37,7 @@ namespace TechnicalServiceSystem.Mappings.Suppliers
                 .Table("MachinePhotos")
                 .Schema("Suppliers")
                 .AsSet()
+                .Cascade.All()
                 .NotFound.Ignore();
         }
     }

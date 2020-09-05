@@ -25,9 +25,9 @@ namespace TechnicalServiceSystem.Entities.Tasks
 {
     public partial class Task : BaseEntity
     {
-        protected ObservableCollection<Note> _notes;
+        protected ObservableCollection<Note> _notes = new ObservableCollection<Note>();
 
-        protected ObservableCollection<Photo> _photos;
+        protected ObservableCollection<Photo> _photos = new ObservableCollection<Photo>();
         public virtual string Description { get; set; }
         public virtual bool IsUrguent { get; set; }
         public virtual DateTime CreationDate { get; set; }
@@ -87,8 +87,8 @@ namespace TechnicalServiceSystem.Entities.Tasks
                 else
                     _notes = null;
 
-                OnPropertyChanged("Notes");
-                OnPropertyChanged("strNotes");
+                OnPropertyChanged(nameof(strNotes));
+                OnPropertyChanged(nameof(Notes));
             }
         }
         public virtual string strNotes
@@ -121,7 +121,7 @@ namespace TechnicalServiceSystem.Entities.Tasks
                     _photos = new ObservableCollection<Photo>(value);
                 else
                     _photos = null;
-                OnPropertyChanged("Photos");
+                OnPropertyChanged(nameof(Photos));
             }
         }
     }

@@ -37,7 +37,7 @@ namespace TSS_ASPWebForms
                 return null;
 
             var list = LanguageFiles.LoadLanguageFile(table);
-            if (ID > list.Length)
+            if (list == null || ID > list.Length)
                 return null;
 
             return list[ID];
@@ -104,7 +104,7 @@ namespace TSS_ASPWebForms
 
                 var DepartmentsList = new ObservableCollection<Department>();
 
-                DepartmentsList.Add(new Department() {ID = 0,Description = LanguageFiles.GetLocalTranslation("AllDepartments", "All") });
+                DepartmentsList.Add(new Department(0) {Description = LanguageFiles.GetLocalTranslation("AllDepartments", "All") });
                 foreach (var item in SystemLists.General.Departments) DepartmentsList.Add(item);
 
                 DropDownSorting.DataSource = DepartmentsList;
@@ -214,7 +214,7 @@ namespace TSS_ASPWebForms
 
                 for (int i = 0; i < roleList.Length; i++)
                 {
-                    RolesList.Add(new Role() { ID = i,RoleName = roleList[i]});
+                    RolesList.Add(new Role(i) { RoleName = roleList[i]});
                 }
                 //bind User dropdown of roles
                 selectUserType.DataSource = RolesList;
@@ -254,16 +254,15 @@ namespace TSS_ASPWebForms
         }
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (LoggedInUser.IsUserLoggedIn == false && (Settings.GetAppSetting("RequireLogin") ?? "0") != "0")
+            if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                 Response.Redirect("Login.aspx");
 
             if (IsPostBack)
                 return;
 
             //check if user login is needed
-            string requireLogin = Settings.GetAppSetting("RequireLogin");
-            if (!String.IsNullOrWhiteSpace(requireLogin) && requireLogin == "1" && !LoggedInUser.IsUserLoggedIn)
-                Response.Redirect("Login");
+            /*if (Settings.RequireLogin() && !LoggedInUser.IsUserLoggedIn)
+                Response.Redirect("Login");*/
 
             try
             {
@@ -324,36 +323,6 @@ namespace TSS_ASPWebForms
 
             e.Row.Attributes["onclick"] = $"SelectTaskRow({Task.ID},event);";
         }
-        //event when sorting
-        /*protected void TaskGrid_Sorting(object sender, GridViewSortEventArgs e)
-        {
-            var grid = sender as GridView;
-            if(grid == null)
-                Console.WriteLine("grid is null");
-            if(grid.DataSource == null)
-                Console.WriteLine("Datasource is null");
-
-            if (grid == null || grid?.DataSource == null || grid.DataSource as BindingListView<Task> == null)
-            {
-                Console.WriteLine("Something is null! D:");
-                return;
-            }
-
-            var sort = e.SortExpression;
-            var direction = e.SortDirection;
-
-            Console.WriteLine($"sort : {sort} {direction}");
-
-            var list = grid.DataSource as BindingListView<Task>;
-            //list.Sort = e.SortExpression;
-            //list.Sort = $"{e.SortExpression} {(e.SortDirection == SortDirection.Ascending?"ASC": "DESC")}";
-
-            grid.DataSource = list;
-            grid.DataBind();
-            //list.SortDirection = (e.SortDirection.ToString() == ListSortDirection.Ascending.ToString())?ListSortDirection.Ascending:ListSortDirection.Descending;
-            //Retrieve the table from the session object.
-        }*/
-
 
         //-----------------------------------------------
         //                  WebMethods

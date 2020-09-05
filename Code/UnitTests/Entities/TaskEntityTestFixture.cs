@@ -29,17 +29,9 @@ namespace UnitTests.Entities
         [SetUp]
         public void SetUpEntity()
         {
-            _task = new Task()
+            _task = new Task(1)
             {
-                ID = 1,
-                Location = new Location()
-                {
-                    ID = 1,
-                    Department = new Department()
-                    {
-                        ID = 5
-                    }
-                }
+                Location = new Location(1, "some desc", new Department(5))
             };
         }
 
@@ -53,12 +45,11 @@ namespace UnitTests.Entities
         [Test]
         public void IfTechnicianSetStatusChanged()
         {
-            var tech = new User() {ID = 5};
-            var task = new Task()
+            var tech = new User(5);
+            var task = new Task(1)
             {
-                ID = 1,
                 StatusID = 2,
-                Technician = new User() {ID = 2}
+                Technician = new User(2)
             };
 
             Assert.That(task.TechnicianID, Is.EqualTo(2),"Initial value of Technician ID");
@@ -78,11 +69,10 @@ namespace UnitTests.Entities
         [Test]
         public void IfStatusSetTechnicianChanged()
         {
-            var task = new Task()
+            var task = new Task(1)
             {
-                ID = 1,
                 StatusID = 2,
-                Technician = new User() { ID = 2 }
+                Technician = new User(2)
             };
             Assert.That(task.TechnicianID, Is.EqualTo(2), "Initial value of Technician ID");
             Assert.That(task.StatusID, Is.EqualTo(2), "Initial Value of Status ID");

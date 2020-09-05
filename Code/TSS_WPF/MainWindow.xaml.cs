@@ -21,10 +21,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Base;
-using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
-using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Lists;
 
 namespace TSS_WPF
@@ -46,8 +43,6 @@ namespace TSS_WPF
         public ObservableCollection<Task> TasksList { get; set; }
         public ObservableCollection<TaskStatus> TaskStatuses { get; set; }
         public ObservableCollection<TaskType> TaskTypes { get; set; }
-        public ObservableCollection<Department> Departments => SystemLists.General.Departments;
-        public ObservableCollection<User> Technicians => SystemLists.User.Technicians;
 
         // ok SO. dynamic resource binding is not allowed for TargetNullValue in multibinding. le suck. SO, we use this variable, use it as a static resource in wpf.
         // done and done :P
@@ -97,11 +92,10 @@ namespace TSS_WPF
             //Init Window
             InitializeComponent();
             TaskGrid.DataContext = this;
-            MachinesGrid.DataContext = this;
 
-            lsbNotes.DataContext = TasksList[0];
+            lsbNotes.DataContext = TasksList?.FirstOrDefault();
 
-            SystemTabs.SelectedIndex = 1;
+            //SystemTabs.SelectedIndex = 1;
         }
 
         private bool Editting = false;
@@ -112,9 +106,8 @@ namespace TSS_WPF
             Task taskCopy;
 
             if (task == null)
-                taskCopy = new Task()
+                taskCopy = new Task(0)
                 {
-                    ID = 0,
                     CreationDate = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
                     IsUrguent = false,
@@ -129,16 +122,12 @@ namespace TSS_WPF
             dlgDetails.Owner = (this);
             if (dlgDetails.ShowDialog().Value == true)
             {
-                //We assign edited tasks here cause we actually need a ChangedTask for the editted list.
-                if (!NewTask)
-                    Lists.EditedTasks.Add(dlgDetails.OutputTask);
-
-                //properly assign the task so we dont reassign the lists AND dont upgrade the task to a derrived class which seems to kill binding :)
-                if (task == null)
-                    task = (Task)dlgDetails.OutputTask;
-                else
-                    task.Assign(dlgDetails.OutputTask);
-
+                //save task
+                task = dlgDetails.OutputTask;
+                var taskmngr = new TaskManager();
+                if(taskmngr.TaskEditable(task.ID,LoggedInUser.GetUserHash()))
+                    taskmngr.ChangeTasks(task);
+                
                 ret = true; 
             }
             else
@@ -158,7 +147,8 @@ namespace TSS_WPF
             if (GetTaskDetails(ref targetTask))
             {
                 TasksList[index] = targetTask;
-            }
+                TaskGrid.Items.Refresh();
+            }           
             Editting = false;
         }
         private void btnNewTask_Click(object sender, RoutedEventArgs e)
@@ -167,65 +157,21 @@ namespace TSS_WPF
             if (GetTaskDetails(ref task, true))
             {
                 TasksList.Add(task);
+                TaskGrid.Items.Refresh();
             }
-        }
-        private void btnSyncTasks_Click(object sender, RoutedEventArgs e)
-        {
-            var Taskmgr = new TaskManager();
-
-            try
-            {
-                if (Lists.NewTasks.Count > 0)
-                {
-                    Taskmgr.AddTasks(Lists.NewTasks);
-                    Lists.NewTasks.Clear();
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("Sync error ADD_ITEM : " + ex.Message);
-            }
-
-            try
-            {
-                if (Lists.EditedTasks.Count > 0)
-                {
-                    Taskmgr.ChangeTasks(Lists.EditedTasks);
-                    Lists.EditedTasks.Clear();
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("sync error EDIT_ITEM : " + ex.Message);
-            }
-
-            try
-            {
-                if (Lists.DeletedTasks.Count > 0)
-                {
-                    Taskmgr.DeleteTasks(Lists.DeletedTasks);
-                    Lists.DeletedTasks.Clear();
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("sync error DEL_ITEM : " + ex.Message);
-            }
-
-            //reget the tasks y0
-            //Lists.GetTasks();
-            TasksList = new TaskManager().GetTasks(null, Settings.GetCompanyName(), null, null);
-
-            MessageBox.Show("Sync Complete!");
         }
         private void Technician_Changed(object sender, SelectionChangedEventArgs e)
         {
             //this also gets triggered when databinding changes the combobox. therefor we have the edittingTask variable to prevent it from adding it to the list
             if (TaskGrid.SelectedItem != null && Editting == false)
             {
-                Task task = (TaskGrid.SelectedItem as Task).Clone(); 
+                var taskmngr = new TaskManager();
+                Task task = TaskGrid.SelectedItem as Task;
+                if (task == null)
+                    return;
 
-                Lists.EditedTasks.Add(task);
+                if (taskmngr.TaskEditable(task.ID, LoggedInUser.GetUserHash()))
+                    taskmngr.ChangeTasks(task);
             }
         }
         private void TaskGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
@@ -237,106 +183,10 @@ namespace TSS_WPF
             if (TasksList.Contains(o) && Editting == false)
             {
                 Task task = (o as Task).Clone();
-                Lists.EditedTasks.Add(task);
+                var taskmngr = new TaskManager();
+                if (taskmngr.TaskEditable(task.ID, LoggedInUser.GetUserHash()))
+                    taskmngr.ChangeTasks(task);
             }
-        }
-
-
-
-
-
-
-
-        private bool GetMachineDetails(ref MachineInfo Machine, bool NewMachine = false)
-        {
-            MachineInfo MachineCopy = Machine;
-            bool ret = false;
-
-            if (MachineCopy == null)
-            {
-                MachineCopy = new MachineInfo(0, "", "", "", "", 0, 0);
-            }
-
-            MachineDetails dlgDetails = new MachineDetails(MachineCopy);
-            dlgDetails.Owner = (this);
-            if (dlgDetails.ShowDialog().Value == true)
-            {
-                if (!NewMachine)
-                    Lists.EditedMachines.Add(dlgDetails.OutputMachine);
-
-                if (Machine == null)
-                {
-                    Machine = dlgDetails.OutputMachine;
-                }
-                else
-                    Machine.Assign(dlgDetails.OutputMachine);
-
-                ret = true;
-            }
-            else
-            {
-                ret = false;
-            }
-
-
-            return ret;
-
-        }
-        private void RowMachine_DoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = (DataGridRow)sender;
-            MachineInfo targetMachine = (MachineInfo)row.Item;
-            int index = Lists.Machines.IndexOf(targetMachine);
-            Editting = true;
-
-            if (GetMachineDetails(ref targetMachine))
-            {
-                Lists.Machines[index] = targetMachine;
-            }
-            Editting = false;
-        }
-        private void MachineGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            //get the object that triggered the change!
-            object o = TaskGrid.ItemContainerGenerator.ItemFromContainer(e.Row);
-
-            if (o == null)
-                return;
-
-            if(Lists.ActualMachines.Contains(o) && Editting == false)
-            {
-                
-            }
-        }
-        private void btnNewMachine_Click(object sender, RoutedEventArgs e)
-        {
-            MachineInfo machine = null;
-            if(GetMachineDetails(ref machine, true) == true)
-                Lists.Machines.Add(machine);
-            return;
-        }
-        private void btnSyncMachines_Click(object sender, RoutedEventArgs e)
-        {
-            var SupMngr = new SupplierManager();
-            if(Lists.NewMachines.Count > 0)
-            {
-                SupMngr.AddMachine(Lists.NewMachines);
-                Lists.NewMachines.Clear();
-            }
-            if(Lists.EditedMachines.Count > 0)
-            {
-                SupMngr.ChangeMachine(Lists.EditedMachines);
-                Lists.EditedMachines.Clear();
-            }
-            if(Lists.DeletedMachines.Count > 0)
-            {
-                SupMngr.DeleteMachine(Lists.DeletedMachines);
-                Lists.DeletedMachines.Clear();
-            }
-            //reget the machines
-            Lists.GetSuppliersLists();
-
-            MessageBox.Show("Sync Complete!");
         }
     }
 }

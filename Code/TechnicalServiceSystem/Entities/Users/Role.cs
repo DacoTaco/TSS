@@ -18,6 +18,12 @@ namespace TechnicalServiceSystem.Entities.Users
 {
     public class Role : BaseEntity
     {
+        public Role() { }
+        public Role(int id) : base()
+        {
+            ID = id;
+        }
+
         public virtual string RoleName { get; set; }
 
         public override string ToString()

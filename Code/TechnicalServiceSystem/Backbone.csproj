@@ -57,10 +57,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base\BaseClass.cs" />
-    <Compile Include="Base\Suppliers\ChangedMachineInfo.cs" />
-    <Compile Include="Base\Suppliers\MachineInfo.cs" />
-    <Compile Include="Base\Suppliers\MachineType.cs" />
     <Compile Include="Entities\Suppliers\Contact.cs" />
     <Compile Include="Entities\Suppliers\Supplier.cs" />
     <Compile Include="Converters.cs" />
@@ -89,8 +85,6 @@
     <Compile Include="LoggedUser.cs" />
     <Compile Include="Managers\GeneralManager.cs" />
     <Compile Include="Lists\Lists.cs" />
-    <Compile Include="Lists\Lists_Suppliers.cs" />
-    <Compile Include="Lists\Lists_Tasks.cs" />
     <Compile Include="Managers\RoleManager.cs" />
     <Compile Include="Managers\SupplierManager.cs" />
     <Compile Include="Managers\TaskManager.cs" />

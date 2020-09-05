@@ -15,9 +15,8 @@
     <system:String x:Key="LastAdjustment">Last Adjustments</system:String>
     <system:String x:Key="ActivationDate">Task Date</system:String>
     <system:String x:Key="Interval">Task Interval( in days )</system:String>
-    
+
     <system:String x:Key="NewTask">New Task</system:String>
-    <system:String x:Key="SyncTasks">Sync Changes</system:String>
 
     <system:String x:Key="TasksTab">Tasks</system:String>
     <system:String x:Key="MachinesTab">Machines</system:String>
