@@ -35,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -167,6 +168,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Backbone.UI\Backbone.UI.csproj">
+      <Project>{cae2c281-ec3d-4396-b2e1-9f6ec7de3123}</Project>
+      <Name>Backbone.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TechnicalServiceSystem\Backbone.csproj">
       <Project>{e70a3a76-763b-45db-9a85-2de20537ac47}</Project>
       <Name>Backbone</Name>

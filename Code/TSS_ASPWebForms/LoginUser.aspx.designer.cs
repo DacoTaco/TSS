@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TSS_ASPWebForms {
-    
-    
-    public partial class LoginUser {
-        
+namespace TSS_ASPWebForms
+{
+
+
+    public partial class LoginUser
+    {
+
         /// <summary>
         /// form1 control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
-        
+
         /// <summary>
         /// lblLogin control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblLogin;
-        
+
         /// <summary>
         /// userList control.
         /// </summary>
@@ -37,8 +39,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.DropDownObject userList;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.DropDownObject userList;
+
         /// <summary>
         /// txtPassword control.
         /// </summary>
@@ -47,7 +49,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtPassword;
-        
+
         /// <summary>
         /// btnLogin control.
         /// </summary>
@@ -56,7 +58,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnLogin;
-        
+
         /// <summary>
         /// loadingImage control.
         /// </summary>

@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:library="clr-namespace:TechnicalServiceSystem;assembly=TechnicalServiceSystem"
+        xmlns:ui="clr-namespace:TechnicalServiceSystem.UI.WPF;assembly=TechnicalServiceSystem.UI"
         xmlns:systemLists="clr-namespace:TechnicalServiceSystem.Lists;assembly=TechnicalServiceSystem"
         xmlns:local="clr-namespace:TSS_WPF"
         mc:Ignorable="d"
-        Title="Task Details" Height="613" Width="505" ResizeMode="NoResize">
+        Title="Task Details" Height="613" Width="505" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <ControlTemplate x:Key="validationTemplate">
             <Grid VerticalAlignment="Center">
@@ -78,16 +79,15 @@
             </TextBox.Text>
         </TextBox>
         <Label Name="lblTechnician" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Content="{DynamicResource Technician}"></Label>
-        <ComboBox Name="cbTechnician" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" Margin="5"
-                    ItemsSource="{Binding Source={x:Static systemLists:SystemLists.User}, Path=Technicians}"
+        <ui:DefaultCombobox Name="cbTechnician" Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" Margin="5"
+                    ItemsSource="{Binding Path=Technicians, RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
                     DisplayMemberPath="UserName" 
-                    SelectedValue="{Binding Technician, UpdateSourceTrigger=PropertyChanged, FallbackValue=0,TargetNullValue=0}"/>
-
+                    SelectedValue="{Binding Technician, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"/>
 
         <Label Name="lblDepartment" Grid.Row="1" Content="{DynamicResource Department}"/>
         <ComboBox Name="cbDepartment" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="5" 
                   ItemsSource="{Binding Source={x:Static systemLists:SystemLists.General}, Path=Departments}"
-                  SelectedValue="{Binding Department, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, FallbackValue=0,TargetNullValue=0}"
+                  SelectedValue="{Binding Department, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, FallbackValue=0, TargetNullValue=0}"
                   DisplayMemberPath="Description" 
                   SelectionChanged="Departments_SelectionChanged" />
 
@@ -96,28 +96,6 @@
                     ItemsSource="{Binding Path=Locations, RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
                     SelectedValue="{Binding Location, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, FallbackValue=0, TargetNullValue=0}"
                     DisplayMemberPath="Description" />
-
-        <!-- <ComboBox Name="cbLocation" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1" Margin="5"
-                  SelectedValuePath="ID" DisplayMemberPath="Description" Validation.ErrorTemplate="{StaticResource validationTemplate}">
-            <ComboBox.Style>
-                <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource comboboxStyle}">
-                    <Setter Property="SelectedValue" Value="{Binding Source=Location,Path=ID}"></Setter>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Text.Lenght, RelativeSource={RelativeSource Self},FallbackValue=0,TargetNullValue=0}" Value="0">
-                            <Setter Property="SelectedIndex" Value="0"></Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ComboBox.Style>
-            <ComboBox.ItemsSource>
-                <Binding Path="Locations" RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}" ValidatesOnDataErrors="True" ValidatesOnExceptions="True">
-                    <Binding.ValidationRules>
-                        <local:textboxValidation ValidatesOnTargetUpdated="False"/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </ComboBox.ItemsSource>
-        </ComboBox>-->
-
 
         <Label Name="lblDescription" Grid.Row="2" Content="{DynamicResource Description}"></Label>
         <TextBox Name="txtDescription" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3" Validation.ErrorTemplate="{StaticResource validationTemplate}">
@@ -143,23 +121,23 @@
         <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Name="txtAddNote"></TextBox>
         <Button Grid.Row="4" Grid.Column="3" VerticalAlignment="Center" Content="{DynamicResource AddNoteBtn}" Margin="5" Click="btn_AddNote"></Button>
 
-        <Label Name="lblMachine" Grid.Row="5" Content="{DynamicResource Machine}"></Label>
-        <ComboBox Name="cbDevices" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,5,0" Grid.ColumnSpan="2"
-                    ItemsSource="{Binding Source={x:Static systemLists:SystemLists.Supplier}, Path=Machines}"
+        <Label Name="lblMachine" Grid.Row="5" Content="{DynamicResource Machine}"/>
+        <ui:DefaultCombobox Name="cbDevices" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,5,0" Grid.ColumnSpan="2"
+                    ItemsSource="{Binding Path=Machines, RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
                     DisplayMemberPath="Description"
-                    SelectedItem="{Binding Device, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, FallbackValue=0}"/>
-        <Button Name="btnDocumentation" Grid.Column="3" Grid.Row="5" VerticalAlignment="Center" Margin="5,0,5,0" Content="{DynamicResource Documentation}"></Button>
+                    SelectedItem="{Binding Device, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, FallbackValue=0,TargetNullValue=0}"/>
+        <Button Name="btnDocumentation" Grid.Column="3" Grid.Row="5" VerticalAlignment="Center" Margin="5,0,5,0" Content="{DynamicResource Documentation}"/>
 
         <Label Name="lblState" Grid.Row="6" Content="{DynamicResource State}"></Label>
         <ComboBox Name="cbState" Grid.Column="1" Grid.Row="6" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="5"
                     ItemsSource="{Binding Source={x:Static systemLists:SystemLists.Tasks}, Path=TaskStatuses}" 
                     DisplayMemberPath="Description" SelectedValuePath="ID" 
-                    SelectedValue="{Binding StatusID, UpdateSourceTrigger=PropertyChanged, FallbackValue=0,TargetNullValue=0}">
-        </ComboBox>
-        <Label Name="lblUrguent" Grid.Column="3" Grid.Row="6" HorizontalAlignment="Left" Margin="5,0,0,0" Content="{DynamicResource Urguent}"></Label>
-        <CheckBox Grid.Column="3" Grid.Row="6" VerticalAlignment="Center" Margin="98,0,0,0" IsChecked="{Binding IsUrguent}"></CheckBox>
+                    SelectedValue="{Binding StatusID, UpdateSourceTrigger=PropertyChanged, FallbackValue=0, TargetNullValue=0}"/>
 
-        <Label Name="lblPicture" Grid.Row="7" VerticalAlignment="Top" Content="{DynamicResource Pictures}"></Label>
+        <Label Name="lblUrguent" Grid.Column="3" Grid.Row="6" HorizontalAlignment="Left" Margin="5,0,0,0" Content="{DynamicResource Urguent}"/>
+        <CheckBox Grid.Column="3" Grid.Row="6" VerticalAlignment="Center" Margin="98,0,0,0" IsChecked="{Binding IsUrguent}"/>
+
+        <Label Name="lblPicture" Grid.Row="7" VerticalAlignment="Top" Content="{DynamicResource Pictures}"/>
         <ListBox Name="lbPhotos" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding Photos}" FlowDirection="LeftToRight">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>

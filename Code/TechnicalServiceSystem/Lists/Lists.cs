@@ -30,53 +30,5 @@ namespace TechnicalServiceSystem.Lists
         public static GeneralLists General = new GeneralLists();
         public static TaskList Tasks = new TaskList();
         public static SupplierLists Supplier = new SupplierLists();
-
-        //----------------------
-        //singleton business
-        //----------------------
-
-        private static SystemLists _instance;
-        private static readonly object syncRoot = new object();
-
-        private SystemLists()
-        {
-            //we could retrieve all lists while init, but for startup time sake... lets not :P
-            //GetLists();
-        }
-
-        //retrieval of the Lists
-        private static SystemLists Instance
-        {
-            get
-            {
-                SystemLists ret = null;
-                lock (syncRoot)
-                {
-                    //in ASP we can't use the static stuff since static is the same for all requests/sessions. so savinig to sessions it is xD
-                    if (Settings.IsWebEnvironment)
-                    {
-                        ret = Settings.GetSessionSetting<SystemLists>("SystemLists");
-                        if (ret == null)
-                        {
-                            ret = new SystemLists();
-                            Settings.SetSessionSetting("SystemLists", ret);
-                        }
-                    }
-                    else
-                    {
-                        if (_instance == null) _instance = new SystemLists();
-                        ret = _instance;
-                    }
-                }
-
-                return ret;
-            }
-        }
-
-        /// <summary>
-        ///     Retrieves the current SystemList Object
-        /// </summary>
-        /// <returns></returns>
-        public static SystemLists GetInstance() => Instance;
     }
 }

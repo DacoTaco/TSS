@@ -6,7 +6,7 @@
         xmlns:library="clr-namespace:TechnicalServiceSystem;assembly=TechnicalServiceSystem"
         xmlns:systemLists="clr-namespace:TechnicalServiceSystem.Lists;assembly=TechnicalServiceSystem"
         mc:Ignorable="d"
-        Title="MainWindow">
+        Title="MainWindow" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <!-- Tasks -->
         <TextBlock x:Key="DescriptionHeader" Text="{DynamicResource Description}"/>

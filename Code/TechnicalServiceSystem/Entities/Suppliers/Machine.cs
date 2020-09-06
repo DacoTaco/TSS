@@ -38,8 +38,8 @@ namespace TechnicalServiceSystem.Entities.Suppliers
 
         public virtual Supplier Supplier { get; set; }
         public virtual MachineType Type { get; set; }
-        public virtual ICollection<Documentation> Documentations { get; set; }
-        public virtual ICollection<Photo> Photos { get; set; }
+        public virtual ICollection<Documentation> Documentations { get; protected set; }
+        public virtual ICollection<Photo> Photos { get; protected set; }
 
         public override string ToString()
         {

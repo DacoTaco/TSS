@@ -31,15 +31,6 @@ namespace TSS_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        public SystemLists Lists
-        {
-            get
-            {
-                return SystemLists.GetInstance();
-            }
-
-        }
-
         public ObservableCollection<Task> TasksList { get; set; }
         public ObservableCollection<TaskStatus> TaskStatuses { get; set; }
         public ObservableCollection<TaskType> TaskTypes { get; set; }

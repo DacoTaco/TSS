@@ -454,7 +454,7 @@ namespace TSS_ASPWebForms
                         changed = false;
                     }
                     break;
-                case "Machine":
+                case nameof(Task.Device):
                     try
                     {
                         var machineID = int.Parse(value as string);

@@ -147,7 +147,7 @@ function updateTaskState() {
 }
 
 function updateTaskMachine() {
-    var PropertyName = "Machine";
+    var PropertyName = "Device";
     var value = document.getElementById("selectMachines").value;
 
     var ret = PushTaskPropertyChange(PropertyName, value, false);

@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TSS_ASPWebForms {
-    
-    
-    public partial class EditTask {
-        
+namespace TSS_ASPWebForms
+{
+
+
+    public partial class EditTask
+    {
+
         /// <summary>
         /// EditTaskForm control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm EditTaskForm;
-        
+
         /// <summary>
         /// loadingTaskDiv control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl loadingTaskDiv;
-        
+
         /// <summary>
         /// loadingImage control.
         /// </summary>
@@ -38,7 +40,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image loadingImage;
-        
+
         /// <summary>
         /// lblReporter control.
         /// </summary>
@@ -47,7 +49,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblReporter;
-        
+
         /// <summary>
         /// txtReporter control.
         /// </summary>
@@ -56,7 +58,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtReporter;
-        
+
         /// <summary>
         /// selectTechnicians control.
         /// </summary>
@@ -64,8 +66,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.selectObject selectTechnicians;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.selectObject selectTechnicians;
+
         /// <summary>
         /// selectDepartments control.
         /// </summary>
@@ -73,8 +75,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.selectObject selectDepartments;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.selectObject selectDepartments;
+
         /// <summary>
         /// selectLocations control.
         /// </summary>
@@ -82,8 +84,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.selectObject selectLocations;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.selectObject selectLocations;
+
         /// <summary>
         /// txtDescription control.
         /// </summary>
@@ -92,7 +94,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtDescription;
-        
+
         /// <summary>
         /// Notes control.
         /// </summary>
@@ -101,7 +103,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox Notes;
-        
+
         /// <summary>
         /// NoteBox control.
         /// </summary>
@@ -110,7 +112,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText NoteBox;
-        
+
         /// <summary>
         /// AddNotesButton control.
         /// </summary>
@@ -119,7 +121,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button AddNotesButton;
-        
+
         /// <summary>
         /// machineRow control.
         /// </summary>
@@ -128,7 +130,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlTableRow machineRow;
-        
+
         /// <summary>
         /// selectMachines control.
         /// </summary>
@@ -136,8 +138,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.selectObject selectMachines;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.selectObject selectMachines;
+
         /// <summary>
         /// selectTaskState control.
         /// </summary>
@@ -145,8 +147,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.selectObject selectTaskState;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.selectObject selectTaskState;
+
         /// <summary>
         /// chkUrguent control.
         /// </summary>
@@ -155,7 +157,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkUrguent;
-        
+
         /// <summary>
         /// imagesList control.
         /// </summary>
@@ -164,7 +166,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl imagesList;
-        
+
         /// <summary>
         /// AddPhotoBtn control.
         /// </summary>
@@ -173,7 +175,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button AddPhotoBtn;
-        
+
         /// <summary>
         /// AddPhotoInput control.
         /// </summary>

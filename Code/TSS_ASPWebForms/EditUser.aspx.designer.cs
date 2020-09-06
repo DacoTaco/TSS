@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TSS_ASPWebForms {
-    
-    
-    public partial class EditUser {
-        
+namespace TSS_ASPWebForms
+{
+
+
+    public partial class EditUser
+    {
+
         /// <summary>
         /// EditUserForm control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm EditUserForm;
-        
+
         /// <summary>
         /// loadingUserDiv control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl loadingUserDiv;
-        
+
         /// <summary>
         /// loadingImage control.
         /// </summary>
@@ -38,7 +40,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image loadingImage;
-        
+
         /// <summary>
         /// UserPhoto control.
         /// </summary>
@@ -47,7 +49,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image UserPhoto;
-        
+
         /// <summary>
         /// addPicture control.
         /// </summary>
@@ -56,7 +58,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlButton addPicture;
-        
+
         /// <summary>
         /// ProfilePicInput control.
         /// </summary>
@@ -65,7 +67,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputFile ProfilePicInput;
-        
+
         /// <summary>
         /// txtUsername control.
         /// </summary>
@@ -74,7 +76,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtUsername;
-        
+
         /// <summary>
         /// txtPassword control.
         /// </summary>
@@ -83,7 +85,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputPassword txtPassword;
-        
+
         /// <summary>
         /// selectDepartment control.
         /// </summary>
@@ -91,8 +93,8 @@ namespace TSS_ASPWebForms {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::TSS_ASPWebForms.DropDownObject selectDepartment;
-        
+        protected global::TechnicalServiceSystem.UI.HTML.DropDownObject selectDepartment;
+
         /// <summary>
         /// UserActive control.
         /// </summary>
@@ -101,7 +103,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputCheckBox UserActive;
-        
+
         /// <summary>
         /// RolesTable control.
         /// </summary>

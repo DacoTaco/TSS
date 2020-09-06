@@ -25,6 +25,8 @@ using TechnicalServiceSystem.Lists;
 using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
 using System.Linq;
+using TechnicalServiceSystem.Entities.Users;
+using TechnicalServiceSystem.Entities.Suppliers;
 
 namespace TSS_WPF
 {
@@ -57,6 +59,9 @@ namespace TSS_WPF
                 OnPropertyChanged(nameof(Locations));
             }
         }
+
+        public ObservableCollection<User> Technicians => SystemLists.User.TranslatedTechnicians(NotSet);
+        public ObservableCollection<Machine> Machines => SystemLists.Supplier.TranslatedMachines(NotSet);
 
         public string NotSet
         {

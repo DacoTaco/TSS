@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="index.aspx.cs" Inherits="TSS_ASPWebForms.index" %>
-<%@ Register assembly="TSS_ASPWebForms" namespace="TSS_ASPWebForms" tagprefix="web" %>
+<%@ Register assembly="TechnicalServiceSystem.UI" namespace="TechnicalServiceSystem.UI.HTML" tagprefix="web" %>
 <%@ Import Namespace="TechnicalServiceSystem" %>
 <%@ Import Namespace="TechnicalServiceSystem.Entities.Users" %>
 <%@ Import Namespace="Equin.ApplicationFramework" %>
@@ -106,8 +106,8 @@
                         <!--data goes here -->
                     </div>
                     <div class="modal-footer">
-                        <asp:button id="CloseBtn" type="button" data-dismiss="modal" runat="server" Text="Close" OnClientClick="CloseModal();return false;" meta:resourcekey="Close"/>
                         <asp:button id="SaveModal" type="button" data-dismiss="modal" runat="server" Text="Save changes" OnClientClick="Save();CloseModal();return false;" meta:resourcekey="Save"/>
+                        <asp:button id="CloseBtn" type="button" data-dismiss="modal" runat="server" Text="Close" OnClientClick="CloseModal();return false;" meta:resourcekey="Close"/>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->

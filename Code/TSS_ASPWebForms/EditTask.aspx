@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EditTask.aspx.cs" Inherits="TSS_ASPWebForms.EditTask" %>
-<%@ Register assembly="TSS_ASPWebForms" namespace="TSS_ASPWebForms" tagprefix="web" %>
+<%@ Register assembly="TechnicalServiceSystem.UI" namespace="TechnicalServiceSystem.UI.HTML" tagprefix="web" %>
 
 <!DOCTYPE html>
 

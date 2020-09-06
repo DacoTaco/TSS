@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="LoginUser.aspx.cs" Inherits="TSS_ASPWebForms.LoginUser" EnableEventValidation = "false" ClientIDMode="AutoID" %>
-<%@ Register assembly="TSS_ASPWebForms" namespace="TSS_ASPWebForms" tagprefix="web" %>
+<%@ Register assembly="TechnicalServiceSystem.UI" namespace="TechnicalServiceSystem.UI.HTML" tagprefix="web" %>
 
 <!DOCTYPE html>
 

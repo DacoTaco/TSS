@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System.Collections.ObjectModel;
+using System.Linq;
 using TechnicalServiceSystem.Entities.Suppliers;
 
 namespace TechnicalServiceSystem.Lists
@@ -49,6 +50,26 @@ namespace TechnicalServiceSystem.Lists
 
                 return ret;
             }
+        }
+
+        public ObservableCollection<Machine> TranslatedMachines(string TranslationNotSet)
+        {
+            if (Machines.First()?.Description == TranslationNotSet)
+                return Machines;
+
+            var newList = new ObservableCollection<Machine>();
+            newList.Add(new Machine(0) { Description = TranslationNotSet });
+            foreach (var machine in Machines)
+            {
+                newList.Add(machine);
+            }
+
+            if (Settings.IsWebEnvironment)
+                Settings.SetSessionSetting(MachineList, newList);
+            else
+                _machines = newList;
+
+            return newList;
         }
     }
 }

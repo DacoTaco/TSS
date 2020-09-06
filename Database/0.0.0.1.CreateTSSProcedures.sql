@@ -1648,14 +1648,6 @@ BEGIN
 			where TaskID = @TaskID
 		END
 
-		IF(@MachineID is not null)
-		BEGIN
-			update Tasks.Task
-			set
-				MachineID = @MachineID
-			where TaskID = @TaskID
-		END
-
 		IF(@StatusID is not null)
 		BEGIN
 			update Tasks.Task
@@ -1678,7 +1670,7 @@ BEGIN
 			declare @reporterName nvarchar(max) = null
 
 			select TOP 1 @reporterID=UserID from @reporterInfo
-			IF(@reporterID is not null and @reporterID > 0)
+			IF( ISNULL(@reporterID,0) > 0)
 			BEGIN
 				select @reporterName=UserName,@reporterID=UserID from Users.Users where UserID like (Select TOP 1 UserID from @reporterInfo)
 			END
@@ -1699,6 +1691,7 @@ BEGIN
 
 		update Tasks.Task
 		set
+			MachineID = @MachineID,
 			DateLastAdjustment = GETDATE()
 		where TaskID = @TaskID
 
