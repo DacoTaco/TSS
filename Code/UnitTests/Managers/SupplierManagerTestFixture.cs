@@ -36,7 +36,7 @@ namespace UnitTests.Managers
             Assert.That(_machine.Description, Is.EqualTo("Houten Bed"), "Device Name");
             Assert.That(_machine.ModelNumber,Is.EqualTo("WB-010101"),"Device Model Number");
             Assert.That(_machine.ModelName,Is.EqualTo("Estetica"),"Device Model Name");
-            Assert.IsTrue(_machine.Photos.Count > 0);
+            Assert.IsTrue(_machine.Photos.Count() > 0);
         }
 
         [Test]
@@ -52,6 +52,21 @@ namespace UnitTests.Managers
             Assert.AreEqual("Hoog Laag Bed", result.First().TypeName);
             Assert.AreEqual(11, result.Last().ID);
             Assert.AreEqual("Andere", result.Last().TypeName);
+        }
+
+        [TestCase(nameof(Machine.ID), 1, TestName = "Can Sort By ID Asc")]
+        [TestCase(nameof(Machine.ID) + " DESC", 4, TestName = "Can Sort By ID Desc")]
+        [TestCase(nameof(Machine.Description) + " DESC", 3, TestName = "Can Sort By Description")]
+        [Test]
+        public void CanGetMachinesSorted(string sortBy, int expectedID)
+        {
+            //Arrange & Act
+            var result = supplierManager.GetMachines(sortBy);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.That(result, Has.Count.GreaterThan(1));
+            Assert.AreEqual(expectedID, result.First().ID);
         }
     }
 }

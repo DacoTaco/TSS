@@ -14,21 +14,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using FluentNHibernate.Testing;
+using NUnit.Framework;
 using TechnicalServiceSystem.Entities.Suppliers;
 
-namespace TechnicalServiceSystem.Mappings.Suppliers
+namespace UnitTests.Mapping.Suppliers
 {
-    public class DocumentationMap : SupplierSchemaMapper<Documentation>
+    [TestFixture]
+    public class SupplierMapTestFixture : NhibernateTestFixture
     {
-        public DocumentationMap() : base("Documentation")
+        [Test]
+        public void CanMapSupplier()
         {
-            Id(doc => doc.ID).Column("DocumentationID");
-
-            Map(doc => doc.DocumentationPath).Column("Documentation");
-
-            References(doc => doc.ParentMachine)
-                .Column("MachineID")
-                .Not.Nullable();
+            new PersistenceSpecification<Supplier>(Session)
+                .CheckProperty(x => x.Name, "TestFixtureSupplier")
+                .VerifyTheMappings();
         }
     }
 }

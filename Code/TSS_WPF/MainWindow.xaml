@@ -31,7 +31,6 @@
         <!-- Converters for the Lists-->
         <library:BaseClassListIndexConverter x:Key="baseClassListIndexConverter" />
         <library:NoteListToString x:Key="noteListToString" />
-        <library:DateTimeToString x:Key="dateTimeToString" />
 
         <Style TargetType="TextBlock" x:Key="TextBlockStyle">
             <Style.Triggers>
@@ -142,13 +141,13 @@
                             <DataGridTextColumn Header="{StaticResource MachineHeader}" IsReadOnly="True">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource baseClassListIndexConverter}" TargetNullValue="{StaticResource NotSet}">
-                                        <Binding Path="Device.ID"></Binding>
-                                        <Binding Source="{x:Static systemLists:SystemLists.Supplier}" Path="Machines"></Binding>
+                                        <Binding Path="Device.ID"/>
+                                        <Binding Source="{x:Static systemLists:SystemLists.Supplier}" Path="Machines"/>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTextColumn Binding="{Binding LastModifiedOn}" ClipboardContentBinding="{x:Null}" Header="{StaticResource AdjustmentHeader}" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding RepeatingInfo.ActivationDate,Converter={StaticResource dateTimeToString}}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding RepeatingInfo.ActivationDate}" ClipboardContentBinding="{x:Null}" Header="{StaticResource ActivationHeader}" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding RepeatingInfo.Interval}" ClipboardContentBinding="{x:Null}" Header="{StaticResource IntervalHeader}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>

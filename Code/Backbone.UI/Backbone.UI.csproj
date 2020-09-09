@@ -49,7 +49,6 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomControl1.cs" />
     <Compile Include="HTML\DropDownObject.cs" />
     <Compile Include="HTML\RoleLabel.cs" />
     <Compile Include="HTML\selectObject.cs" />

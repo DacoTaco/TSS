@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using Equin.ApplicationFramework;
+using NHibernate.Criterion;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,11 +39,24 @@ namespace TechnicalServiceSystem
         [DataObjectMethod(DataObjectMethodType.Select)]
         public BindingListView<Machine> GetMachines(string SortBy = null)
         {
-            var ret = new BindingListView<Machine>(GetMachines());
-            if(String.IsNullOrWhiteSpace(SortBy))
-                ret.Sort = SortBy;
-            return ret;
+            var query = Session.QueryOver<Machine>();
+
+            if(!string.IsNullOrWhiteSpace(SortBy))
+            {
+                var desc = SortBy.ToLower().Contains(" desc");
+                var property = SortBy.Split().First();
+                var queryBuilder = query.OrderBy(Projections.Property(property));
+
+                if (desc)
+                    query = queryBuilder.Desc;
+                else
+                    query = queryBuilder.Asc;
+            }
+
+            var list = query.List().ToList();
+            return new BindingListView<Machine>(list);
         }
+
         public ObservableCollection<Machine> GetMachines()
         {
             try
@@ -86,178 +100,150 @@ namespace TechnicalServiceSystem
                 .SingleOrDefault();
         }
 
-        //---------------------------------------------------------------------------------
-        //                                  SYNCING
-        //                               -------------
-        //      these syncing functions are used in WPF to push all changes in 1 instant
-        //---------------------------------------------------------------------------------
-
         /// <summary>
         ///     Add machine to the database
         /// </summary>
         /// <param name="MachineList"></param>
-        public void AddMachine(List<Machine> MachineList)
+        public void AddMachine(Machine machine)
         {
-            if (MachineList == null || MachineList.Count <= 0)
+            if (machine == null)
                 throw new ArgumentException("Machine_Manager : AddMachines failure, arguments should not be null");
 
             var newMachineID = 0;
-            var errors = 0;
             var con = GetConnection();
             if(con.State == ConnectionState.Closed)
                 con.Open();
 
-            foreach (var machine in MachineList)
-                using (var trans = con.BeginTransaction())
+            using (var trans = con.BeginTransaction())
+            {
+                try
                 {
-                    try
+                    var errors = 0;
+                    //add machine
+                    using (var command = con.CreateCommand())
                     {
-                        errors = 0;
+                        command.Transaction = trans;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText = "Suppliers.AddMachine";
 
-                        //add machine
+                        var Name = command.CreateParameter();
+                        Name.Value = machine.Description;
+                        Name.ParameterName = "MachineName";
+                        command.Parameters.Add(Name);
+
+                        var Serial = command.CreateParameter();
+                        Serial.ParameterName = "SerialNumber";
+                        Serial.Value = string.IsNullOrWhiteSpace(machine.SerialNumber) ? (object)DBNull.Value : machine.SerialNumber;
+                        command.Parameters.Add(Serial);
+
+                        var ModelNumber = command.CreateParameter();
+                        ModelNumber.ParameterName = "ModelNumber";
+                        ModelNumber.Value = string.IsNullOrWhiteSpace(machine.ModelNumber) ? (object)DBNull.Value : machine.ModelNumber;
+                        command.Parameters.Add(ModelNumber);
+
+                        var ModelName = command.CreateParameter();
+                        ModelName.ParameterName = "ModelName";
+                        ModelName.Value = string.IsNullOrWhiteSpace(machine.ModelName) ? (object)DBNull.Value : machine.ModelName;
+                        command.Parameters.Add(ModelName);
+
+                        var Supplier = command.CreateParameter();
+                        Supplier.ParameterName = "SupplierID";
+                        Supplier.Value = machine.Supplier.ID;
+                        command.Parameters.Add(Supplier);
+
+                        var Type = command.CreateParameter();
+                        Type.ParameterName = "TypeID";
+                        Type.Value = machine.Type.ID;
+                        command.Parameters.Add(Type);
+
+                        var NewID = command.CreateParameter();
+                        NewID.Direction = ParameterDirection.ReturnValue;
+                        command.Parameters.Add(NewID);
+
+
+                        if (command.ExecuteNonQuery() == 0)
+                        {
+                            trans.Rollback();
+                            return;
+                        }
+
+                        newMachineID = (int) NewID.Value;
+
+                        if (newMachineID == 0)
+                        {
+                            trans.Rollback();
+                            return;
+                        }
+                    }
+
+                    //add photos
+                    foreach (var photo in machine.Photos)
                         using (var command = con.CreateCommand())
                         {
                             command.Transaction = trans;
                             command.CommandType = CommandType.StoredProcedure;
-                            command.CommandText = "Suppliers.AddMachine";
+                            command.CommandText = "Suppliers.AssignPhotoToMachine";
 
-                            var Name = command.CreateParameter();
-                            Name.Value = machine.Description;
-                            Name.ParameterName = "MachineName";
-                            command.Parameters.Add(Name);
+                            var MachID = command.CreateParameter();
+                            MachID.ParameterName = "MachineID";
+                            MachID.Value = newMachineID;
+                            command.Parameters.Add(MachID);
 
-                            var Serial = command.CreateParameter();
-                            Serial.ParameterName = "SerialNumber";
-                            if (string.IsNullOrWhiteSpace(machine.SerialNumber))
-                                Serial.Value = DBNull.Value;
-                            else
-                                Serial.Value = machine.SerialNumber;
-                            command.Parameters.Add(Serial);
-
-                            var ModelNumber = command.CreateParameter();
-                            ModelNumber.ParameterName = "ModelNumber";
-                            if (string.IsNullOrWhiteSpace(machine.ModelNumber))
-                                ModelNumber.Value = DBNull.Value;
-                            else
-                                ModelNumber.Value = machine.ModelNumber;
-                            command.Parameters.Add(ModelNumber);
-
-                            var ModelName = command.CreateParameter();
-                            ModelName.ParameterName = "ModelName";
-                            if (string.IsNullOrWhiteSpace(machine.ModelName))
-                                ModelName.Value = DBNull.Value;
-                            else
-                                ModelName.Value = machine.ModelName;
-                            command.Parameters.Add(ModelName);
-
-                            var Supplier = command.CreateParameter();
-                            Supplier.ParameterName = "SupplierID";
-                            Supplier.Value = machine.Supplier.ID;
-                            command.Parameters.Add(Supplier);
-
-                            var Type = command.CreateParameter();
-                            Type.ParameterName = "TypeID";
-                            Type.Value = machine.Type.ID;
-                            command.Parameters.Add(Type);
-
-                            var NewID = command.CreateParameter();
-                            NewID.Direction = ParameterDirection.ReturnValue;
-                            command.Parameters.Add(NewID);
-
+                            var photoParam = command.CreateParameter();
+                            photoParam.ParameterName = "photoName";
+                            photoParam.Value = photo.FileName;
+                            command.Parameters.Add(photoParam);
 
                             if (command.ExecuteNonQuery() == 0)
                             {
-                                trans.Rollback();
-                                continue;
-                            }
-
-                            newMachineID = (int) NewID.Value;
-
-                            if (newMachineID == 0)
-                            {
-                                trans.Rollback();
-                                continue;
+                                errors = 1;
+                                break;
                             }
                         }
 
-                        //add photos
-                        foreach (var photo in machine.Photos)
-                            using (var command = con.CreateCommand())
-                            {
-                                command.Transaction = trans;
-                                command.CommandType = CommandType.StoredProcedure;
-                                command.CommandText = "Suppliers.AssignPhotoToMachine";
-
-                                var MachID = command.CreateParameter();
-                                MachID.ParameterName = "MachineID";
-                                MachID.Value = newMachineID;
-                                command.Parameters.Add(MachID);
-
-                                var photoParam = command.CreateParameter();
-                                photoParam.ParameterName = "photoName";
-                                photoParam.Value = photo.FileName;
-                                command.Parameters.Add(photoParam);
-
-                                if (command.ExecuteNonQuery() == 0)
-                                {
-                                    errors = 1;
-                                    break;
-                                }
-                            }
-
-                        if (errors != 0)
-                        {
-                            trans.Rollback();
-                            continue;
-                        }
-
-                        //photos added, documentation time!
-                        foreach (var document in machine.Documentations)
-                            using (var command = con.CreateCommand())
-                            {
-                                command.Transaction = trans;
-                                command.CommandText = "Suppliers.AddMachineDocumentation";
-                                command.CommandType = CommandType.StoredProcedure;
-
-                                var DocuName = command.CreateParameter();
-                                DocuName.ParameterName = "DocumentationName";
-                                DocuName.Value = document.DocumentationPath;
-                                command.Parameters.Add(DocuName);
-
-                                var MachineID = command.CreateParameter();
-                                MachineID.ParameterName = "MachineID";
-                                MachineID.Value = newMachineID;
-                                command.Parameters.Add(MachineID);
-
-                                if (command.ExecuteNonQuery() == 0)
-                                {
-                                    errors = 1;
-                                    break;
-                                }
-                            }
-
-
-                        if (errors == 0)
-                            trans.Commit();
-                        else
-                            trans.Rollback();
-                    }
-                    catch (Exception ex)
+                    if (errors != 0)
                     {
                         trans.Rollback();
-                        throw ex;
+                        return;
                     }
+
+                    //photos added, documentation time!
+                    foreach (var document in machine.Documentations)
+                        using (var command = con.CreateCommand())
+                        {
+                            command.Transaction = trans;
+                            command.CommandText = "Suppliers.AddMachineDocumentation";
+                            command.CommandType = CommandType.StoredProcedure;
+
+                            var DocuName = command.CreateParameter();
+                            DocuName.ParameterName = "DocumentationName";
+                            DocuName.Value = document.DocumentationPath;
+                            command.Parameters.Add(DocuName);
+
+                            var MachineID = command.CreateParameter();
+                            MachineID.ParameterName = "MachineID";
+                            MachineID.Value = newMachineID;
+                            command.Parameters.Add(MachineID);
+
+                            if (command.ExecuteNonQuery() == 0)
+                            {
+                                errors = 1;
+                                break;
+                            }
+                        }
+
+
+                    if (errors == 0)
+                        trans.Commit();
+                    else
+                        trans.Rollback();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    throw ex;
+                }
             }
-        }
-
-        public void AddMachine(Machine Machine)
-        {
-            if (Machine == null)
-                return;
-
-            var machine = new List<Machine>();
-            machine.Add(Machine);
-            AddMachine(machine);
         }
 
         /// <summary>

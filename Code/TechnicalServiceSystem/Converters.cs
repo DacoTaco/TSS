@@ -16,6 +16,7 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -48,17 +49,20 @@ namespace TechnicalServiceSystem
 
             var status = values[1] as IList;
 
-            var id = idx.Value;
             if (status == null)
                 return null;
 
             object Class = null;
-
+            var id = idx.Value;
             for (var i = 0; i < status.Count; i++)
             {
                 var temp = status[i] as BaseEntity;
                 if (temp != null && temp.ID == id)
+                {
                     Class = temp;
+                    break;
+                }
+                    
             }
 
             if (Class == null)
@@ -83,7 +87,10 @@ namespace TechnicalServiceSystem
             {
                 var temp = list[i] as BaseEntity;
                 if (temp != null && temp.ID == TargetID)
+                {
                     Class = temp;
+                    break;
+                }                 
             }
 
             if (Class == null)
@@ -100,25 +107,14 @@ namespace TechnicalServiceSystem
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return null;
-
-            var status = value as IList;
-
-            if (status == null)
+            if (value == null || !(value is IList<Note>))
                 return null;
 
             string ret = null;
-            foreach (var item in status)
+            var list = value as IList<Note>;
+            foreach (var note in list)
             {
-                var note = item as Note;
-                if (note == null)
-                    continue;
-
-                if (string.IsNullOrEmpty(ret))
-                    ret = string.Format("{0} - {1}", note.NoteDate, note.Text);
-                else
-                    ret += string.Format("{0}{1} - {2}", Environment.NewLine, note.NoteDate, note.Text);
+                ret += $"{ (string.IsNullOrEmpty(ret)?"":Environment.NewLine) }{ note.NoteDate.ToString("dd/MM/yyyy HH:mm:ss") } - { note.Text }";
             }
 
             return ret;
@@ -174,26 +170,6 @@ namespace TechnicalServiceSystem
         }
     }
 
-    /// <summary>
-    ///     Return the Date time in a certain format. handy for bindings.
-    /// </summary>
-    public class DateTimeToString : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (!(value is DateTime) || value == null)
-                return null;
-            var param = (DateTime) value;
-
-            return param.ToString("dd/MM/yyyy");
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public static class ImageUriParser
     {
         public static bool TryParseUri(string URI, out Image ImageOutput , out ImageFormat imageFormat)
@@ -201,7 +177,7 @@ namespace TechnicalServiceSystem
             var regex = new Regex(@"data:(?<type>[\w]+)/(?<extension>\w+);(?<encoding>\w+),(?<data>.*)", RegexOptions.Compiled);
             ImageOutput = null;
             imageFormat = null;
-            ImageFormat format = null;
+            ImageFormat format;
 
             var match = regex.Match(URI);
 
@@ -211,25 +187,25 @@ namespace TechnicalServiceSystem
             var readEncoding = match.Groups["encoding"].Value;
             var readData = match.Groups["data"].Value;
 
+            if (readType.ToLower() != "image")
+                throw new ArgumentException($"URI is not of image type. got '{readType}' instead");
+            if (readEncoding.ToLower() != "base64")
+                throw new ArgumentException($"URI is not encoded with base64. got '{readEncoding}' instead.");
+            if (String.IsNullOrWhiteSpace(readExtension))
+                throw new ArgumentException($"URI did not contain any valid extension/image type");
+            if (String.IsNullOrWhiteSpace(readData))
+                throw new ArgumentException($"URI did not contain any valid data");
+
             try
             {
                 format = (ImageFormat)typeof(ImageFormat)
                     .GetProperty(readExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
                     .GetValue(null);
             }
-            catch
+            catch(Exception e)
             {
-                format = null;
+                throw new ArgumentException($"URI did not contain any valid extension/image type'{readExtension}'", e);
             }
-
-            if (readType.ToLower() != "image")
-                throw new ArgumentException($"URI is not of image type. got '{readType}' instead");
-            if (readEncoding.ToLower() != "base64")
-                throw new ArgumentException($"URI is not encoded with base64. got '{readEncoding}' instead.");
-            if(String.IsNullOrWhiteSpace(readExtension) || format == null)
-                throw new ArgumentException($"URI did not contain any valid extension/image type");
-            if (String.IsNullOrWhiteSpace(readData))
-                throw new ArgumentException($"URI did not contain any valid data");
 
             try
             {

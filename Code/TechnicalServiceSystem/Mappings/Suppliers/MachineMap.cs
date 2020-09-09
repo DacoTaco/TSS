@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using FluentNHibernate.Mapping;
 using TechnicalServiceSystem.Entities.Suppliers;
 
 namespace TechnicalServiceSystem.Mappings.Suppliers
@@ -31,12 +32,20 @@ namespace TechnicalServiceSystem.Mappings.Suppliers
             References(m => m.Type).Column("TypeID");
             References(m => m.Supplier).Column("SupplierID");
 
+            HasMany(m => m.Documentations)
+                .KeyColumn("MachineID")
+                .NotFound.Ignore()
+                .Access.CamelCaseField(Prefix.Underscore)
+                .Cascade.All()
+                .LazyLoad();
+
             HasManyToMany(t => t.Photos)
                 .ParentKeyColumn("MachineID")
                 .ChildKeyColumn("PhotoID")
                 .Table("MachinePhotos")
                 .Schema("Suppliers")
-                .AsSet()
+                .Access.CamelCaseField(Prefix.Underscore)
+                .AsBag()
                 .Cascade.All()
                 .NotFound.Ignore();
         }

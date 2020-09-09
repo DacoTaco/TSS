@@ -14,7 +14,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using TechnicalServiceSystem.Entities.General;
 
 namespace TechnicalServiceSystem.Entities.Suppliers
@@ -23,8 +25,8 @@ namespace TechnicalServiceSystem.Entities.Suppliers
     {
         public Machine()
         {
-            Documentations = new List<Documentation>();
-            Photos = new List<Photo>();
+            _documentations = new List<Documentation>();
+            _photos = new List<Photo>();
         }
         public Machine(int id) : base()
         {
@@ -38,12 +40,22 @@ namespace TechnicalServiceSystem.Entities.Suppliers
 
         public virtual Supplier Supplier { get; set; }
         public virtual MachineType Type { get; set; }
-        public virtual ICollection<Documentation> Documentations { get; protected set; }
-        public virtual ICollection<Photo> Photos { get; protected set; }
 
-        public override string ToString()
+        protected IList<Documentation> _documentations;
+        public virtual IEnumerable<Documentation> Documentations => _documentations.AsEnumerable();
+
+        protected IList<Photo> _photos;
+        public virtual IEnumerable<Photo> Photos => _photos.AsEnumerable();
+
+        public virtual void AddPhoto(Photo photo) => _photos.Add(photo);
+
+        public virtual void AddDocumentation(Documentation documentation)
         {
-            return Description;
+            documentation.ParentMachine = this;
+            _documentations.Add(documentation);
         }
+
+        public override string ToString() => Description;
+
     }
 }

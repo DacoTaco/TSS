@@ -34,7 +34,7 @@ namespace TechnicalServiceSystem.Mappings
 
             HasMany<Location>(d => d.Locations)
                 .KeyColumn("DepartmentID")
-                .Not.LazyLoad();
+                .LazyLoad();
 
             HasManyToMany(d => d.Company)
                 .ParentKeyColumn("DepartmentID")
@@ -43,7 +43,8 @@ namespace TechnicalServiceSystem.Mappings
                 .Schema("General")
                 .AsSet()
                 .Cascade.SaveUpdate()
-                .NotFound.Ignore();
+                .NotFound.Ignore()
+                .LazyLoad();
         }
     }
 }

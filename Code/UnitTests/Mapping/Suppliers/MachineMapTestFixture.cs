@@ -31,20 +31,25 @@ namespace UnitTests.Mapping.Suppliers
             //Arrange
             var supplier = Session.Get<Supplier>(1);
             var machineType = Session.Get<MachineType>(1);
-            //var photo = Session.Get<Photo>(1);
             Assert.NotNull(supplier);
             Assert.NotNull(machineType);
 
+            var machine = new Machine()
+            {
+                Description = "descript",
+                ModelName = "modelName",
+                ModelNumber = "9001",
+                SerialNumber = "1987-15681",
+                Supplier = supplier,
+                Type = machineType
+            };
+
+            machine.AddPhoto(new Photo() { FileName = "test9001.jpg" });
+            machine.AddDocumentation(new Documentation() { DocumentationPath = @".\bloop" });
+
             //Act & Assert
             new PersistenceSpecification<Machine>(Session)
-                .CheckProperty(x => x.Description, "descript")
-                .CheckProperty(x => x.ModelName, "modelName")
-                .CheckProperty(x => x.ModelNumber, "9001")
-                .CheckProperty(x => x.SerialNumber, "1987-15681")
-                .CheckReference(x => x.Supplier, supplier)
-                .CheckReference(x => x.Type, machineType)
-                .CheckList(x => x.Photos, new List<Photo>() { new Photo() { FileName = "test9001.jpg" } } )
-                .VerifyTheMappings();
+                .VerifyTheMappings(machine);
         }
     }
 }

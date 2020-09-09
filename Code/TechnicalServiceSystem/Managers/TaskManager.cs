@@ -18,12 +18,10 @@ using Equin.ApplicationFramework;
 using NHibernate;
 using NHibernate.Util;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using TechnicalServiceSystem.Entities.Tasks;
 using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Utilities;
@@ -48,37 +46,32 @@ namespace TechnicalServiceSystem
             var list = new BindingListView<Task>(GetTasks(SearchText, company, DepartmentID, null));
 
             //basically, this string has the property + direction. for example : StatusID DESC
-            //TODO : pull this out of here and process the sorting in ASP or javascript or something. would at least speed it up alot...
+            //TODO : pull this out of here and process the sorting in database to speed it up...
             if(!String.IsNullOrWhiteSpace(SortBy))
                 list.Sort = SortBy;
 
             return list;
         }
-        public Task GetTasks(string company, int TaskID)
-        {
-            return (Task)GetTasks(null, company, null, TaskID).FirstOrNull();
-        }
+
+        public Task GetTasks(string company, int TaskID) => (Task)GetTasks(null, company, null, TaskID).FirstOrNull();
+
         public ObservableCollection<Task> GetTasks(string contains, string company, int? DepartmentID, int? taskID)
         {
             ObservableCollection<Task> taskList = null;
             try
             {
-                //using (var session = GetSession())
-                {
-                    var session = GetSession();
-                    taskList = new ObservableCollection<Task>(
-                        session.CreateSQLQuery(
-                                "exec Tasks.GetTask :TaskID, :companyName, :departmentID, :contains")
-                            .AddEntity(typeof(Task))
-                            .SetParameter("TaskID", taskID.HasValue && taskID > 0 ? taskID : null, NHibernateUtil.Int32)
-                            .SetParameter("companyName", company, NHibernateUtil.String)
-                            .SetParameter("departmentID", DepartmentID.HasValue && DepartmentID > -5 ? DepartmentID : null,
-                                NHibernateUtil.Int32)
-                            .SetParameter("contains", !string.IsNullOrWhiteSpace(contains) ? contains : null,
-                                NHibernateUtil.String)
-                            .List<Task>()
-                    );
-                }
+                taskList = new ObservableCollection<Task>(
+                    Session.CreateSQLQuery(
+                            "exec Tasks.GetTask :TaskID, :companyName, :departmentID, :contains")
+                        .AddEntity(typeof(Task))
+                        .SetParameter("TaskID", (taskID ?? 0) > 0 ? taskID : null, NHibernateUtil.Int32)
+                        .SetParameter("companyName", company, NHibernateUtil.String)
+                        .SetParameter("departmentID", (DepartmentID ?? -5) > -5 ? DepartmentID : null,
+                            NHibernateUtil.Int32)
+                        .SetParameter("contains", !string.IsNullOrWhiteSpace(contains) ? contains : null,
+                            NHibernateUtil.String)
+                        .List<Task>()
+                );
             }
             catch (Exception ex)
             {
@@ -150,10 +143,8 @@ namespace TechnicalServiceSystem
         /// <param name="TaskID"></param>
         /// <param name="userHash"></param>
         /// <returns></returns>
-        public bool SetTaskOpened(int TaskID, string userHash)
-        {
-            return SetTaskOpenedState(TaskID, userHash, true);
-        }
+        public bool SetTaskOpened(int TaskID, string userHash) => SetTaskOpenedState(TaskID, userHash, true);
+
 
         /// <summary>
         ///     Set a task closed so it can be editted again by somebody else
@@ -161,10 +152,7 @@ namespace TechnicalServiceSystem
         /// <param name="TaskID"></param>
         /// <param name="userHash"></param>
         /// <returns></returns>
-        public bool SetTaskClosed(int TaskID, string userHash)
-        {
-            return SetTaskOpenedState(TaskID, userHash, false);
-        }
+        public bool SetTaskClosed(int TaskID, string userHash) => SetTaskOpenedState(TaskID, userHash, false);
 
         /// <summary>
         ///     Set the opened state of a given task.
@@ -272,10 +260,196 @@ namespace TechnicalServiceSystem
             if (task == null)
                 return;
 
-            var list = new List<Task>();
-            list.Add(task);
+            var con = Session.Connection;
+            int errors;
+            int newTaskID;
 
-            AddTasks(list);
+            if (!(con is SqlConnection))
+                throw new Exception("TaskManager.AddTasks : function requires SQLconnection, which was not retrieved");
+            var connection = con as SqlConnection;
+
+            var transaction = Session.BeginTransaction();
+            errors = 0;
+            newTaskID = 0;
+            try
+            {
+                //add task
+                using (var commandAddTask = connection.CreateCommand())
+                {
+                    transaction.Enlist(commandAddTask);
+                    commandAddTask.CommandType = CommandType.StoredProcedure;
+                    var paraDescription = commandAddTask.CreateParameter();
+                    paraDescription.ParameterName = "Description";
+                    paraDescription.Value = task.Description;
+                    paraDescription.DbType = DbType.String;
+                    paraDescription.Size = task.Description.Length;
+                    commandAddTask.Parameters.Add(paraDescription);
+
+                    var parUrguent = commandAddTask.CreateParameter();
+                    parUrguent.ParameterName = "Urguent";
+                    parUrguent.Value = task.IsUrguent;
+                    parUrguent.DbType = DbType.Boolean;
+                    commandAddTask.Parameters.Add(parUrguent);
+
+                    SqlParameter parReporterInfo;
+                    parReporterInfo = commandAddTask.Parameters.AddWithValue("reporterInfo",
+                        User.GenerateUserTable(
+                            task.ReporterUser != null ? task.ReporterUser.ID : 0,
+                            task.Reporter)
+                    );
+                    parReporterInfo.SqlDbType = SqlDbType.Structured;
+                    parReporterInfo.TypeName = "Users.UserInfo";
+
+                    var parLocation = commandAddTask.CreateParameter();
+                    parLocation.Value = task.Location.ID;
+                    parLocation.ParameterName = "locationID";
+                    commandAddTask.Parameters.Add(parLocation);
+
+                    var parMachine = commandAddTask.CreateParameter();
+                    parMachine.ParameterName = "MachineID";
+                    if ((task.Device?.ID ?? 0) == 0)
+                        parMachine.Value = DBNull.Value;
+                    else
+                        parMachine.Value = task.Device.ID;
+                    commandAddTask.Parameters.Add(parMachine);
+
+                    var parStatus = commandAddTask.CreateParameter();
+                    parStatus.ParameterName = "StatusID";
+                    parStatus.Value = task.StatusID;
+                    commandAddTask.Parameters.Add(parStatus);
+
+                    var parTechnician = commandAddTask.CreateParameter();
+                    parTechnician.ParameterName = "Technician";
+                    if (task.TechnicianID == null || task.TechnicianID == 0)
+                        parTechnician.Value = DBNull.Value;
+                    else
+                        parTechnician.Value = task.TechnicianID;
+                    commandAddTask.Parameters.Add(parTechnician);
+
+                    var TaskID = commandAddTask.CreateParameter();
+                    TaskID.Direction = ParameterDirection.ReturnValue;
+                    commandAddTask.Parameters.Add(TaskID);
+
+
+                    var TypeID = task.TypeID;
+                    if ((TypeID == Convert.ToInt32(TaskTypes.RepeatingTask)) & (task.RepeatingInfo != null))
+                    {
+                        commandAddTask.CommandText = "Tasks.CreateRepeatingTask";
+
+                        var parActivationDate = commandAddTask.CreateParameter();
+                        parActivationDate.ParameterName = "ActivationDate";
+                        parActivationDate.Value = task.RepeatingInfo.ActivationDate;
+                        parActivationDate.DbType = DbType.DateTime;
+                        commandAddTask.Parameters.Add(parActivationDate);
+
+                        var parInterval = commandAddTask.CreateParameter();
+                        parInterval.ParameterName = "DaysToRepeat";
+                        parInterval.Value = task.RepeatingInfo.Interval;
+                        commandAddTask.Parameters.Add(parInterval);
+                    }
+                    else
+                    {
+                        commandAddTask.CommandText = "Tasks.CreateNormalTask";
+                    }
+
+                    if (commandAddTask.ExecuteNonQuery() == 0)
+                    {
+                        //Drop this shit and go to the next task
+                        Session.Transaction.Rollback();
+                        return;
+                    }
+
+                    newTaskID = (int)TaskID.Value;
+
+                    if (newTaskID == 0)
+                    {
+                        transaction.Rollback();
+                        return;
+                    }
+                }
+
+                //task created, add notes && photo
+                foreach (var note in task.Notes)
+                    using (var command = connection.CreateCommand())
+                    {
+                        transaction.Enlist(command);
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText = "Tasks.AddNote";
+
+                        var paraNote = command.CreateParameter();
+                        paraNote.ParameterName = "Note";
+                        paraNote.Value = note.Text;
+                        command.Parameters.Add(paraNote);
+
+                        var parTaskID = command.CreateParameter();
+                        parTaskID.ParameterName = "TaskID";
+                        parTaskID.Value = newTaskID;
+                        command.Parameters.Add(parTaskID);
+
+                        if (command.ExecuteNonQuery() == 0)
+                        {
+                            errors = 1;
+                            break;
+                        }
+                    }
+
+                if (errors != 0)
+                {
+                    transaction.Rollback();
+                    return;
+                }
+
+                var gnrlManager = new GeneralManager();
+                //no errors there, so lets add the photos to the DB...
+                foreach (var photo in task.Photos)
+                {
+                    photo.FileName = string.Format("Task_{0}_Photo_{1}", newTaskID,
+                        DateTime.Now.ToString("yyyyMMdd_HH_mm_ss"));
+
+                    var item = photo;
+                    if (!gnrlManager.SavePhotoToServer(ref item))
+                        continue;
+
+                    var photoID = item.ID;
+                    if (photoID <= 0) continue;
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        transaction.Enlist(command);
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText = "Tasks.AssignPhoto";
+
+                        var parTaskID = command.CreateParameter();
+                        parTaskID.ParameterName = "taskID";
+                        parTaskID.Value = newTaskID;
+                        command.Parameters.Add(parTaskID);
+
+                        var parPhoto = command.CreateParameter();
+                        parPhoto.ParameterName = "photoName";
+                        parPhoto.Value = item.FileName;
+                        command.Parameters.Add(parPhoto);
+
+                        if (command.ExecuteNonQuery() == 0)
+                        {
+                            errors = 1;
+                            break;
+                        }
+                    }
+                }
+
+                if (errors != 0)
+                {
+                    transaction.Rollback();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex;
+            }
+
+            transaction.Commit();
         }
 
         [DataObjectMethod(DataObjectMethodType.Update)]
@@ -423,219 +597,6 @@ namespace TechnicalServiceSystem
                     throw ex;
                 }
             }
-        }
-
-
-        //WPF List syncing
-        [DataObjectMethod(DataObjectMethodType.Insert)]
-        public void AddTasks(IList<Task> tasks)
-        {
-            if (tasks == null || tasks.Count <= 0)
-                return;
-
-            var session = GetSession();
-            var con = session.Connection;
-            int errors;
-            int newTaskID;
-
-            SqlConnection connection;
-            if (!(con is SqlConnection))
-                throw new Exception("TaskManager.AddTasks : function requires SQLconnection, which was not retrieved");
-            connection = con as SqlConnection;
-        
-            foreach (var task in tasks)
-            {
-                var transaction = session.BeginTransaction();
-                errors = 0;
-                newTaskID = 0;
-                try
-                {
-                    //add task
-                    using (var commandAddTask = connection.CreateCommand())
-                    {
-                        transaction.Enlist(commandAddTask);
-                        commandAddTask.CommandType = CommandType.StoredProcedure;
-                        var paraDescription = commandAddTask.CreateParameter();
-                        paraDescription.ParameterName = "Description";
-                        paraDescription.Value = task.Description;
-                        paraDescription.DbType = DbType.String;
-                        paraDescription.Size = task.Description.Length;
-                        commandAddTask.Parameters.Add(paraDescription);
-
-                        var parUrguent = commandAddTask.CreateParameter();
-                        parUrguent.ParameterName = "Urguent";
-                        parUrguent.Value = task.IsUrguent;
-                        parUrguent.DbType = DbType.Boolean;
-                        commandAddTask.Parameters.Add(parUrguent);
-
-                        SqlParameter parReporterInfo;
-                        parReporterInfo = commandAddTask.Parameters.AddWithValue("reporterInfo",
-                            User.GenerateUserTable(
-                                task.ReporterUser != null ? task.ReporterUser.ID : 0,
-                                task.Reporter)
-                        );
-                        parReporterInfo.SqlDbType = SqlDbType.Structured;
-                        parReporterInfo.TypeName = "Users.UserInfo";
-
-                        var parLocation = commandAddTask.CreateParameter();
-                        parLocation.Value = task.Location.ID;
-                        parLocation.ParameterName = "locationID";
-                        commandAddTask.Parameters.Add(parLocation);
-
-                        var parMachine = commandAddTask.CreateParameter();
-                        parMachine.ParameterName = "MachineID";
-                        if ((task.Device?.ID??0) == 0)
-                            parMachine.Value = DBNull.Value;
-                        else
-                            parMachine.Value = task.Device.ID;
-                        commandAddTask.Parameters.Add(parMachine);
-
-                        var parStatus = commandAddTask.CreateParameter();
-                        parStatus.ParameterName = "StatusID";
-                        parStatus.Value = task.StatusID;
-                        commandAddTask.Parameters.Add(parStatus);
-
-                        var parTechnician = commandAddTask.CreateParameter();
-                        parTechnician.ParameterName = "Technician";
-                        if (task.TechnicianID == null || task.TechnicianID == 0)
-                            parTechnician.Value = DBNull.Value;
-                        else
-                            parTechnician.Value = task.TechnicianID;
-                        commandAddTask.Parameters.Add(parTechnician);
-
-                        var TaskID = commandAddTask.CreateParameter();
-                        TaskID.Direction = ParameterDirection.ReturnValue;
-                        commandAddTask.Parameters.Add(TaskID);
-
-
-                        var TypeID = task.TypeID;
-                        if ((TypeID == Convert.ToInt32(TaskTypes.RepeatingTask)) & (task.RepeatingInfo != null))
-                        {
-                            commandAddTask.CommandText = "Tasks.CreateRepeatingTask";
-
-                            var parActivationDate = commandAddTask.CreateParameter();
-                            parActivationDate.ParameterName = "ActivationDate";
-                            parActivationDate.Value = task.RepeatingInfo.ActivationDate;
-                            parActivationDate.DbType = DbType.DateTime;
-                            commandAddTask.Parameters.Add(parActivationDate);
-
-                            var parInterval = commandAddTask.CreateParameter();
-                            parInterval.ParameterName = "DaysToRepeat";
-                            parInterval.Value = task.RepeatingInfo.Interval;
-                            commandAddTask.Parameters.Add(parInterval);
-                        }
-                        else
-                        {
-                            commandAddTask.CommandText = "Tasks.CreateNormalTask";
-                        }
-
-                        if (commandAddTask.ExecuteNonQuery() == 0)
-                        {
-                            //Drop this shit and go to the next task
-                            session.Transaction.Rollback();
-                            continue;
-                        }
-
-                        newTaskID = (int) TaskID.Value;
-
-                        if (newTaskID == 0)
-                        {
-                            transaction.Rollback();
-                            continue;
-                        }
-                    }
-
-                    //task created, add notes && photo
-                    foreach (var note in task.Notes)
-                        using (var command = connection.CreateCommand())
-                        {
-                            transaction.Enlist(command);
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.CommandText = "Tasks.AddNote";
-
-                            var paraNote = command.CreateParameter();
-                            paraNote.ParameterName = "Note";
-                            paraNote.Value = note.Text;
-                            command.Parameters.Add(paraNote);
-
-                            var parTaskID = command.CreateParameter();
-                            parTaskID.ParameterName = "TaskID";
-                            parTaskID.Value = newTaskID;
-                            command.Parameters.Add(parTaskID);
-
-                            if (command.ExecuteNonQuery() == 0)
-                            {
-                                errors = 1;
-                                break;
-                            }
-                        }
-
-                    if (errors != 0)
-                    {
-                        transaction.Rollback();
-                        continue;
-                    }
-
-                    var gnrlManager = new GeneralManager();
-                    //no errors there, so lets add the photos to the DB...
-                    foreach (var photo in task.Photos)
-                    {
-                        photo.FileName = string.Format("Task_{0}_Photo_{1}", newTaskID,
-                            DateTime.Now.ToString("yyyyMMdd_HH_mm_ss"));
-
-                        var item = photo;
-                        if (!gnrlManager.SavePhotoToServer(ref item))
-                            continue;
-
-                        var photoID = item.ID;
-                        if (photoID <= 0) continue;
-
-                        using (var command = connection.CreateCommand())
-                        {
-                            transaction.Enlist(command);
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.CommandText = "Tasks.AssignPhoto";
-
-                            var parTaskID = command.CreateParameter();
-                            parTaskID.ParameterName = "taskID";
-                            parTaskID.Value = newTaskID;
-                            command.Parameters.Add(parTaskID);
-
-                            var parPhoto = command.CreateParameter();
-                            parPhoto.ParameterName = "photoName";
-                            parPhoto.Value = item.FileName;
-                            command.Parameters.Add(parPhoto);
-
-                            if (command.ExecuteNonQuery() == 0)
-                            {
-                                errors = 1;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (errors != 0)
-                    {
-                        transaction.Rollback();
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
-                }
-
-                transaction.Commit();
-            }
-        }
-
-        /// <summary>
-        ///     Syncing : Delete tasks from the database
-        /// </summary>
-        /// <param name="tasks"></param>
-        public void DeleteTasks(List<Task> tasks)
-        {
         }
     }
 }

@@ -220,7 +220,10 @@
                     </asp:GridView>
 
                     <!-- Data source! -->
-                    <asp:ObjectDataSource ID="TaskSource" runat="server" SelectMethod="GetTasks" TypeName="TechnicalServiceSystem.TaskManager" SortParameterName="SortBy" DataObjectTypeName="TechnicalServiceSystem.Entities.Tasks">
+                    <asp:ObjectDataSource ID="TaskSource" runat="server"
+                        TypeName="<%# typeof(TechnicalServiceSystem.TaskManager) %>" 
+                        SelectMethod ="<%# nameof(TechnicalServiceSystem.TaskManager.GetTasks) %>"
+                        SortParameterName="SortBy" DataObjectTypeName="<%# nameof(TechnicalServiceSystem.Entities.Tasks) %>">
                         <SelectParameters>        
                             <asp:Parameter Name="SearchText" DefaultValue="" Type="String"/>
                             <asp:Parameter Name="DepartmentID" DefaultValue="-1" Type="Int32"/>
@@ -335,8 +338,10 @@
                     
                     
                     <!-- User Data source! -->
-                    <asp:ObjectDataSource ID="UserSource" runat="server" SelectMethod="GetUsers" TypeName="TechnicalServiceSystem.UserManager" SortParameterName="SortBy"
-                                          DataObjectTypeName="TechnicalServiceSystem.Entities.Users">
+                    <asp:ObjectDataSource ID="UserSource" runat="server" 
+                        TypeName="<%# typeof(TechnicalServiceSystem.UserManager) %>" 
+                        SelectMethod ="<%# nameof(TechnicalServiceSystem.UserManager.GetUsers) %>"
+                        SortParameterName="SortBy" DataObjectTypeName="<%# nameof(TechnicalServiceSystem.Entities.Users) %>">
                         <SelectParameters>
                             <asp:Parameter Name="contains" DefaultValue="" Type="String"></asp:Parameter>
                             <asp:Parameter Name="RoleID" DefaultValue="-1" Type="Int32"></asp:Parameter>

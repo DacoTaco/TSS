@@ -59,7 +59,6 @@ namespace TSS_ASPWebForms
             if (user != null)
             {
                 lblUserName.Text = "&lt; " + user.UserName + " &gt;";
-                var genMngr = new GeneralManager();
                 var path = user.Photo?.FileName;
                 if (string.IsNullOrWhiteSpace(path))
                     path = "./system/DefaultUser.jpg";
@@ -164,8 +163,9 @@ namespace TSS_ASPWebForms
                 TaskSource.SelectParameters["DepartmentID"] = departmentField;
                 TaskSource.SelectParameters["SearchText"] = searchField;
 
-                //set datasource and bind/retrieve data
-                TaskGrid.DataSourceID = "TaskSource";
+                //set datasource and bind/retrieve data (databind also executes all inline code to bind to them)
+                TaskSource.DataBind();
+                TaskGrid.DataSourceID = nameof(TaskSource);
                 TaskGrid.DataBind();
             }
 

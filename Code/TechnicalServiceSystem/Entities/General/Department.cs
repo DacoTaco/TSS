@@ -28,9 +28,6 @@ namespace TechnicalServiceSystem.Entities.General
         public virtual ICollection<Company> Company { get; set; }
         public virtual ICollection<Location> Locations { get; set; }
 
-        public override string ToString()
-        {
-            return Description;
-        }
+        public override string ToString() => Description;
     }
 }

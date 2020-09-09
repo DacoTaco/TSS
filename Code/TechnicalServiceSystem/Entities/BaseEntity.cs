@@ -63,8 +63,7 @@ namespace TechnicalServiceSystem.Entities
                 return false;
 
             //loop trough all properties and compare!
-            var properties = type.GetProperties();
-            foreach (var item in properties)
+            foreach (var item in type.GetProperties())
             {
                 var selfValue = type.GetProperty(item.Name).GetValue(this, null);
                 var toValue = type.GetProperty(item.Name).GetValue(obj, null);
@@ -75,8 +74,8 @@ namespace TechnicalServiceSystem.Entities
                     var SelfList = selfValue as IList;
                     var ToList = toValue as IList;
 
-                    if (SelfList == null || ToList == null || SelfList.Count != ToList.Count)
-                        return false;
+                    if (ToList == null || SelfList.Count != ToList.Count)
+                        return true;
 
                     for (var i = 0; i < SelfList.Count; i++)
                         if (SelfList[i] != ToList[i])

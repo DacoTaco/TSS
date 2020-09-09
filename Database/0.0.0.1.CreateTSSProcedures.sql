@@ -314,8 +314,8 @@ Begin
 		tk.CreationDate, tk.DateLastADjustment, rt.RepeatInterval as 'Interval in days', 
 		TRY_CONVERT(DATE, CAST(rt.ActivationDate as DATETIME),0) as 'Next Planned Date',
 		tk.UserOpened, tk.OpenTimeDue,
-		(Select count(NoteID) from Tasks.Notes where TaskID = tk.TaskID) as 'Notes',
-		(Select count(PhotoID) from Tasks.TaskPhotos where TaskID = tk.TaskID) as 'Photos'
+		(Select count(1) from Tasks.Notes where TaskID = tk.TaskID) as 'Notes',
+		(Select count(1) from Tasks.TaskPhotos where TaskID = tk.TaskID) as 'Photos'
 	from Tasks.Task tk 
 		inner join Tasks.TaskType tt on tk.TypeID = tt.TypeID
 		inner join Tasks.TaskStatus ts on tk.StatusID = ts.StatusID
@@ -351,12 +351,10 @@ Begin
 			( tk.TypeID <= @minTypeID) 
 			and 
 			(
-				( tk.StatusID <= @minStatusID) or
+				( tk.StatusID < @minStatusID) or
 				( datediff(day,tk.DateLastAdjustment,GETDATE()) < 14  or @showAll > 0)
 			)
 		)
-		
-		
 	order by tt.TypeID asc,dep.DepartmentName asc,loc.LocationName asc,tk.DateLastAdjustment asc, tk.TaskDescription asc
 END
 GO
