@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Users;
 
@@ -25,7 +24,7 @@ namespace TechnicalServiceSystem.Entities.Tasks
     {
         public Task()
         {
-            Notes = new ObservableCollection<Note>();
+            _notes = new ObservableCollection<Note>();
             Photos = new ObservableCollection<Photo>();
         }
 
@@ -120,19 +119,6 @@ namespace TechnicalServiceSystem.Entities.Tasks
             }
         }
 
-        //handlers for the CollectionChanged
-        protected void Photos_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Photos));
-        }
-
-        protected void Notes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            //send msg to the interface that the string needs to be updated
-            OnPropertyChanged(nameof(strNotes));
-            OnPropertyChanged(nameof(Notes));
-        }
-
         /// <summary>
         ///     Creates a Clone of the current instance, this also creates new lists so bindings dont interfere
         /// </summary>
@@ -141,26 +127,28 @@ namespace TechnicalServiceSystem.Entities.Tasks
         {
             var output = _clone<Task>();
 
-            //fix the observablecollections. the output lists are sharing references, so new list and readd everything!
-            output.Notes = new ObservableCollection<Note>();
-            foreach (var item in Notes) output.Notes.Add(item);
-            output.AddNotesEventHandlers();
+            //fix the observablecollections. the output lists are sharing references, so new list and re-add everything!
+            output.ClearNotes();
+            foreach (var item in Notes) output.AddNote(item);
 
             output.Photos = new ObservableCollection<Photo>();
             foreach (var item in Photos) output.Photos.Add(item);
-            output.AddPhotosEventHandlers();
 
             return output;
         }
 
-        public virtual void AddNotesEventHandlers()
+        public virtual void AddNote(Note note)
         {
-            _notes.CollectionChanged += Notes_CollectionChanged;
+            note.NoteTask = this;
+            _notes.Add(note);
+
+            OnPropertyChanged(nameof(strNotes));
+            OnPropertyChanged(nameof(Notes));
         }
 
-        public virtual void AddPhotosEventHandlers()
+        public virtual void ClearNotes()
         {
-            _notes.CollectionChanged += Notes_CollectionChanged;
+            _notes = new ObservableCollection<Note>();
         }
     }
 }

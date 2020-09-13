@@ -91,9 +91,8 @@ namespace TSS_WPF
 
         private bool Editting = false;
 
-        private bool GetTaskDetails(ref Task task, bool NewTask = false)
+        private bool OpenTaskDetails(ref Task task, bool NewTask = false)
         {
-            bool ret = false;
             Task taskCopy;
 
             if (task == null)
@@ -109,24 +108,28 @@ namespace TSS_WPF
             else
                 taskCopy = task.Clone();
 
-            TaskDetails dlgDetails = new TaskDetails(taskCopy, false);
+            var taskmngr = new TaskManager();
+            var readOnly = task.ID > 0 && !taskmngr.TaskEditable( task.ID, LoggedInUser.GetUserHash() );
+            TaskDetails dlgDetails = new TaskDetails(taskCopy, readOnly );
             dlgDetails.Owner = (this);
             if (dlgDetails.ShowDialog().Value == true)
             {
                 //save task
                 task = dlgDetails.OutputTask;
-                var taskmngr = new TaskManager();
-                if(taskmngr.TaskEditable(task.ID,LoggedInUser.GetUserHash()))
-                    taskmngr.ChangeTasks(task);
                 
-                ret = true; 
-            }
-            else
-            {
-                ret = false;
+                if(task.ID == 0)
+                {
+                    taskmngr.AddTasks(task);
+                }
+                else if(taskmngr.TaskEditable(task.ID, LoggedInUser.GetUserHash()))
+                {
+                    taskmngr.ChangeTasks(task);
+                }
+
+                return true;
             }
 
-            return ret;
+            return false;
         }
         private void Row_DoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -135,7 +138,7 @@ namespace TSS_WPF
             int index = TasksList.IndexOf(targetTask);
             Editting = true;
 
-            if (GetTaskDetails(ref targetTask))
+            if (OpenTaskDetails(ref targetTask))
             {
                 TasksList[index] = targetTask;
                 TaskGrid.Items.Refresh();
@@ -145,7 +148,7 @@ namespace TSS_WPF
         private void btnNewTask_Click(object sender, RoutedEventArgs e)
         {
             Task task = null;
-            if (GetTaskDetails(ref task, true))
+            if (OpenTaskDetails(ref task, true))
             {
                 TasksList.Add(task);
                 TaskGrid.Items.Refresh();
@@ -158,7 +161,7 @@ namespace TSS_WPF
             {
                 var taskmngr = new TaskManager();
                 Task task = TaskGrid.SelectedItem as Task;
-                if (task == null)
+                if (task == null || task.ID == 0)
                     return;
 
                 if (taskmngr.TaskEditable(task.ID, LoggedInUser.GetUserHash()))

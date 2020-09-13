@@ -143,7 +143,7 @@ namespace TSS_WPF
             if (String.IsNullOrWhiteSpace(txtAddNote.Text))
                 return;
 
-            EditedTask.Notes.Add(new Note(txtAddNote.Text, DateTime.Now));
+            EditedTask.AddNote(new Note(txtAddNote.Text, DateTime.Now));
             txtAddNote.Text = "";
         }
 

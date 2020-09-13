@@ -410,7 +410,7 @@ namespace TSS_ASPWebForms
                         break;
 
                     var note = new Note(descr, DateTime.Now);
-                    Task.Notes.Add(note);
+                    Task.AddNote(note);
                     changed = true;
                     break;
                 case nameof(Task.Location):

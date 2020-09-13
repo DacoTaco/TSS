@@ -77,20 +77,8 @@ namespace TechnicalServiceSystem.Entities.Tasks
                 _reporterName = value;
             }
         }
-        public virtual ICollection<Note> Notes
-        {
-            get { return _notes; }
-            protected set
-            {
-                if (value != null)
-                    _notes = new ObservableCollection<Note>(value);
-                else
-                    _notes = null;
+        public virtual IEnumerable<Note> Notes => _notes;
 
-                OnPropertyChanged(nameof(strNotes));
-                OnPropertyChanged(nameof(Notes));
-            }
-        }
         public virtual string strNotes
         {
             get
