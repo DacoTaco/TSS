@@ -17,7 +17,7 @@ along with this program.If not, see http://www.gnu.org/licenses */
 using System.Web;
 using System.Web.UI;
 
-namespace TSS_ASPWebForms.Models
+namespace TechnicalServiceSystem.UI.HTML
 {
     /// <summary>
     ///     a static class that injects a javascript alert into the page to display a message upon page rendering/load!

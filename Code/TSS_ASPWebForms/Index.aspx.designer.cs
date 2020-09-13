@@ -69,6 +69,15 @@ namespace TSS_ASPWebForms
         protected global::System.Web.UI.WebControls.Label conID;
 
         /// <summary>
+        /// profileBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TechnicalServiceSystem.UI.HTML.Button profileBtn;
+
+        /// <summary>
         /// userImage control.
         /// </summary>
         /// <remarks>

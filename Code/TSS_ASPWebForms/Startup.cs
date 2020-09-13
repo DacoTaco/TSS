@@ -26,7 +26,7 @@ namespace TSS_ASPWebForms
     {
         public void Configuration(IAppBuilder app)
         {
-            ConfigureAuth(app);
+            StartupApplication(app);
         }
     }
 }

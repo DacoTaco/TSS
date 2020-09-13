@@ -30,7 +30,7 @@ using TechnicalServiceSystem.Entities.Suppliers;
 using TechnicalServiceSystem.Entities.Tasks;
 using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Lists;
-using TSS_ASPWebForms.Models;
+using TechnicalServiceSystem.UI.HTML;
 
 namespace TSS_ASPWebForms
 {
@@ -201,9 +201,9 @@ namespace TSS_ASPWebForms
                     selectTaskState.Style.Add("background-color", "#EBEBE4");
                     chkUrguent.Enabled = false;
                     imagesList.Disabled = true;
-                    AddPhotoBtn.Enabled = false;
+                    AddPhotoBtn.Disabled = true;
                     AddPhotoInput.Disabled = true;
-                    AddNotesButton.Enabled = false;
+                    AddNotesButton.Disabled = true;
 
                     /* Add a warning/alert to the page saying we can't open the task */
                     JavascriptAlert.Show(ReadOnlyMsg);

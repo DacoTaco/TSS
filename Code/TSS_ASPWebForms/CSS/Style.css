@@ -107,6 +107,10 @@ h1 { margin-bottom: 0.5em; }
     width: 3vmin;
 }
 
+.btn {
+    font-size: inherit;
+}
+
 .UserButton {
     max-height: 5em;
     max-width: 5em;

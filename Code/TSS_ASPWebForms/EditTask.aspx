@@ -113,7 +113,9 @@
                         <input runat="server" id="NoteBox" autocomplete="off" style="height: inherit; max-height: inherit; min-height: 5px; width: 100%"/>
                     </td>
                     <td style="padding-bottom: 1em; padding-right: 1em; text-align: left;">
-                        <asp:button runat="server" id="AddNotesButton" style="width: 100%" OnClientClick="AddTaskNote();return false;" Text="Add Note" meta:resourcekey="AddNotesBtn"/> 
+                        <web:Button runat="server" id="AddNotesButton" name="AddNotesButton" style="width: 100%" onclick="AddTaskNote();return false;">
+                            <asp:Label runat="server" Text="Add Note" meta:resourcekey="AddNotesBtn" style="display:block;overflow:hidden;"></asp:Label>
+                        </web:Button>
                     </td>
                 </tr>
                 <!-- Machine row -->
@@ -169,12 +171,11 @@
                 </tr>
                 <tr>
                     <!-- Add photos row -->
-                    <td></td>
+                    <td><input id="AddPhotoInput" runat="server" type="file" accept="image/*" capture="camera" onchange="AddTaskPhoto(this); return false;" style="visibility: hidden; width:10px;height:10px"/></td>
                     <td style="padding-bottom: 1em; padding-right: 1em; text-align: right;" colspan="2">
-                        <asp:Button runat="server" ID="AddPhotoBtn" Text="Add Photo" meta:resourcekey="AddPhoto" style="min-width: 2em; width: 60%;"
-                                    OnClientClick="$('#AddPhotoInput').click();return false;"/>
-
-                        <input id="AddPhotoInput" runat="server" type="file" accept="image/*" capture="camera" onchange="AddTaskPhoto(this); return false;" style="visibility: hidden"/>
+                        <web:Button runat="server" id="AddPhotoBtn" name="AddPhotoBtn" style="min-width: 2em; width: 60%;" onclick="$('#AddPhotoInput').click();return false;">
+                            <asp:Label runat="server" Text="Add Photo" meta:resourcekey="AddPhoto" style="display:block;overflow:hidden;"></asp:Label>
+                        </web:Button>
                     </td>
                 </tr>
                 <tr>

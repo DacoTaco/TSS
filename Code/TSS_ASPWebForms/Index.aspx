@@ -70,10 +70,10 @@
             </div>
             <div class="col-xs-3 col-sm-2 col-lg-1 dropdown" id="UserMenu">
                 <div class=" UserButton" style="height: 100%; width: 100%;">
-                    <button class="btn btn-default btn-lg btn-xs dropdown-toggle" id="profileBtn" type="button" data-toggle="dropdown" style="background-color: white; border-color: transparent; height: auto; width: 100%;">
+                    <web:Button runat="server" class="btn-default btn-lg btn-xs dropdown-toggle" id="profileBtn" type="button" data-toggle="dropdown" style="background-color: white; border-color: transparent; height: auto; width: 100%;">
                         <asp:Image runat="server" ID="userImage" CssClass="img" AlternateText="userImage" style="height: inherit; width: inherit;"/>
                         <span class="caret" style="color: darkgray; display: inline-block; float: right; margin-top: 5px"></span>
-                    </button>
+                    </web:Button>
                     <ul role="menu" class="dropdown-menu text-responsive dropdown-menu-right" aria-labelledby="UserMenu" style="max-width: 10em; min-width: 10em;">
                         <li id="ProfileMenu" runat="server">
                             <a role="menuitem">
@@ -106,15 +106,14 @@
                         <!--data goes here -->
                     </div>
                     <div class="modal-footer">
-                        <asp:button id="SaveModal" type="button" data-dismiss="modal" runat="server" Text="Save changes" OnClientClick="Save();CloseModal();return false;" meta:resourcekey="Save"/>
-                        <asp:button id="CloseBtn" type="button" data-dismiss="modal" runat="server" Text="Close" OnClientClick="CloseModal();return false;" meta:resourcekey="Close"/>
+                        <asp:button id="SaveModal" type="button" CssClass="btn" data-dismiss="modal" runat="server" Text="Save changes" OnClientClick="Save();CloseModal();return false;" meta:resourcekey="Save"/>
+                        <asp:button id="CloseBtn" type="button" CssClass="btn" data-dismiss="modal" runat="server" Text="Close" OnClientClick="CloseModal();return false;" meta:resourcekey="Close"/>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
         <!-- the maincontainer that has everything starting with the tabcontrol -->
-        <div class="container-fluid col-xs-12" id="MainContainer" style="margin-left: auto; margin-right: auto; text-align: center;">
-        
+        <div class="container-fluid col-xs-12" id="MainContainer" style="margin-left: auto; margin-right: auto; text-align: center;"> 
             <!-- declaration of the tab controls. tabs that need to be toggled hidden or not need to have an ID and runat so we can hide it or not -->
             <!-- fun fact, if visability is toggled in code behind, its content is not visable in HTML, so no exploitation :D -->
             <ul class="nav nav-tabs" id="TabControl">
@@ -152,10 +151,10 @@
                      <!-- the top bar of the tasks tab. this has the sorting and buttons and stuff -->
                     <div class="row option-row">
                         <div class="col-xs-3 col-lg-3" style="height: inherit; margin-left: 0.5em; margin-right: 0.4em; padding: 0px;">
-                            <button runat="server" name="btnNewTask" class="lg-float-right md-button-max-width btn-block"
+                            <web:Button runat="server" name="btnNewTask" class="lg-float-right md-button-max-width btn-block"
                                     style="height: 100%; min-height: 1em; text-align: center;" onclick="loadTaskPage(0);return false;">
                                 <asp:Label runat="server" Text="New Task" meta:resourcekey="NewTask" style="height: inherit"></asp:Label>
-                            </button>
+                            </web:Button>
                         </div>
                         <div class="col-xs-3 col-lg-3" style="display: table-row; height: inherit; margin-right: 0.4em; padding: 0px;">
                             <asp:Label runat="server" Text="Afdeling : " style="float: left; height: inherit; margin-left: 15%; min-height: inherit; position: relative; text-align: center; vertical-align: central;"
@@ -171,12 +170,12 @@
                             </asp:TextBox>
                         </div>
                         <div class="col-xs-1 col-lg-2" style="height: inherit; padding: 0px;">
-                            <button runat="server" name="btnSearch" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getTasksPage();return false;"
+                            <web:Button runat="server" name="btnSearch" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getTasksPage();return false;"
                                     style="height: 100%; max-height: 100%; max-width: 100%; text-align: center;">
                                 <asp:Label runat="server" Text="Search" meta:resourcekey="Search" CssClass="hidden-xs hidden-sm"></asp:Label>
                                 <asp:Image runat="server" CssClass="img hidden-lg hidden-md" AlternateText="Search" ImageUrl="./system/search.png" BackColor="Transparent"
                                            style="background-size: contain; border: none; max-height: inherit; max-width: inherit; text-align: center;"/>
-                            </button>
+                            </web:Button>
                         </div>
                     </div>
                     <!-- the grid ! -->
@@ -238,10 +237,10 @@
                     </h1>
                     <div class="row option-row">
                         <div class="col-xs-3 col-lg-3" style="height: inherit; margin-left: 0.5em; margin-right: 0.4em; padding: 0px;">
-                            <button runat="server" name="btnNewUser" class="lg-float-right md-button-max-width btn-block"
+                            <web:Button runat="server" name="btnNewUser" class="lg-float-right md-button-max-width btn-block"
                                     style="height: 100%; min-height: 1em; text-align: center;" onclick="loadUserPage(0);return false;">
                                 <asp:Label runat="server" Text="New User" meta:resourcekey="NewUser" style="height: inherit"></asp:Label>
-                            </button>
+                            </web:Button>
                         </div>
                         <div class="col-xs-3 col-lg-3" style="height: inherit; margin-right: 0.4em; padding: 0px;">
                             <select runat="server" id="selectUserType" DataValueField="ID" DataTextField="RoleName" class="xs-float-left md-float-center md-dropdown-max-width btn-block"
@@ -254,12 +253,12 @@
                             </asp:TextBox>
                         </div>
                         <div class="col-xs-1 col-lg-2" style="height: inherit; padding: 0px;">
-                            <button runat="server" name="btnSearchUser" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getUserPage();return false;"
+                            <web:Button runat="server" name="btnSearchUser" class="searchButton xs-float-right sm-float-left md-float-left lg-float-left" onclick="getUserPage();return false;"
                                     style="height: 100%; max-height: 100%; max-width: 100%; text-align: center;">
                                 <asp:Label runat="server" Text="Search" meta:resourcekey="Search" CssClass="hidden-xs hidden-sm"></asp:Label>
                                 <asp:Image runat="server" CssClass="img hidden-lg hidden-md" AlternateText="Search" ImageUrl="./system/search.png" BackColor="Transparent"
                                            style="background-size: contain; border: none; max-height: inherit; max-width: inherit; text-align: center;"/>
-                            </button>
+                            </web:Button>
                         </div>
                     </div>
                     

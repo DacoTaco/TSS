@@ -21,7 +21,7 @@
 <form id="form1" runat="server" defaultbutton="btnClose">
     <div class="centerPage container-fluid" id="MainContainer" style="background-color: lightblue; border: solid; border-width: 2px;">
         <div style="margin-bottom: 4em;">
-            <asp:button runat="server" ID="btnClose" Text="X" CssClass="btn-close" style="text-align: center;" OnClientClick="returnToIndex();return false;"/>
+            <asp:button runat="server" ID="btnClose" Text="X" CssClass="btn btn-close" style="text-align: center;" OnClientClick="returnToIndex();return false;"/>
         </div>
         <!-- next div is required for our javascript/ajax script! -->
         <div id="Login" class="container-fluid" style="width: 100%;">

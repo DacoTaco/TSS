@@ -47,7 +47,7 @@
                 </tr>
             </table>
             <br/><br/>
-            <asp:Button runat="server" ID="btnLogin" style="height: 4em; margin-left: 10px; min-height: 25px; width: 6em" Text="Login" OnClientClick="login();return false;" UseSubmitBehavior="false" meta:resourcekey="Login"/>
+            <asp:Button runat="server" ID="btnLogin" CssClass="btn" style="height: 4em; margin-left: 10px; min-height: 25px; width: 6em" Text="Login" OnClientClick="login();return false;" UseSubmitBehavior="false" meta:resourcekey="Login"/>
         </div>
     </div>
     <!-- loading div -->

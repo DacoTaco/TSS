@@ -120,7 +120,7 @@ namespace TSS_ASPWebForms
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button AddNotesButton;
+        protected global::TechnicalServiceSystem.UI.HTML.Button AddNotesButton;
 
         /// <summary>
         /// machineRow control.
@@ -168,15 +168,6 @@ namespace TSS_ASPWebForms
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl imagesList;
 
         /// <summary>
-        /// AddPhotoBtn control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button AddPhotoBtn;
-
-        /// <summary>
         /// AddPhotoInput control.
         /// </summary>
         /// <remarks>
@@ -184,5 +175,14 @@ namespace TSS_ASPWebForms
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputFile AddPhotoInput;
+
+        /// <summary>
+        /// AddPhotoBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TechnicalServiceSystem.UI.HTML.Button AddPhotoBtn;
     }
 }

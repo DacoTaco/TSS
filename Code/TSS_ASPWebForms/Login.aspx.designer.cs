@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TSS_ASPWebForms {
-    
-    
-    public partial class Login {
-        
+namespace TSS_ASPWebForms
+{
+
+
+    public partial class Login
+    {
+
         /// <summary>
         /// form1 control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
-        
+
         /// <summary>
         /// btnClose control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnClose;
-        
+
         /// <summary>
         /// userlist control.
         /// </summary>
@@ -38,7 +40,7 @@ namespace TSS_ASPWebForms {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView userlist;
-        
+
         /// <summary>
         /// loadingImage control.
         /// </summary>

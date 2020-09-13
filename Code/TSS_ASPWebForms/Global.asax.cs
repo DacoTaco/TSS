@@ -14,7 +14,6 @@ namespace TSS_ASPWebForms
         {
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
         protected void Application_BeginRequest()
