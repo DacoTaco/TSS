@@ -52,6 +52,8 @@ namespace TechnicalServiceSystem.Mappings.Tasks
 
             HasMany(t => t.Notes)
                 .KeyColumn("TaskID")
+                .Inverse()
+                .ReadOnly()
                 .NotFound.Ignore();
 
             HasManyToMany(t => t.Photos)

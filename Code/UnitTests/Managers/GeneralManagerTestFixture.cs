@@ -39,9 +39,6 @@ namespace UnitTests.Managers
         [TearDown]
         public void TearDown()
         {
-            gnrlManager.GetSession()
-                .CreateSQLQuery("delete from General.Photo where photoname like '%temp.%'")
-                .ExecuteUpdate();
             if(File.Exists(Path.Combine(_imagesPath, "temp.png")))
                 File.Delete(Path.Combine(_imagesPath, "temp.png"));
             if (Directory.Exists(_imagesPath))

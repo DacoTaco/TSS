@@ -57,7 +57,8 @@ namespace UnitTests.Mapping
                 StatusID = 1,
                 Location = Session.QueryOver<Location>().Where(l => l.ID == 1).SingleOrDefault()
             };
-            task.Notes.Clear();
+
+            task.AddNote(new Note("test", DateTime.Now));
 
             //Act&Assert
             new PersistenceSpecification<Task>(Session)

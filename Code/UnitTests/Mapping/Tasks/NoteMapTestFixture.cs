@@ -11,7 +11,7 @@ namespace UnitTests.Mapping
         [Test]
         public void CanMapTaskNote()
         {
-            //Arrange
+            //Arrange            
             var note = new Note()
             {
                 NoteDate = DateTime.Now,

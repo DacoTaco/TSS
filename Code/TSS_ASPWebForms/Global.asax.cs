@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Web;
-using System.Web.Http;
-using System.Web.Http.Routing;
-using System.Web.Optimization;
 using System.Web.Routing;
 using TechnicalServiceSystem.Utilities;
 
@@ -14,6 +11,16 @@ namespace TSS_ASPWebForms
         {
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            //this creates and sets the session for the application
+            //TODO : to be used once we use nhibernate completely instead of 'binding' a new session for every request
+            //SessionHandler.BindSession();
+        }
+
+        private void Application_End(object sender, EventArgs e)
+        {
+            //unbind the session for this application
+            SessionHandler.UnbindSession();
         }
 
         protected void Application_BeginRequest()
@@ -24,14 +31,11 @@ namespace TSS_ASPWebForms
             HttpContext.Current.Response.Cache.SetNoStore();
             Response.Cache.SetExpires(DateTime.Now);
             Response.Cache.SetValidUntilExpires(true);
-
-            //this creates and sets the session for this connection
-            SessionHandler.GetSession();
+            SessionHandler.BindSession();
         }
 
         protected void Application_EndRequest(object sender, EventArgs e)
         {
-            //free session for this connection
             SessionHandler.UnbindSession();
         }
     }

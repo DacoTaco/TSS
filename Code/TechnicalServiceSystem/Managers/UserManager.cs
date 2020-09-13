@@ -158,6 +158,8 @@ namespace TechnicalServiceSystem
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "General.GetDepartmentCompany";
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
 
                     var depID = command.CreateParameter();
                     depID.Value = user.Department.ID;
@@ -185,6 +187,8 @@ namespace TechnicalServiceSystem
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "Users.CheckLogin";
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
 
                     var userID = command.CreateParameter();
                     userID.Value = user.ID;
@@ -249,11 +253,13 @@ namespace TechnicalServiceSystem
             var ret = false;
             try
             {
-                var connection = GetSession()?.Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "Users.CheckLoginHash";
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
 
                     var IDparam = command.CreateParameter();
                     IDparam.Value = user.ID;
@@ -300,6 +306,8 @@ namespace TechnicalServiceSystem
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "Users.IsUserEditable";
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
 
                     var param = command.CreateParameter();
                     param.ParameterName = "UserID";
@@ -355,6 +363,8 @@ namespace TechnicalServiceSystem
                 var connection = GetSession().Connection;
                 using (var command = connection.CreateCommand())
                 {
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
                     command.CommandType = CommandType.StoredProcedure;
 
                     if (openedState)

@@ -50,6 +50,20 @@ namespace UnitTests.Managers
         }
 
         [Test]
+        public void CanVerifyUserHash()
+        {
+            //Arrange
+            var user = userManager.GetUsers("Sint-Elisabeth", "test", 0, true).SingleOrDefault();
+            user.UserHash = "B0668584D7E16CC479B6F225AD166E2F89C44E1449182392B3333F6A1B98918037E1FFADE1DCE623E96589FEBA9C9E2481131FD09AF1F1698EE10E067C225017";
+
+            //Act
+            var result = userManager.CheckUserHash(user);
+
+            //Assert
+            Assert.True(result);
+        }
+
+        [Test]
         public void CanLoginUser()
         {
             //Arrange

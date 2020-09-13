@@ -29,7 +29,8 @@ namespace TechnicalServiceSystem.Mappings.Tasks
             //not sure if this mapping is needed once we add notes. probably we do
             References(n => n.NoteTask)
                 .Column("TaskID")
-                .Cascade.All();
+                .Cascade.All()
+                .ReadOnly();
         }
     }
 }

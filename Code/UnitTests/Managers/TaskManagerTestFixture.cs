@@ -67,8 +67,18 @@ namespace UnitTests.Managers
             Assert.AreEqual(2, result.Last().ID);
         }
 
+        [Test]
+        public void TaskAvailableIfTaskOpen()
+        {
+            //Arrange & Act
+            var result = _taskManager.TaskEditable(1, "someHash");
+
+            //Assert
+            Assert.True(result);
+        }
+
         [TestCase(nameof(Task.ID), 1, TestName = "Can Sort By ID Asc")]
-        [TestCase(nameof(Task.ID) + " DESC", 25, TestName = "Can Sort By ID Desc")]
+        [TestCase(nameof(Task.LocationName) + " DESC", 7, TestName = "Can Sort By LocationName Desc")]
         [TestCase(nameof(Task.Description), 3, TestName = "Can Sort By Description")]
         [TestCase(nameof(Task.TechnicianName) + " DESC", 4, TestName = "Can Sort By Technician")]
         [Test]

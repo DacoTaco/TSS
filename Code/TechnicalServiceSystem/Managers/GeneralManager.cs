@@ -36,14 +36,13 @@ namespace TechnicalServiceSystem
         /// <returns></returns>
         public ObservableCollection<Department> GetDepartments(string companyName = "%")
         {
-            ObservableCollection<Department> ret = null;
+            ObservableCollection<Department> ret;
             try
             {
                 if (string.IsNullOrWhiteSpace(companyName))
                     companyName = "%";
 
-                var session = GetSession();
-                var list = session.CreateSQLQuery("exec General.GetDepartments :companyName")
+                var list = Session.CreateSQLQuery("exec General.GetDepartments :companyName")
                     .AddEntity(typeof(Department))
                     .SetParameter("companyName",companyName,NHibernateUtil.String)
                     .List<Department>();
@@ -64,8 +63,7 @@ namespace TechnicalServiceSystem
         {
             try
             {
-                var session = GetSession();
-                return session.QueryOver<Department>()
+                return Session.QueryOver<Department>()
                     .Where(d => d.ID == departmentID)
                     .SingleOrDefault();
             }
@@ -87,9 +85,8 @@ namespace TechnicalServiceSystem
 
             try
             {
-                var session = GetSession();
                 ret = new ObservableCollection<Location>(
-                    session.CreateSQLQuery("exec General.GetLocationsByID :departmentID, :companyName ")
+                    Session.CreateSQLQuery("exec General.GetLocationsByID :departmentID, :companyName ")
                         .AddEntity(typeof(Location))
                         .SetParameter("departmentID", departmentID, NHibernateUtil.Int32)
                         .SetParameter("companyName", companyName, NHibernateUtil.String)
@@ -105,8 +102,7 @@ namespace TechnicalServiceSystem
         }
         public Location GetLocation(int LocationID)
         {
-            var session = GetSession();
-            return session.QueryOver<Location>()
+            return Session.QueryOver<Location>()
                 .Where(l => l.ID == LocationID)
                 .SingleOrDefault();
         }
@@ -114,8 +110,7 @@ namespace TechnicalServiceSystem
         {
             try
             {
-                var session = GetSession();
-                return session.QueryOver<Photo>()
+                return Session.QueryOver<Photo>()
                     .Where(p => p.FileName == PhotoName)
                     .SingleOrDefault<Photo>();
             }
@@ -250,10 +245,9 @@ namespace TechnicalServiceSystem
 
                 //ok, we saved the image, now we need to set the photo object and pass it on to the session!
                 _photo.FileName = filename;
-                var session = GetSession();
-                session.Save(_photo);
+                Session.Save(_photo);
                 _photo.PhotoSource = null;
-                photo = session.QueryOver<Photo>()
+                photo = Session.QueryOver<Photo>()
                     .Where(p => p.FileName == _photo.FileName)
                     .SingleOrDefault();
 

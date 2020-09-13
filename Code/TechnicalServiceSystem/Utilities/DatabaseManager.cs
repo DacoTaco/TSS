@@ -20,15 +20,12 @@ using System.Data;
 
 namespace TechnicalServiceSystem.Utilities
 {
-
     public class DatabaseManager : IDisposable
     {
-        protected ISession Session = null;
+        protected static ISession Session => SessionHandler.TSS_Session;
 
-        public DatabaseManager()
-        {
-            Session = SessionHandler.TSS_Session;
-        }
+        public DatabaseManager() { }
+
         public ISession GetSession()
         {
             return Session;
@@ -41,8 +38,7 @@ namespace TechnicalServiceSystem.Utilities
 
         public void Dispose()
         {
-            SessionHandler.FreeSession(Session);
-            Session = null;
+
         }
     }
 }

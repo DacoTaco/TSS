@@ -26,20 +26,22 @@ namespace TechnicalServiceSystem.Utilities
 {
     public static class SessionHandler
     {
-        public static ISession TSS_Session => GetSession();
+        public static ISession TSS_Session { get; private set; }
         private static ISessionFactory factory = null;
 
-        public static ISessionFactory GetSessionFactory
+        static SessionHandler() 
+        {
+            TSS_Session = SessionFactory.OpenSession();
+        }
+
+        public static ISessionFactory SessionFactory
         {
             get
             {
-                ISessionFactory ret = null;
-                {           
-                    if(factory == null)
-                        factory = CreateSessionFactory();
-                    ret = factory;
-                }
-                return ret;
+                if (factory == null)
+                    factory = CreateSessionFactory();
+
+                return factory;
             }
         }
 
@@ -81,28 +83,25 @@ namespace TechnicalServiceSystem.Utilities
             return config.BuildSessionFactory();
         }
 
-        public static ISession GetSession()
+        public static void BindSession()
         {
-            if (Settings.IsWebEnvironment)
-            {
-                if (!CurrentSessionContext.HasBind(GetSessionFactory))
-                {
-                    CurrentSessionContext.Bind(GetSessionFactory.OpenSession());
-                }
+            if (!Settings.IsWebEnvironment)
+                return;
 
-                return GetSessionFactory.GetCurrentSession();
-            }
-            else
+            if (!CurrentSessionContext.HasBind(SessionFactory))
             {
-                return GetSessionFactory?.OpenSession();
+                //TODO : once we use nhibernate completely like we should, remove this creation of a new session...
+                TSS_Session = SessionFactory.OpenSession();
+                CurrentSessionContext.Bind(TSS_Session);
             }
         }
+
         public static void UnbindSession()
         {
             if (!Settings.IsWebEnvironment)
                 return;
 
-            ISession session = CurrentSessionContext.Unbind(GetSessionFactory);
+            ISession session = CurrentSessionContext.Unbind(SessionFactory);
 
             if (session == null)
                 return;
@@ -125,6 +124,7 @@ namespace TechnicalServiceSystem.Utilities
             session.Dispose();
             return;
         }
+
         public static void FreeSession(ISession session)
         {
             if (session == null || Settings.IsWebEnvironment)

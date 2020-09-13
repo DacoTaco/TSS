@@ -47,7 +47,7 @@ namespace TechnicalServiceSystem
 
             //basically, this string has the property + direction. for example : StatusID DESC
             //TODO : pull this out of here and process the sorting in database to speed it up...
-            if(!String.IsNullOrWhiteSpace(SortBy))
+            if(!string.IsNullOrWhiteSpace(SortBy))
                 list.Sort = SortBy;
 
             return list;
@@ -57,10 +57,9 @@ namespace TechnicalServiceSystem
 
         public ObservableCollection<Task> GetTasks(string contains, string company, int? DepartmentID, int? taskID)
         {
-            ObservableCollection<Task> taskList = null;
             try
             {
-                taskList = new ObservableCollection<Task>(
+                return new ObservableCollection<Task>(
                     Session.CreateSQLQuery(
                             "exec Tasks.GetTask :TaskID, :companyName, :departmentID, :contains")
                         .AddEntity(typeof(Task))
@@ -77,8 +76,6 @@ namespace TechnicalServiceSystem
             {
                 throw new Exception("Task_Manager_Failed_Get_Tasks : " + ex.Message, ex);
             }
-
-            return taskList;
         }
 
 
@@ -90,6 +87,12 @@ namespace TechnicalServiceSystem
         /// <returns></returns>
         public bool TaskEditable(int taskID, string userHash)
         {
+            if (string.IsNullOrWhiteSpace(userHash))
+                return false;
+
+            if (taskID == 0)
+                return true;
+
             var ret = false;
 
             try
@@ -99,6 +102,8 @@ namespace TechnicalServiceSystem
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "Tasks.IsTaskEditable";
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
 
                     var param = command.CreateParameter();
                     param.ParameterName = "TaskID";
@@ -171,6 +176,8 @@ namespace TechnicalServiceSystem
                 var connection = GetSession()?.Connection;
                 using (var command = connection.CreateCommand())
                 {
+                    if (Session.Transaction.IsActive)
+                        Session.Transaction.Enlist(command);
                     command.CommandType = CommandType.StoredProcedure;
 
                     if (openedState)
@@ -307,10 +314,7 @@ namespace TechnicalServiceSystem
 
                     var parMachine = commandAddTask.CreateParameter();
                     parMachine.ParameterName = "MachineID";
-                    if ((task.Device?.ID ?? 0) == 0)
-                        parMachine.Value = DBNull.Value;
-                    else
-                        parMachine.Value = task.Device.ID;
+                    parMachine.Value = ((task.Device?.ID ?? 0) == 0) ? (object)DBNull.Value : task.Device.ID;
                     commandAddTask.Parameters.Add(parMachine);
 
                     var parStatus = commandAddTask.CreateParameter();
@@ -320,16 +324,12 @@ namespace TechnicalServiceSystem
 
                     var parTechnician = commandAddTask.CreateParameter();
                     parTechnician.ParameterName = "Technician";
-                    if (task.TechnicianID == null || task.TechnicianID == 0)
-                        parTechnician.Value = DBNull.Value;
-                    else
-                        parTechnician.Value = task.TechnicianID;
+                    parMachine.Value = ((task.TechnicianID ?? 0) == 0) ? (object)DBNull.Value : task.Device.ID;
                     commandAddTask.Parameters.Add(parTechnician);
 
                     var TaskID = commandAddTask.CreateParameter();
                     TaskID.Direction = ParameterDirection.ReturnValue;
                     commandAddTask.Parameters.Add(TaskID);
-
 
                     var TypeID = task.TypeID;
                     if ((TypeID == Convert.ToInt32(TaskTypes.RepeatingTask)) & (task.RepeatingInfo != null))

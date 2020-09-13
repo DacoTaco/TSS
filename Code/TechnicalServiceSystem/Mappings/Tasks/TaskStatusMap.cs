@@ -23,6 +23,9 @@ namespace TechnicalServiceSystem.Mappings.Tasks
         public TaskStatusMap() : base("TaskStatus")
         {
             Id(ts => ts.ID).Column("StatusID");
+
+            ReadOnly();
+
             Map(ts => ts.Description).Column("StatusDescription");
         }
     }

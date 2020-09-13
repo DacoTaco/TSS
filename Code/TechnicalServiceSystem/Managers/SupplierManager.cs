@@ -61,9 +61,8 @@ namespace TechnicalServiceSystem
         {
             try
             {
-                var session = GetSession();
                 return new ObservableCollection<Machine>(
-                    session.CreateSQLQuery("exec Suppliers.GetMachines")
+                    Session.CreateSQLQuery("exec Suppliers.GetMachines")
                         .AddEntity(typeof(Machine))
                         .List<Machine>()
                 );
@@ -95,7 +94,7 @@ namespace TechnicalServiceSystem
 
         public Machine GetMachine(int machineID)
         {
-            return GetSession().QueryOver<Machine>()
+            return Session.QueryOver<Machine>()
                 .Where(m => m.ID == machineID)
                 .SingleOrDefault();
         }

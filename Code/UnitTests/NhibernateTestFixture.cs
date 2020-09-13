@@ -27,12 +27,12 @@ namespace UnitTests
         protected void TearDownSession()
         {
             Session.Transaction.Rollback();
+            Session.Clear();
         }
 
         [SetUp]
         protected void SetUpSession()
         {
-            Session = GetSession();
             Session.BeginTransaction();
             Assert.NotNull(Session,"Unable to retrieve the TestSession");
             Session.FlushMode = FlushMode.Never;
