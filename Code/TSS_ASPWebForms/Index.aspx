@@ -335,8 +335,6 @@
                         </Columns>
                     </asp:GridView>
                     
-                    
-                    
                     <!-- User Data source! -->
                     <asp:ObjectDataSource ID="UserSource" runat="server" 
                         TypeName="<%# typeof(TechnicalServiceSystem.UserManager) %>" 
@@ -345,7 +343,7 @@
                         <SelectParameters>
                             <asp:Parameter Name="contains" DefaultValue="" Type="String"></asp:Parameter>
                             <asp:Parameter Name="RoleID" DefaultValue="-1" Type="Int32"></asp:Parameter>
-                            <asp:Parameter Name="activeOnly" DefaultValue="" Type="Object" ConvertEmptyStringToNull="True"/>
+                            <asp:Parameter Name="activeOnly" DefaultValue="" Type="Boolean" ConvertEmptyStringToNull="True"/>
                         </SelectParameters>
                     </asp:ObjectDataSource>
                 </div>

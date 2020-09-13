@@ -238,7 +238,8 @@ namespace TSS_ASPWebForms
                     UserSource.SelectParameters["contains"] = searchField;
                 }
 
-                UserGrid.DataSourceID = "UserSource";
+                UserSource.DataBind();
+                UserGrid.DataSourceID = nameof(UserSource);
                 UserGrid.DataBind();
             }
 
