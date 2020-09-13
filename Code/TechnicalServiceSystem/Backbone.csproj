@@ -113,7 +113,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Managers\UserManager.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Utilities\AES_Handler.cs" />
+    <Compile Include="Utilities\AESHandler.cs" />
     <Compile Include="Utilities\DatabaseManager.cs" />
     <Compile Include="Utilities\SessionHandler.cs" />
   </ItemGroup>

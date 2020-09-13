@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TechnicalServiceSystem.Utilities
 {
-    public static class AES_Handler
+    public static class AESHandler
     {
         private const string AES_Key = "d191f0b58b2d2d99a9976d32925b1dba92274b7c4e216d034258649286c51b68";
         private const string AES_IV = "50358926fb47aa6ae8cdeafc0daf476a";
@@ -29,6 +29,7 @@ namespace TechnicalServiceSystem.Utilities
 
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+                
 
                 // Create the streams used for encryption.
                 using (MemoryStream msEncrypt = new MemoryStream())

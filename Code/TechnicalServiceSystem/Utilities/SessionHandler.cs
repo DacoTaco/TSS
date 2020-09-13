@@ -52,7 +52,7 @@ namespace TechnicalServiceSystem.Utilities
 
             var connectionString = conSetting.ConnectionString;
             if(ConfigurationManager.AppSettings["ConnectionEncrypted"] == "1")
-                connectionString = AES_Handler.DecryptString(connectionString);
+                connectionString = AESHandler.DecryptString(connectionString);
 
 
             IPersistenceConfigurer databaseConfig = null;
