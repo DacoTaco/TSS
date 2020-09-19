@@ -30,22 +30,15 @@ namespace TSS_ASPWebForms
         //Intialise Page. if we are already logged in, direct to index. no need to be here :)
         protected void Page_Load(object sender, EventArgs e)
         {
-            try
-            {
-                if (LoggedInUser.GetUser() != null) Response.Redirect("Index");
+            if (LoggedInUser.IsUserLoggedIn) 
+                Response.Redirect("Index");
 
-                //load user list
-                var userManager = new UserManager();
-                var list = userManager.GetUsers(null, null, "UserName ASC");
+            //load user list
+            var userManager = new UserManager();
+            var list = userManager.GetUsers(null, null, $"{nameof(TechnicalServiceSystem.Entities.Users.User.UserName)} ASC");
 
-                userlist.DataSource = list;
-                userlist.DataBind();
-            }
-            catch (Exception ex)
-            {
-                Session["exceptionMessage"] = ex.Message;
-                Response.Redirect("DisplayError");
-            }
+            userlist.DataSource = list;
+            userlist.DataBind();
         }
 
         //attach the onclick event to every row so when we click on it, we go over to the login page

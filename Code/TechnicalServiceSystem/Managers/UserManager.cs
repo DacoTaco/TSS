@@ -212,6 +212,7 @@ namespace TechnicalServiceSystem
                     command.Parameters.Add(userHash);
 
                     command.ExecuteNonQuery();
+                    user.Password = string.Empty;
 
                     if (string.IsNullOrWhiteSpace(userHash.Value.ToString()))
                     {

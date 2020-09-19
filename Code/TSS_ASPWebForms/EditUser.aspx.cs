@@ -75,18 +75,9 @@ namespace TSS_ASPWebForms
             if (IsPostBack)
                 return;
 
-            try
-            {
-                Page_LoadUser();
-                Page_Setup();
-                Page_Fill();
-            }
-            catch (Exception ex)
-            {
-                Session["exceptionMessage"] = ex.Message;
-                Response.Redirect("DisplayError");
-            }
-
+            Page_LoadUser();
+            Page_Setup();
+            Page_Fill();
         }
         protected void Page_LoadUser()
         {

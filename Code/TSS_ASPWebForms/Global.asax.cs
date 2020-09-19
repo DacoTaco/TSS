@@ -23,6 +23,20 @@ namespace TSS_ASPWebForms
             SessionHandler.UnbindSession();
         }
 
+        protected void Application_Error(object sender, EventArgs e)
+        {
+            //get the exception message, set it in the session variable and load the error page.
+            //normally the exception is a HttpUnHandledException which has the exception as an innerexception
+            var exception = Server.GetLastError();
+            var message = exception?.InnerException?.Message ?? exception?.Message;
+            Session["exceptionMessage"] = message;
+
+            //server.transfer will redirect the page to be loaded so the url doesn't change
+            //Response.Redirect on the other hand tells the browser to load a different page (302)
+            Server.Transfer("~/DisplayError.aspx");
+            Server.ClearError();
+        }
+
         protected void Application_BeginRequest()
         {
             //NOTE: Stopping IE from being a caching whore

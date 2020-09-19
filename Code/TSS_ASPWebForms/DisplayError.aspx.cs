@@ -26,11 +26,9 @@ namespace TSS_ASPWebForms
         {
             //get and generate string , then display it :)
             var msg = "A general error has occured. please contact the administrator" + Environment.NewLine;
-            if (Session["exceptionMessage"] != null &&
-                !string.IsNullOrWhiteSpace(Session["exceptionMessage"].ToString()))
+            if (!string.IsNullOrWhiteSpace(Session["exceptionMessage"]?.ToString()))
             {
-                var error = Session["exceptionMessage"].ToString();
-                msg += Environment.NewLine + "Error Message : " + Environment.NewLine + error;
+                msg += $"{Environment.NewLine}Error Message : {Environment.NewLine}{Session["exceptionMessage"].ToString()}";
                 Session["exceptionMessage"] = null;
             }
 

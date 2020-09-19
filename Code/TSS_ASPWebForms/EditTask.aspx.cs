@@ -75,19 +75,10 @@ namespace TSS_ASPWebForms
             if (IsPostBack)
                 return;
 
-            try
-            {
-                //setup page
-                LoadTask();
-                SetupPage();
-                SetupDataBindings();
-
-            }
-            catch (Exception ex)
-            {
-                Session["exceptionMessage"] = ex;
-                Response.Redirect("DisplayError");
-            }
+            //setup page
+            LoadTask();
+            SetupPage();
+            SetupDataBindings();
         }
         protected void LoadTask()
         {

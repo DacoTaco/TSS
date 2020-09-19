@@ -18,7 +18,6 @@ using System;
 using System.Web.Services;
 using System.Web.UI;
 using TechnicalServiceSystem;
-using TechnicalServiceSystem.Entities.Users;
 
 namespace TSS_ASPWebForms
 {
@@ -26,9 +25,7 @@ namespace TSS_ASPWebForms
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (
-                LoggedInUser.GetUser() != null
-            )
+            if (LoggedInUser.GetUser() != null)
                 Response.Redirect("Index");
 
             if (IsPostBack)
@@ -39,20 +36,12 @@ namespace TSS_ASPWebForms
             if (string.IsNullOrEmpty(stringID))
                 Response.Redirect("Login");
 
-            var lists = new UserManager().GetUsers(null, null, "UserName ASC");
+            var lists = new UserManager().GetUsers(null, null, $"{nameof(TechnicalServiceSystem.Entities.Users.User.UserName)} ASC");
 
             userList.DataSource = lists;
             userList.DataBind();
 
             userList.SelectItem(stringID);
-        }
-
-        protected static bool Login(ref User user, string password)
-        {
-            var usrMngr = new UserManager();
-
-            var loggedin = usrMngr.LoginUser(ref user, password);
-            return loggedin;
         }
 
         [WebMethod]
@@ -64,10 +53,11 @@ namespace TSS_ASPWebForms
                     return false;
 
                 var ret = false;
-                var user = new UserManager().GetUserByID(userID);
+                var usrMngr = new UserManager();
+                var user = usrMngr.GetUserByID(userID);
 
                 if (user != null)
-                    ret = Login(ref user, password);
+                    ret = usrMngr.LoginUser(ref user, password);
 
                 if (ret)
                     LoggedInUser.SetUser(user);

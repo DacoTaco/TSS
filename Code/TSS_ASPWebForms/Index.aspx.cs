@@ -256,42 +256,33 @@ namespace TSS_ASPWebForms
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
-                Response.Redirect("Login.aspx");
+                Response.Redirect("Login");
 
             if (IsPostBack)
                 return;
 
-            //check if user login is needed
-            /*if (Settings.RequireLogin() && !LoggedInUser.IsUserLoggedIn)
-                Response.Redirect("Login");*/
-
-            try
-            {
-                Setup_Page();
-            }
-            catch (Exception ex)
-            {
-                Session["exceptionMessage"] = ex.Message;
-                Response.Redirect("DisplayError");
-            } 
+            Setup_Page();
         }
         //Click event handler for the Login/Logout button in the user menu
         protected void LoginMenu_Click(object sender, EventArgs e)
         {
+            //Login
             if (!LoggedInUser.IsUserLoggedIn)
             {
                 Response.Redirect("Login");
-            }
-            else
-            {
-                LoggedInUser.SetUser(null);
-                DropDownSorting.SelectedIndex = 0;
-                hidTABControl.Value = "#Tasks";
-
-                //page_load didn't setup the page(because this is a postback). so setup page
-                Setup_Page();
+                return;
             }
 
+            //Logout
+            LoggedInUser.SetUser(null);
+
+            if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
+                Response.Redirect("Login");
+
+            DropDownSorting.SelectedIndex = 0;
+            hidTABControl.Value = "#Tasks";
+
+            //page_load didn't setup the page(because this is a postback). so setup page
             Setup_Page();
         }
         protected void UserGrid_RowDataBound(object sender, GridViewRowEventArgs e)

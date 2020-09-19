@@ -68,6 +68,7 @@ namespace UnitTests.Managers
         {
             //Arrange
             var user = userManager.GetUsers("Sint-Elisabeth", "test", 0, true).SingleOrDefault();
+            user.Password = "testerino";
 
             //Act&Arrange
             Assert.NotNull(user);
