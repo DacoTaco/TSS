@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 
-using NHibernate.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -435,7 +434,7 @@ namespace TSS_ASPWebForms
                     try
                     {
                         var userID = int.Parse(value as string);
-                        Task.Technician = (User)SystemLists.User.Technicians.Where(t => t.ID == userID).FirstOrNull();
+                        Task.Technician = (User)SystemLists.User.Technicians.Where(t => t.ID == userID).FirstOrDefault();
                         changed = Task.TechnicianID != OriginalTask.TechnicianID;
 
                         var statusChanged = Task.StatusID != OriginalTask.StatusID;
