@@ -210,4 +210,7 @@
   <data name="UserName.HeaderText" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="Department_label.Text" xml:space="preserve">
+    <value>Department : </value>
+  </data>
 </root>

@@ -157,16 +157,16 @@
                             </web:Button>
                         </div>
                         <div class="col-xs-3 col-lg-3" style="display: table-row; height: inherit; margin-right: 0.4em; padding: 0px;">
-                            <asp:Label runat="server" Text="Afdeling : " style="float: left; height: inherit; margin-left: 15%; min-height: inherit; position: relative; text-align: center; vertical-align: central;"
-                                       CssClass="hidden-xs hidden-sm visible-lg visible-md">
+                            <asp:Label runat="server" Text="Department : " style="float: left; height: inherit; margin-left: 3vw;vertical-align:middle;line-height:inherit;"
+                                       CssClass="hidden-xs hidden-sm visible-lg visible-md" meta:resourcekey="Department_label">
                             </asp:Label>
                             <select runat="server" id="DropDownSorting" DataValueField="ID" DataTextField="Description" style="height: inherit; margin-left: 1em; margin-right: 1em; min-height: 1em; width: 90%;"
-                                    class="xs-float-left md-float-left md-dropdown-max-width btn-block" onchange="onDepartmentChanged()">
+                                    class="xs-float-left md-float-left btn btn-secondary dropdown-toggle md-dropdown-max-width" onchange="onDepartmentChanged()">
                             </select>
                         </div>
                         <div class="col-xs-4 col-lg-3" style="height: inherit; margin-right: 0.4em; padding: 0px;">
                             <asp:TextBox runat="server" ID="searchbar" class="md-float-center" style="height: 100%; min-height: 1em; min-width: 1em; width: 100%;" AutoCompleteType="Disabled"
-                                         onkeypress="onSearchKeyEnter(event,searchTaskPage);" AutoPostBack="false">
+                                         onkeypress="onSearchKeyEnter(event,searchTaskPage);" AutoPostBack="false" placeholder="Search">
                             </asp:TextBox>
                         </div>
                         <div class="col-xs-1 col-lg-2" style="height: inherit; padding: 0px;">

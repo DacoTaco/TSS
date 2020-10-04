@@ -111,6 +111,10 @@ h1 { margin-bottom: 0.5em; }
     font-size: inherit;
 }
 
+.dropdown-toggle {
+    border: 1px solid grey;
+}
+
 .UserButton {
     max-height: 5em;
     max-width: 5em;

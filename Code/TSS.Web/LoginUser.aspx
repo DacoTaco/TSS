@@ -34,7 +34,8 @@
                         <asp:Label runat="server" Text="Login as : " ID="lblLogin" meta:resourcekey="LoginAs"></asp:Label>
                     </td>
                     <td style="padding-bottom: 1em; padding-right: 1em; text-align: left;">
-                        <web:DropDownObject runat="server" ID="userList" DataValueField="ID" DataTextField="UserName" style="height: 2em; max-height: inherit; max-width: 20em; min-height: 5px; text-align: center; width: 120%;"/>
+                        <web:DropDownObject runat="server" ID="userList" DataValueField="ID" DataTextField="UserName" CssClass="btn btn-secondary dropdown-toggle"
+                            style="height: 2em; max-height: inherit; max-width: 20em; min-height: 5px; text-align: center; width: 120%;"/>
                     </td>
                 </tr>
                 <tr>
