@@ -208,6 +208,10 @@
       <DependentUpon>EditUser.aspx</DependentUpon>
     </Compile>
     <Compile Include="Feature\General\LocationModel.cs" />
+    <Compile Include="Feature\Infrastructure\ProblemDetail.cs" />
+    <Compile Include="Feature\Infrastructure\GlobalExceptionHandler.cs" />
+    <Compile Include="Feature\Infrastructure\ProblemDetailExtention.cs" />
+    <Compile Include="Feature\Infrastructure\ProblemDetailJsonMediaTypeFormatter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

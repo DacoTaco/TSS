@@ -18,6 +18,8 @@ namespace TSS.Web
             config.Formatters.JsonFormatter.SupportedMediaTypes
                     .Add(new MediaTypeHeaderValue("application/json"));
 
+            config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
+
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
