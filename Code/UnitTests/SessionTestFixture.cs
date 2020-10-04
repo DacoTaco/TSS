@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
 using NUnit.Framework;
+using TechnicalServiceSystem.Utilities;
 
 namespace UnitTests
 {
@@ -24,7 +25,7 @@ namespace UnitTests
         [Test]
         public void GetSessionReturnsSharedSession()
         {
-            var _session = GetSession();
+            var _session = new SessionHandler().GetCurrentSession();
             Assert.AreSame(Session,_session);
         }
     }
