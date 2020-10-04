@@ -23,6 +23,7 @@ namespace TechnicalServiceSystem.Mappings.Tasks
         public TaskTypeMap() : base("TaskType")
         {
             Id(tt => tt.ID).Column("TypeID");
+            ReadOnly();
             Map(tt => tt.Description).Column("TypeDescription");
         }
     }

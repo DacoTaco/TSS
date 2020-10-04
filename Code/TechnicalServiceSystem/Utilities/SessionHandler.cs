@@ -53,7 +53,7 @@ namespace TechnicalServiceSystem.Utilities
                 return null;
 
             var connectionString = conSetting.ConnectionString;
-            if(ConfigurationManager.AppSettings["ConnectionEncrypted"] == "1")
+            if(Settings.ConnectionEncrypted)
                 connectionString = AESHandler.DecryptString(connectionString);
 
 
@@ -78,7 +78,11 @@ namespace TechnicalServiceSystem.Utilities
                 return null;
 
             if (Settings.IsWebEnvironment)
+            {
+                config.ExposeConfiguration(c => c.SetProperty("current_session_context_class", "web"));
                 config = config.CurrentSessionContext<WebSessionContext>();
+            }
+                
 
             return config.BuildSessionFactory();
         }

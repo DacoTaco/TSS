@@ -10,11 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSS_WPF", "TSS_WPF\TSS_WPF.
 		{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123} = {CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSS_ASPWebForms", "TSS_ASPWebForms\TSS_ASPWebForms.csproj", "{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123} = {CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E70A3A76-763B-45DB-9A85-2DE20537AC47} = {E70A3A76-763B-45DB-9A85-2DE20537AC47}
@@ -22,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backbone.UI", "Backbone.UI\Backbone.UI.csproj", "{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSS.Web", "TSS.Web\TSS.Web.csproj", "{078501DD-FB22-46E7-B363-00587A1EB240}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +34,6 @@ Global
 		{6529F889-3FA5-4CE8-AD5F-FAD905A3F0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6529F889-3FA5-4CE8-AD5F-FAD905A3F0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6529F889-3FA5-4CE8-AD5F-FAD905A3F0C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BDA0CCE-652F-4A34-829C-8A21996EF6CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,6 +42,10 @@ Global
 		{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAE2C281-EC3D-4396-B2E1-9F6EC7DE3123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{078501DD-FB22-46E7-B363-00587A1EB240}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{078501DD-FB22-46E7-B363-00587A1EB240}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{078501DD-FB22-46E7-B363-00587A1EB240}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{078501DD-FB22-46E7-B363-00587A1EB240}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

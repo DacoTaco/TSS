@@ -31,7 +31,7 @@ namespace TechnicalServiceSystem.UI.HTML
         public static void Show(string message)
         {
             // Cleans the message to allow single quotation marks
-            var cleanMessage = message.Replace("'", "\\'");
+            var cleanMessage = message.Replace("'", @"\'");
             var script = "<script type=\"text/javascript\">alert('" + cleanMessage + "');</script>";
 
             // Gets the executing web page

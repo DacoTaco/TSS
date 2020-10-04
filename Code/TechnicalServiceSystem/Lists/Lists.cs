@@ -14,8 +14,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using System.ComponentModel;
-
 namespace TechnicalServiceSystem.Lists
 {
     //a singleton so we can keep the lists and use them all over the application. not caring about instances, reloading the list etc etc.

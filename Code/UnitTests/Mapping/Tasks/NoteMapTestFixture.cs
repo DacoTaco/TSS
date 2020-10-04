@@ -11,12 +11,13 @@ namespace UnitTests.Mapping
         [Test]
         public void CanMapTaskNote()
         {
-            //Arrange            
+            //Arrange        
+            var task = Session.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault();
             var note = new Note()
             {
                 NoteDate = DateTime.Now,
                 Text = "TestFixture",
-                NoteTask = Session.QueryOver<Task>().Where(t => t.ID == 1).SingleOrDefault()
+                NoteTask = task
             };
 
             //Act&Assert

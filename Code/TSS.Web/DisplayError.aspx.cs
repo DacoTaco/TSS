@@ -1,5 +1,5 @@
 ﻿/*TSS - Technical Service System , a system build to help Technical Services maintain their reports and equipment
-Copyright(C) 2019 - Joris 'DacoTaco' Vermeylen
+Copyright(C) 2017 - Joris 'DacoTaco' Vermeylen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,25 +14,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+
 using System;
-using System.Web.UI.HtmlControls;
+using System.Web.UI;
 
-namespace TechnicalServiceSystem.UI.HTML
+namespace TSS.Web
 {
-    public class selectObject : HtmlSelect
+    public partial class DisplayError : Page
     {
-        public int SelectItem(string value)
+        protected void Page_Load(object sender, EventArgs e)
         {
-            if (String.IsNullOrWhiteSpace(value))
-                return SelectedIndex;
-
-            var item = Items.FindByValue(value);
-            if (item != null)
+            //get and generate string , then display it :)
+            var msg = "A general error has occured. please contact the administrator" + Environment.NewLine;
+            if (!string.IsNullOrWhiteSpace(Session["exceptionMessage"]?.ToString()))
             {
-                SelectedIndex = Items.IndexOf(item);
+                msg += $"{Environment.NewLine}Error Message : {Environment.NewLine}{Session["exceptionMessage"].ToString()}";
+                Session["exceptionMessage"] = null;
             }
 
-            return SelectedIndex;
+            lblErrorMessage.Text = msg;
         }
     }
 }

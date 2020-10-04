@@ -90,5 +90,6 @@ namespace TechnicalServiceSystem
         public static string GetCompanyName() => GetAppSetting("company");
 
         public static bool RequireLogin() => int.Parse(GetAppSetting("RequireLogin") ?? "0") > 0;
+        public static bool ConnectionEncrypted => int.Parse(GetAppSetting("ConnectionEncrypted") ?? "0") > 0;
     }
 }
