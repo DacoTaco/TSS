@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using TechnicalServiceSystem;
@@ -22,19 +23,19 @@ namespace TSS.Web.Feature.General
         [Route("{id}/Locations")]
         [HttpGet]
         [HttpPost]
-        public List<LocationModel> Get(int id)
+        public IHttpActionResult Get(int id)
         {
             var list = new List<Location>();
             try
             {
                 var generalMngr = new GeneralManager();
                 list = generalMngr.GetLocations(id, Settings.GetCompanyName())?.ToList() ?? new List<Location>();
-                return list.Select(x => new LocationModel(x)).ToList();
+                return Ok(list.Select(x => new LocationModel(x)).ToList());
             }
-            catch
+            catch (Exception e)
             {
-                return new List<LocationModel>();
-            }           
+                return BadRequest(e.Message);
+            }
         }
     }
 }

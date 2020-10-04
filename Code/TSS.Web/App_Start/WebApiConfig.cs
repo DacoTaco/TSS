@@ -1,5 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
+using TSS.Web.Feature.Infrastructure;
 
 namespace TSS.Web
 {
@@ -14,7 +16,7 @@ namespace TSS.Web
 
             //return json when returning data
             config.Formatters.JsonFormatter.SupportedMediaTypes
-                    .Add(new MediaTypeHeaderValue("text/html"));
+                    .Add(new MediaTypeHeaderValue("application/json"));
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
