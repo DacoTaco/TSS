@@ -23,8 +23,7 @@ namespace TSS.Web
 
         private void Application_End(object sender, EventArgs e)
         {
-            //unbind the session for this application
-            SessionHandler.UnbindSession();
+
         }
 
         protected void Application_Error(object sender, EventArgs e)
@@ -49,12 +48,12 @@ namespace TSS.Web
             HttpContext.Current.Response.Cache.SetNoStore();
             Response.Cache.SetExpires(DateTime.Now);
             Response.Cache.SetValidUntilExpires(true);
-            SessionHandler.BindSession();
+            new SessionHandler().BindSession();
         }
 
         protected void Application_EndRequest(object sender, EventArgs e)
         {
-            SessionHandler.UnbindSession();
+            new SessionHandler().CloseSession();
         }
     }
 }

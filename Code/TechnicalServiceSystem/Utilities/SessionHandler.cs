@@ -24,24 +24,18 @@ using TechnicalServiceSystem.Mappings;
 
 namespace TechnicalServiceSystem.Utilities
 {
-    public static class SessionHandler
+    public class SessionHandler
     {
-        public static ISession TSS_Session { get; private set; }
-        private static ISessionFactory factory = null;
-
-        static SessionHandler() 
-        {
-            TSS_Session = SessionFactory.OpenSession();
-        }
-
-        public static ISessionFactory SessionFactory
+        private static ISession Session { get; set; } = null;
+        private ISessionFactory _factory = null;
+        private ISessionFactory SessionFactory
         {
             get
             {
-                if (factory == null)
-                    factory = CreateSessionFactory();
+                if (_factory == null)
+                    _factory = CreateSessionFactory();
 
-                return factory;
+                return _factory;
             }
         }
 
@@ -78,78 +72,49 @@ namespace TechnicalServiceSystem.Utilities
                 return null;
 
             if (Settings.IsWebEnvironment)
-            {
-                config.ExposeConfiguration(c => c.SetProperty("current_session_context_class", "web"));
                 config = config.CurrentSessionContext<WebSessionContext>();
-            }
-                
 
             return config.BuildSessionFactory();
         }
 
-        public static void BindSession()
+        private ISession OpenSession() => SessionFactory.OpenSession();
+        public void BindSession()
         {
-            if (!Settings.IsWebEnvironment)
+            if (CurrentSessionContext.HasBind(SessionFactory))
                 return;
 
-            if (!CurrentSessionContext.HasBind(SessionFactory))
+            CurrentSessionContext.Bind(OpenSession());
+        }
+        public void CloseSession()
+        {
+            ISession session = Session;
+            if (Settings.IsWebEnvironment)
             {
-                //TODO : once we use nhibernate completely like we should, remove this creation of a new session...
-                TSS_Session = SessionFactory.OpenSession();
-                CurrentSessionContext.Bind(TSS_Session);
+                if (CurrentSessionContext.HasBind(SessionFactory))
+                    session = CurrentSessionContext.Unbind(SessionFactory);
             }
+
+            if (session?.Transaction?.IsActive ?? false)
+                session.Transaction.Rollback();
+            session?.Dispose();
         }
 
-        public static void UnbindSession()
+        public ISession GetCurrentSession()
         {
-            if (!Settings.IsWebEnvironment)
-                return;
-
-            ISession session = CurrentSessionContext.Unbind(SessionFactory);
-
-            if (session == null)
-                return;
-
-            if (session.IsOpen)
+            if (Settings.IsWebEnvironment)
             {
-                try
-                {
-                    if (session.Transaction != null && session.Transaction.IsActive)
-                    {
-                        session.Transaction.Rollback();
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                session.Close();
+                if (!CurrentSessionContext.HasBind(SessionFactory))
+                    CurrentSessionContext.Bind(OpenSession());
+
+                return SessionFactory.GetCurrentSession();
+            } 
+            else
+            {
+                if (Session == null)
+                    Session = OpenSession();
+
+                return Session;
             }
-            session.Dispose();
-            return;
-        }
-
-        public static void FreeSession(ISession session)
-        {
-            if (session == null || Settings.IsWebEnvironment)
-                return;
-
-            if (session.IsOpen)
-            {
-                try
-                {
-                    if (session.Transaction != null && session.Transaction.IsActive)
-                    {
-                        session.Transaction.Rollback();
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                session.Close();
-            }            
-            session.Dispose();
         }
     }
 }

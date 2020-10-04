@@ -34,7 +34,7 @@ namespace TechnicalServiceSystem.Mappings
 
             HasMany<Location>(d => d.Locations)
                 .KeyColumn("DepartmentID")
-                .Not.LazyLoad();
+                .LazyLoad();
 
             HasManyToMany(d => d.Company)
                 .ParentKeyColumn("DepartmentID")
