@@ -14,8 +14,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +27,7 @@ using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Lists;
 using TechnicalServiceSystem.UI.HTML;
+using TSS.Web.Feature.Users;
 
 namespace TSS.Web
 {
@@ -296,7 +295,7 @@ namespace TSS.Web
                 {
                     case "roles":
                         //we receive our role data through a json object. we try and parse the object and set the user accordingly
-                        var changedRole = ChangedRole.TryParse(value);
+                        var changedRole = ChangedRoleModel.TryParse(value as string);
                         if (changedRole == null)
                         {
                             changed = false;
@@ -326,10 +325,11 @@ namespace TSS.Web
                         changed = true;
                         break;
                     case "password":
-                        regex = @"^[A-Za-z0-9]+$";
+                        //does any character in the password not pass our test?
+                        regex = @"^(?=.*?[^A-Za-z0-9#?!@$%^&*_+=-]).{1,}$";
                         goto case "GenericString";
                     case "username":
-                        regex = @"^[A-Za-z0-9 ]+$";
+                        regex = @"^(?=.*?[^A-Za-z0-9 ]).{1,}$";
                         goto case "GenericString";
                     case "GenericString":
                         try
@@ -337,7 +337,7 @@ namespace TSS.Web
                             var variableType = property.PropertyType;
                             var valueType = value.GetType();
                             var newValue = Convert.ChangeType(value, variableType);
-                            var newString = newValue as string;
+                            var newString = (newValue as string)?.Trim();
 
                             if (String.IsNullOrWhiteSpace(newString))
                             {
@@ -345,7 +345,7 @@ namespace TSS.Web
                                 break;
                             }
 
-                            if (!Regex.IsMatch(newString, regex))
+                            if (newString.Length < 8 || Regex.IsMatch(newString, regex))
                             {
                                 changed = false;
                                 break;
@@ -400,26 +400,6 @@ namespace TSS.Web
 
 
             return changed;
-        }
-
-        public class ChangedRole
-        {
-            public int ID { get; set; }
-            public bool IsChecked { get; set; }
-            public static ChangedRole TryParse(object json)
-            {
-                try
-                {
-                    var objectData = JsonConvert.DeserializeObject(json.ToString());
-                    if (objectData == null) return null;
-                    var jObject = objectData as JObject;
-                    return jObject.ToObject<ChangedRole>();
-                }
-                catch
-                {
-                    return null;
-                }              
-            }
         }
     }
 }

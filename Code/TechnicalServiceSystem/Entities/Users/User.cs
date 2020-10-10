@@ -28,7 +28,8 @@ namespace TechnicalServiceSystem.Entities.Users
         }
         public User(int id) : base()
         { 
-            ID = id; 
+            ID = id;
+            Roles = new List<Role>();
         }
 
         public virtual string UserName { get; set; }

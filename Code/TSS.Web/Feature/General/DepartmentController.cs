@@ -7,7 +7,6 @@ using TechnicalServiceSystem.Entities.General;
 
 namespace TSS.Web.Feature.General
 {
-    //[Route("~/api/Locations")]
     [RoutePrefix("api/Department")]
     public class DepartmentController : ApiController
     {
@@ -25,6 +24,9 @@ namespace TSS.Web.Feature.General
         [HttpPost]
         public IHttpActionResult Get(int id)
         {
+            if (Settings.RequireLogin() && !LoggedInUser.IsUserLoggedIn)
+                return BadRequest("Invalid authorisation.");
+
             var list = new List<Location>();
             try
             {
