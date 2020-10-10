@@ -31,22 +31,17 @@ namespace TechnicalServiceSystem
         ///     Checks whether the user has the given role or not
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="RoleID"></param>
+        /// <param name="role"></param>
         /// <returns></returns>
-        public static bool UserHasRole(User user, int RoleID)
+        public static bool UserHasRole(User user, Role role)
         {
             if (user == null || user.Roles == null || user.Roles.Count <= 0)
                 return false;
 
-            if (user.Roles.Where(x=>x.ID == RoleID).FirstOrNull() != null)
+            if (user.Roles.Where(x => x == role).FirstOrNull() != null)
                 return true;
 
             return false;
-        }
-
-        public static bool UserHasRole(User user, Roles role)
-        {
-            return UserHasRole(user, (int) role);
         }
 
         /// <summary>
@@ -60,10 +55,7 @@ namespace TechnicalServiceSystem
         {
             var roles = GetUserPermissions(user);
 
-            if ((roles & (int)permission) > 0)
-                return true;
-
-            return false;
+            return ((roles & (int)permission) > 0);
         }
 
         /// <summary>
@@ -83,33 +75,33 @@ namespace TechnicalServiceSystem
                 roles = (int) RolesPermissions.Tasks;
             else
                 foreach (var role in roleList)
-                    if (UserHasRole(user, role.ID))
-                        switch (role.ID)
+                    if (UserHasRole(user, role))
+                        switch (role)
                         {
-                            case (int)Roles.Admin:
+                            case Role.Admin:
                                 roles = int.MaxValue;
                                 break;
 
-                            case (int)Roles.UserManager:
+                            case Role.UserManager:
                                 roles |= (int) RolesPermissions.ManageUsers;
                                 break;
-                            case (int)Roles.SupplierManager:
+                            case Role.SuppliersManager:
                                 roles |= (int) RolesPermissions.ManageSuppliers;
                                 roles |= (int) RolesPermissions.ViewSuppliers;
                                 roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case (int)Roles.TaskManager:
+                            case Role.TaskManager:
                                 roles |= (int) RolesPermissions.ManageTasks;
                                 roles |= (int) RolesPermissions.Technician;
                                 roles |= (int) RolesPermissions.ViewSuppliers;
                                 roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case (int)Roles.Technician:
+                            case Role.Technician:
                                 roles |= (int) RolesPermissions.Technician;
                                 roles |= (int) RolesPermissions.ViewSuppliers;
                                 roles |= (int) RolesPermissions.ManageMachines;
                                 break;
-                            case (int)Roles.User:
+                            case Role.User:
                             default:
                                 roles |= (int) RolesPermissions.Tasks;
                                 break;

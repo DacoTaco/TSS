@@ -108,7 +108,6 @@
     <Compile Include="Mappings\Tasks\TaskStatusMap.cs" />
     <Compile Include="Mappings\Tasks\TaskTypeMap.cs" />
     <Compile Include="Mappings\UserSchemaMapper.cs" />
-    <Compile Include="Mappings\Users\RolesMap.cs" />
     <Compile Include="Mappings\Users\UserMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Managers\UserManager.cs" />

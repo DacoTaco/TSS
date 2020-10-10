@@ -243,7 +243,7 @@
                             </web:Button>
                         </div>
                         <div class="col-xs-3 col-lg-3" style="height: inherit; margin-right: 0.4em; padding: 0px;">
-                            <select runat="server" id="selectUserType" DataValueField="ID" DataTextField="RoleName" class="xs-float-left md-float-center md-dropdown-max-width btn-block"
+                            <select runat="server" id="selectUserType" DataValueField="Role" DataTextField="RoleName" class="xs-float-left md-float-center md-dropdown-max-width btn-block"
                                     style="height: inherit; min-height: 1em;" onchange="onUserTypeChanged()">
                             </select>
                         </div>
@@ -277,7 +277,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleAdmin" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 1) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.Admin) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -287,7 +287,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleUser" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 2) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.User) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -297,7 +297,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleTechnician" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 3) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.Technician) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -307,7 +307,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleUserManager" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 4) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.UserManager) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -317,7 +317,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleTaskManager" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 5) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.TaskManager) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -327,7 +327,7 @@
                                 </HeaderTemplate>
                                 <ItemTemplate>
                                     <asp:CheckBox ID="UserRoleSupManager" runat="server"
-                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, 6) %>'
+                                                  Checked='<%# RoleManager.UserHasRole(((ObjectView<User>)Container.DataItem).Object, Role.SuppliersManager) %>'
                                                   style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -338,10 +338,10 @@
                     <asp:ObjectDataSource ID="UserSource" runat="server" 
                         TypeName="<%# typeof(TechnicalServiceSystem.UserManager) %>" 
                         SelectMethod ="<%# nameof(TechnicalServiceSystem.UserManager.GetUsers) %>"
-                        SortParameterName="SortBy" DataObjectTypeName="<%# nameof(TechnicalServiceSystem.Entities.Users) %>">
+                        SortParameterName="SortBy" DataObjectTypeName="<%# nameof(TechnicalServiceSystem.Entities.Users.User) %>">
                         <SelectParameters>
-                            <asp:Parameter Name="contains" DefaultValue="" Type="String"></asp:Parameter>
-                            <asp:Parameter Name="RoleID" DefaultValue="-1" Type="Int32"></asp:Parameter>
+                            <asp:Parameter Name="contains" DefaultValue="" Type="String"/>
+                            <asp:Parameter Name="role" DefaultValue="AllRoles"/>
                             <asp:Parameter Name="activeOnly" DefaultValue="" Type="Boolean" ConvertEmptyStringToNull="True"/>
                         </SelectParameters>
                     </asp:ObjectDataSource>

@@ -56,7 +56,7 @@ namespace TechnicalServiceSystem
         /// <param name="rolename"></param>
         /// <param name="company"></param>
         /// <returns>ObservableCollection<User></returns>
-        public ObservableCollection<User> GetUsersByRole(string rolename = "User", string company = "")
+        public ObservableCollection<User> GetUsersByRole(Role role, string company = "")
         {
             var list = new ObservableCollection<User>();
 
@@ -66,7 +66,7 @@ namespace TechnicalServiceSystem
                 list = new ObservableCollection<User>(session
                     .CreateSQLQuery("exec Users.GetUsersByRole :roles, :companyName")
                     .AddEntity(typeof(User))
-                    .SetParameter("roles", rolename)
+                    .SetParameter("roles", Enum.GetName(typeof(Role),role))
                     .SetParameter("companyName", string.IsNullOrWhiteSpace(company) ? "%" : company, NHibernateUtil.String)
                     .List<User>());
             }
@@ -84,30 +84,30 @@ namespace TechnicalServiceSystem
         /// <param name="company"></param>
         /// <returns>ObservableCollection<UserInfo></returns>
         [DataObjectMethod(DataObjectMethodType.Select)]
-        public BindingListView<User> GetUsers(string contains, int? RoleID, string SortBy = null,bool? activeOnly = true)
+        public BindingListView<User> GetUsers(string contains, Role? role, string SortBy = null,bool? activeOnly = true)
         {
-            BindingListView<User> ret = null;
-            ObservableCollection<User> list = GetUsers(Settings.GetCompanyName(), contains, 
-                RoleID ?? 0,
+            ObservableCollection<User> list = GetUsers(Settings.GetCompanyName(), contains,
+                role ?? Role.AllRoles,
                 activeOnly);
-            ret = new BindingListView<User>(list.ToList());
+            var ret = new BindingListView<User>(list.ToList());
 
             if (!String.IsNullOrWhiteSpace(SortBy))
                 ret.Sort = SortBy;
 
             return ret;
         }
-        public ObservableCollection<User> GetUsers(string company, string searchText = null, int roleID = 0,bool? activeOnly = true)
+
+        public ObservableCollection<User> GetUsers(string company, string searchText = null, Role role = Role.AllRoles, bool? activeOnly = true)
         {
             var session = GetSession();
             try
             {
-                return new ObservableCollection<User>(session.CreateSQLQuery("exec Users.GetUsers :company, :active, :search, :roleID")
+                return new ObservableCollection<User>(session.CreateSQLQuery("exec Users.GetUsers :company, :active, :search, :role")
                     .AddEntity(typeof(User))
                     .SetParameter("company", string.IsNullOrWhiteSpace(company) ? "%" : company)
                     .SetParameter("active", activeOnly.HasValue ? (activeOnly.Value ? 1 : 0) : (object)DBNull.Value, NHibernateUtil.Int32)
                     .SetParameter("search", string.IsNullOrWhiteSpace(searchText) ? "%" : searchText)
-                    .SetParameter("roleID", roleID > 0? roleID:0)
+                    .SetParameter("role", role != Role.AllRoles ? Enum.GetName(typeof(Role), role) : null)
                     .List<User>());
             }
             catch (Exception ex)
@@ -115,25 +115,6 @@ namespace TechnicalServiceSystem
                 throw new Exception("User_Manager_Failed_Get_Users : " + ex.Message, ex);
             }
             
-        }
-        public ObservableCollection<Role> GetRoles()
-        {
-            ObservableCollection<Role> ret = null;
-
-            try
-            {
-                var session = GetSession();
-                ret = new ObservableCollection<Role>(session.QueryOver<Role>().List());
-            }
-            catch
-            {
-                throw;
-            }
-
-            if(ret == null)
-                return new ObservableCollection<Role>();
-
-            return ret;
         }
 
         /// <summary>
@@ -409,89 +390,44 @@ namespace TechnicalServiceSystem
             return ret;
         }
 
-        public bool AddUser(List<User> users)
-        {
-            return AddOrChangeUser(users);
-        }
-
-        public bool AddUser(User user)
-        {
-            var users = new List<User>
-            {
-                user
-            };
-
-            return AddOrChangeUser(users);
-        }
-
-        public bool ChangeUser(List<User> users)
-        {
-            return AddOrChangeUser(users);
-        }
-
-        public bool ChangeUser(User user)
-        {
-            var users = new List<User>
-            {
-                user
-            };
-
-            return AddOrChangeUser(users);
-        }
-
         public bool AddOrChangeUser(User user)
         {
-            var users = new List<User>
-            {
-                user
-            };
-
-            return AddOrChangeUser(users);
-        }
-
-        public bool AddOrChangeUser(ICollection<User> users)
-        {
-            if (users == null || users.Count <= 0)
+            if (user == null)
                 return false;
             
             try
             {
-                var session = GetSession();
-                var connection = session.Connection;
-                foreach (var user in users)
+                Session.BeginTransaction();
+                try
                 {
-                    try
+                    //first handle the image
+                    if (user.Photo != null && user.Photo.ID <= 0)
                     {
-                        session.BeginTransaction();
-                        //first handle the image
-                        if (user.Photo != null && user.Photo.ID <= 0)
-                        {
-                            //save photo
-                            var gnrlManager = new GeneralManager();
-                            Photo photo = user.Photo;
-                            gnrlManager.SavePhotoToServer(ref photo);
-                            user.Photo = photo;
-                        }
-                        
-                        //user
-                        session.SaveOrUpdate(user);
+                        //save photo
+                        var gnrlManager = new GeneralManager();
+                        Photo photo = user.Photo;
+                        gnrlManager.SavePhotoToServer(ref photo);
+                        user.Photo = photo;
+                    }
 
-                        //if the password has a value it means it was set somewhere, so lets push the change to the database through the stored procedure
-                        if (!String.IsNullOrWhiteSpace(user.Password))
-                        {
-                            session.CreateSQLQuery("exec Users.AssignPassword :UserID, :Password")
-                                .SetParameter("UserID", user.ID)
-                                .SetParameter("Password", user.Password)
-                                .ExecuteUpdate();
-                        }
-                        session.Transaction.Commit();
-                    }
-                    catch
+                    //user
+                    Session.SaveOrUpdate(user);
+
+                    //if the password has a value it means it was set somewhere, so lets push the change to the database through the stored procedure
+                    if (!String.IsNullOrWhiteSpace(user.Password))
                     {
-                        session.Transaction.Rollback();
-                        throw;
+                        Session.CreateSQLQuery("exec Users.AssignPassword :UserID, :Password")
+                            .SetParameter("UserID", user.ID)
+                            .SetParameter("Password", user.Password)
+                            .ExecuteUpdate();
                     }
-                    
+
+                    Session.Transaction.Commit();
+                }
+                catch
+                {
+                    Session.Transaction.Rollback();
+                    throw;
                 }
             }
             catch(Exception ex)
@@ -499,7 +435,7 @@ namespace TechnicalServiceSystem
                 throw new Exception($"User_Manager_Failed_Save_User : {ex.Message} {ex?.InnerException?.Message??""}", ex);
             }
 
-            return false;
+            return true;
         }
     }
 }

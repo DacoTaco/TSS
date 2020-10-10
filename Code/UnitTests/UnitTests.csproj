@@ -82,7 +82,6 @@
     <Compile Include="Mapping\Tasks\TaskTypeMapTestFixture.cs" />
     <Compile Include="Mapping\Tasks\NoteMapTestFixture.cs" />
     <Compile Include="Mapping\Tasks\TaskMapTestFixture.cs" />
-    <Compile Include="Mapping\Users\RolesMapTestFixture.cs" />
     <Compile Include="Mapping\Users\UserMapTestFixture.cs" />
     <Compile Include="NhibernateTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

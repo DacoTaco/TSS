@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using NHibernate.Type;
 using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Users;
 
@@ -36,14 +37,12 @@ namespace TechnicalServiceSystem.Mappings
                 .Not.LazyLoad()
                 .NotFound.Ignore();
 
-            HasManyToMany(r => r.Roles)
-                .ParentKeyColumn("UserID")
-                .ChildKeyColumn("RoleID")
-                .Table("UserRoles")
+            HasMany(u => u.Roles)
                 .Schema("Users")
-                .AsSet()
+                .Table("UserRoles")
+                .KeyColumn("UserID")
                 .Not.LazyLoad()
-                .NotFound.Ignore();
+                .Element("RoleName", part => part.Type<EnumStringType<Role>>());
         }
     }
 }

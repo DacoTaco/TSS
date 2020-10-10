@@ -26,6 +26,7 @@ using TechnicalServiceSystem.Entities.General;
 using TechnicalServiceSystem.Entities.Tasks;
 using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Lists;
+using TSS.Web.Feature.Users;
 
 namespace TSS.Web
 {
@@ -209,26 +210,27 @@ namespace TSS.Web
                 UsersTab.Visible = true;
                 Users.Visible = true;
 
-                var RolesList = new ObservableCollection<Role>();
+                var RolesList = new ObservableCollection<RoleModel>();
                 var roleList = LanguageFiles.LoadLanguageFile("Roles");
 
                 for (int i = 0; i < roleList.Length; i++)
                 {
-                    RolesList.Add(new Role(i) { RoleName = roleList[i]});
+                    RolesList.Add(RoleModel.CreateModel((Role)i, roleList[i]));
                 }
+
                 //bind User dropdown of roles
                 selectUserType.DataSource = RolesList;
                 selectUserType.DataBind();
 
                 //set the parameters for the datasource
-                string RoleID = Request.QueryString["UserRoleID"];
+                string role = Request.QueryString["UserRole"];
                 var searchText = Request.QueryString["SearchUser"];
 
-                if (!String.IsNullOrWhiteSpace(RoleID))
+                if (!String.IsNullOrWhiteSpace(role) && role != nameof(Role.AllRoles))
                 {
-                    var RoleField = UserSource.SelectParameters["RoleID"];
-                    RoleField.DefaultValue = RoleID;
-                    UserSource.SelectParameters["RoleID"] = RoleField;
+                    var RoleField = UserSource.SelectParameters["role"];
+                    RoleField.DefaultValue = role;
+                    UserSource.SelectParameters["role"] = RoleField;
                 }
 
                 if (!String.IsNullOrWhiteSpace(searchText))

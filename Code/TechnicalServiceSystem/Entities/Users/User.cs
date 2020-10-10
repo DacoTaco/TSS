@@ -36,7 +36,7 @@ namespace TechnicalServiceSystem.Entities.Users
         public virtual string UserHash { get; set; }
         public virtual string Password { get; set; }
         public virtual bool IsActive { get; set; }
-        public virtual ICollection<Role> Roles { get; set; }
+        public virtual IList<Role> Roles { get; set; }
         public virtual Photo Photo { get; set; }
         public virtual Department Department { get; set; }
 
@@ -88,7 +88,7 @@ namespace TechnicalServiceSystem.Entities.Users
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(UserName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(UserHash);
             hashCode = hashCode * -1521134295 + IsActive.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<ICollection<Role>>.Default.GetHashCode(Roles);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IList<Role>>.Default.GetHashCode(Roles);
             hashCode = hashCode * -1521134295 + EqualityComparer<Photo>.Default.GetHashCode(Photo);
             hashCode = hashCode * -1521134295 + EqualityComparer<Department>.Default.GetHashCode(Department);
             return hashCode;

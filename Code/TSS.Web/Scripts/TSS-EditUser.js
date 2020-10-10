@@ -1,21 +1,20 @@
 ﻿//retrieve task list
 function SearchUserPage() {
-    return getUserPage("-2");
+    return getUserPage("Unknown");
 }
 
-function getUserPage(roleID, callback) {
+function getUserPage(role, callback) {
     var contains = $("#txtSearchUser").val();
     var timeOutId = 0;
-    var RoleID = Number(roleID);
 
-    if ((roleID == null || RoleID == null || RoleID < 0) && contains.length > 0)
+    if (role == null && contains.length > 0)
         var parameters = { "SearchUser": contains };
     else
-        var parameters = { "UserRoleID": RoleID };
+        var parameters = { "UserRole": role };
 
     var dropdown = document.getElementById("selectUserType");
-    if (RoleID > -1)
-        dropdown.value = RoleID;
+    if (role != "Unknown")
+        dropdown.value = role;
     else
         dropdown.value = 0;
 
@@ -30,12 +29,12 @@ function PushUserPropertyChange(PropertyName, value, Async) {
 
 function onUserTypeChanged() {
     var dropdown = document.getElementById("selectUserType");
-    var RoleID = dropdown.value;
+    var role = dropdown.value;
     var textbox = document.getElementById("txtSearchUser");
     if (textbox)
         textbox.value = "";
 
-    getUserPage(RoleID);
+    getUserPage(role);
 }
 
 function SaveUser() {
@@ -107,10 +106,6 @@ function SetUserClosed() {
 
     CloseUser();
     return ret;
-}
-
-function ChangeRole() {
-
 }
 
 function IsUserReadOnly() {
@@ -205,13 +200,17 @@ function updateActive() {
     }
 }
 
-function IsRoleAdmin(roleID) {
+function IsRoleAdmin(role)
+{  
+    if (role == null)
+        return false;
+
     var ret = false;
     var ajaxFn = function() {
         $.ajax({
             type: "POST",
             url: "EditUser.aspx/IsAdmin",
-            data: "{RoleID:'" + roleID + "'}",
+            data: "{role:'" + role + "'}",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
@@ -226,19 +225,16 @@ function IsRoleAdmin(roleID) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert("Error checking roleID, error : " + jqXHR.responseText);
+                alert("Error checking role, error : " + jqXHR.responseText);
             }
         });
     };
-
-    if (roleID == null)
-        return false;
 
     ajaxFn();
     return ret;
 }
 
-function updateRole(control, RoleID, index) {
+function updateRole(control, role, index) {
     var ret = false;
     var isChecked = false;
 
@@ -249,7 +245,7 @@ function updateRole(control, RoleID, index) {
         var Property = "Roles";
         isChecked = control.checked;
         var value = {};
-        value.ID = RoleID;
+        value.Role = role;
         value.IsChecked = isChecked;
         var ret = PushUserPropertyChange(Property, JSON.stringify(value), false);
         if (ret === false) {
@@ -264,7 +260,7 @@ function updateRole(control, RoleID, index) {
     if (checkboxes == null || checkboxes.length < 1 || checkboxes.length < index)
         return true;
 
-    if (IsRoleAdmin(RoleID)) {
+    if (IsRoleAdmin(role)) {
         for (var i = 0; i < checkboxes.length; i++) {
             var input = checkboxes[i];
             if (input.type != "checkbox" || i == index)
@@ -326,6 +322,4 @@ function AddUserPhoto(input) {
         setLoading();
         reader.readAsDataURL(input.files[0]);
     }
-
-
 }

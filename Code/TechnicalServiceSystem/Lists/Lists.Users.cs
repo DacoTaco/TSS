@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using TechnicalServiceSystem.Entities.Users;
@@ -39,8 +40,7 @@ namespace TechnicalServiceSystem.Lists
 
                 if (ret == null)
                 {     
-                    var UserMngr = new UserManager();
-                    ret = UserMngr.GetRoles();
+                    ret = new ObservableCollection<Role>(Enum.GetValues(typeof(Role)).OfType<Role>().ToList());
 
                     if (Settings.IsWebEnvironment)
                         Settings.SetSessionSetting(RoleList, ret);
@@ -67,7 +67,7 @@ namespace TechnicalServiceSystem.Lists
                 if (ret == null)
                 {
                     var UserMngr = new UserManager();
-                    ret = UserMngr.GetUsersByRole("Technician", Settings.GetCompanyName());
+                    ret = UserMngr.GetUsersByRole(Entities.Users.Role.Technician, Settings.GetCompanyName());
 
                     if (Settings.IsWebEnvironment)
                         Settings.SetSessionSetting(TechnicianList, ret);

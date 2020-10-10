@@ -68,8 +68,8 @@ namespace TSS.Web
             if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                 Response.Redirect("Login.aspx");
 
-            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
-                Response.Redirect("Index.aspx");
+            //if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
+            //    Response.Redirect("Index.aspx");
 
             if (IsPostBack)
                 return;
@@ -129,7 +129,7 @@ namespace TSS.Web
         }
         protected void Page_Fill()
         {
-            RolesTable.DataSource = SystemLists.User.Roles;
+            RolesTable.DataSource = SystemLists.User.Roles.Where(x => x != Role.AllRoles && x != Role.Unknown).ToList();
             selectDepartment.DataSource = new GeneralManager().GetDepartments(Settings.GetCompanyName());
             selectDepartment.DataBind();
 
@@ -147,10 +147,10 @@ namespace TSS.Web
         //set the checkbox set or not depending on the user's roles.
         protected void RolesTable_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            if (e?.Row?.DataItem == null)
+            if (e?.Row?.DataItem == null || !(e.Row.DataItem is Role))
                 return;
 
-            if (e.Row.RowType != DataControlRowType.DataRow || e.Row.DataItem as Role == null)
+            if (e.Row.RowType != DataControlRowType.DataRow || (Role)e.Row.DataItem == Role.Unknown)
                 return;
 
             var checkbox = e.Row?.Cells[1]?.FindControl("UserRole") as HtmlInputCheckBox;
@@ -159,11 +159,11 @@ namespace TSS.Web
                 return;
 
             var hasRole = false;
-            var role = e.Row.DataItem as Role;
-            label.TranslationKey = role.ID;
+            var role = (Role)e.Row.DataItem;
+            label.TranslationKey = (int)role;
 
             //is the user an admin or not?
-            if (RoleManager.UserHasRole(OriginalUser, Roles.Admin))
+            if (RoleManager.UserHasRole(OriginalUser, Role.Admin))
             {
                 //incase of admin, enable role and disable other checkboxes
                 hasRole = true;
@@ -171,7 +171,7 @@ namespace TSS.Web
             }
             else
             {
-                if (EdittedUser.ID == 0 && role.ID == (int)Roles.User)
+                if (EdittedUser.ID == 0 && role == Role.User)
                 {
                     //new user & UserID found. check it & add it
                     hasRole = true;
@@ -180,13 +180,13 @@ namespace TSS.Web
                 else
                 {
                     //does the user have the role?
-                    hasRole = RoleManager.UserHasRole(OriginalUser, role.ID);
+                    hasRole = RoleManager.UserHasRole(OriginalUser, role);
                 }
             }
 
             checkbox.Checked = hasRole;
             //assign javascript function that will deal with the checkbox being changed
-            checkbox.Attributes.Add("onchange", $"updateRole(this,{role.ID},{e.Row.RowIndex}); return false;");
+            checkbox.Attributes.Add("onchange", $"updateRole(this,'{role}',{e.Row.RowIndex}); return false;");
 
             if (ReadOnly)
                 checkbox.Disabled = true;
@@ -202,7 +202,10 @@ namespace TSS.Web
             => ReadOnly ? LanguageFiles.GetLocalTranslation("UserOpenMsg", "User info is already opened by another user. the user info will be opened as read only.") : null;
 
         [WebMethod]
-        public static bool IsAdmin(int RoleID) => RoleID == (int)Roles.Admin;
+        public static bool IsAdmin(string role)
+        {
+            return role == Role.Admin.ToString();
+        }
 
         [WebMethod]
         public static bool CloseUser()
@@ -304,7 +307,7 @@ namespace TSS.Web
 
                         var roles = SystemLists.User.Roles;
 
-                        if (IsAdmin(changedRole.ID) && changedRole.IsChecked)
+                        if (IsAdmin(changedRole.Role.ToString()) && changedRole.IsChecked)
                         {
                             EdittedUser.Roles.Clear();
                             EdittedUser.Roles = new List<Role>(roles);
@@ -312,15 +315,14 @@ namespace TSS.Web
                             break;
                         }
 
-                        if (!changedRole.IsChecked && EdittedUser.Roles.Any(r => r.ID == changedRole.ID))
+                        if (!changedRole.IsChecked && EdittedUser.Roles.Any(r => r == changedRole.Role))
                         {
-                            var role = EdittedUser.Roles.Where(r => r.ID == changedRole.ID).First();
-                            if(role != null)
-                                EdittedUser.Roles.Remove(role);
+                            var role = EdittedUser.Roles.Where(r => r == changedRole.Role).First();
+                            EdittedUser.Roles.Remove(role);
                         }
-                        else if(changedRole.IsChecked && !EdittedUser.Roles.Any(r => r.ID == changedRole.ID))
+                        else if(changedRole.IsChecked && !EdittedUser.Roles.Any(r => r == changedRole.Role))
                         {
-                            EdittedUser.Roles.Add(roles.Where(r => r.ID == changedRole.ID).First());
+                            EdittedUser.Roles.Add(roles.Where(r => r == changedRole.Role).First());
                         }
                         changed = true;
                         break;

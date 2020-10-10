@@ -28,7 +28,7 @@ namespace UnitTests.Managers
         [Test]
         public void CanRetrieveUserListsOfCertainRole()
         {
-            var _userList = userManager.GetUsersByRole("Technician", Settings.GetCompanyName());
+            var _userList = userManager.GetUsersByRole(Role.Technician, Settings.GetCompanyName());
 
             Assert.NotNull(_userList);
             Assert.That(_userList.Count,Is.GreaterThan(2));
@@ -43,7 +43,7 @@ namespace UnitTests.Managers
         [Test, TestCaseSource(nameof(UserCases))]
         public void CanRetrieveUsersList(int userListCount,bool? activeOnly)
         {
-            var userList = userManager.GetUsers(null,null,0,activeOnly);
+            var userList = userManager.GetUsers(null, null, Role.AllRoles, activeOnly);
 
             Assert.NotNull(userList);
             Assert.AreEqual(userListCount,userList.Count);
@@ -53,7 +53,7 @@ namespace UnitTests.Managers
         public void CanVerifyUserHash()
         {
             //Arrange
-            var user = userManager.GetUsers("Sint-Elisabeth", "test", 0, true).SingleOrDefault();
+            var user = userManager.GetUsers("Sint-Elisabeth", "test", Role.AllRoles, true).SingleOrDefault();
             user.UserHash = "B0668584D7E16CC479B6F225AD166E2F89C44E1449182392B3333F6A1B98918037E1FFADE1DCE623E96589FEBA9C9E2481131FD09AF1F1698EE10E067C225017";
 
             //Act
@@ -67,7 +67,7 @@ namespace UnitTests.Managers
         public void CanLoginUser()
         {
             //Arrange
-            var user = userManager.GetUsers("Sint-Elisabeth", "test", 0, true).SingleOrDefault();
+            var user = userManager.GetUsers("Sint-Elisabeth", "test", Role.AllRoles, true).Single();
             user.Password = "testerino";
 
             //Act&Arrange
@@ -75,6 +75,24 @@ namespace UnitTests.Managers
             Assert.IsTrue(userManager.LoginUser(ref user, "test"));
             Assert.AreEqual("B0668584D7E16CC479B6F225AD166E2F89C44E1449182392B3333F6A1B98918037E1FFADE1DCE623E96589FEBA9C9E2481131FD09AF1F1698EE10E067C225017", user.UserHash);
             Assert.IsTrue(string.IsNullOrWhiteSpace(user.Password));
+        }
+
+        [Test]
+        public void CanChangeUser()
+        {
+            //Arrange
+            var user = userManager.GetUsers("Sint-Elisabeth", "test", Role.AllRoles, true).Single();
+            user.Password = "testPass";
+            user.Roles.Add(Role.Admin);
+            user.UserName = "LolTest";
+
+            //Act
+            Assert.True(userManager.AddOrChangeUser(user));
+
+            //Assert
+            user = userManager.GetUsers("Sint-Elisabeth", "test", Role.AllRoles, true).Single();
+            Assert.True(user.Roles.Contains(Role.Admin));
+            Assert.AreEqual("LolTest", user.UserName);
         }
     }
 }

@@ -34,8 +34,9 @@ namespace UnitTests
         protected void SetUpSession()
         {
             Session.BeginTransaction();
-            Assert.NotNull(Session,"Unable to retrieve the TestSession");
+            Assert.NotNull(Session.Transaction, "Unable to start the transaction");
             Session.FlushMode = FlushMode.Never;
+            Session.CacheMode = CacheMode.Ignore;
         }
     }
 }

@@ -16,20 +16,16 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 namespace TechnicalServiceSystem.Entities.Users
 {
-    public class Role : BaseEntity
+    public enum Role
     {
-        public Role() { }
-        public Role(int id) : base()
-        {
-            ID = id;
-        }
-
-        public virtual string RoleName { get; set; }
-
-        public override string ToString()
-        {
-            return RoleName;
-        }     
+        Unknown = -1,
+        AllRoles,
+        Admin,
+        User,
+        Technician,
+        UserManager,
+        TaskManager,
+        SuppliersManager
     }
 
     /// <summary>
@@ -52,14 +48,5 @@ namespace TechnicalServiceSystem.Entities.Users
         ManageSuppliers = 16,
         ViewSuppliers = 32,
         ManageUsers = 64
-    }
-    public enum Roles
-    {
-        Admin = 1,
-        User = 2,
-        Technician = 3,
-        UserManager = 4,
-        TaskManager = 5,
-        SupplierManager = 6
     }
 }

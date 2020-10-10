@@ -933,65 +933,6 @@ BEGIN
 END
 go
 
-CREATE PROCEDURE Users.AssignRoles
-(
-	@userID int, 
-	@Roles Users.UserRolesTable READONLY
-)
-AS
-BEGIN
-	declare @tempTable Users.UserRolesTable;
-	/*Select *
-	Into   #Temp
-	From   @Roles*/
-	insert into @tempTable
-		select * from @Roles
-
-	Declare @roleID int = 0;
-	declare @tempID int = 0;
-
-	--select @userID = (Select UserID from Users.Users where UserName like @userName and PasswordSalt like @passSalt)
-	--IF (@userID is NULL) or (@@ERROR >0)
-		--return 0;
-
-	While EXISTS(SELECT * FROM @tempTable)
-	Begin
-
-		Select Top 1 @tempID = roleID From @tempTable
-
-		IF(@tempID is not null and @tempID > 0)
-		BEGIN
-			Select @roleID = RoleID from Users.Roles rl where rl.RoleID = @tempID
-
-			IF(@roleID is not null and @roleID > 0)
-			BEGIN
-				IF not EXISTS (SELECT * FROM Users.UserRoles WHERE UserID = @userID and RoleID = @roleID)
-				begin
-					insert into Users.UserRoles(UserID,RoleID)
-					values
-					(
-						@userID,
-						@roleID
-					);
-				end
-			END
-			Delete @tempTable Where roleID = @tempID
-		END
-		ELSE
-		BEGIN
-			WITH deleteTable AS
-				(
-				SELECT TOP 1 *
-				FROM    @tempTable
-				)
-			DELETE
-			FROM deleteTable
-		END
-		
-	End
-END
-go
-
 CREATE PROCEDURE Users.CheckAndDeleteUsers
 AS
 BEGIN
@@ -1025,96 +966,6 @@ BEGIN
 		--reseed the tables after deletion
 		exec Users.ReseedTables;
 	END
-END
-go
-
-CREATE PROCEDURE Users.CreateUser
-(
-	@Username NVARCHAR(35),  
-	@Password nvarchar(max), 
-	@PhotoID integer, 
-	@CompanyName nvarchar(50) , 
-	@DepartmentID Integer, 
-	@Roles Users.UserRolesTable READONLY,
-	@Active bit = 1
-)
-AS
-BEGIN
-	DECLARE @RolesTable AS Users.UserRolesTable;
-
-	IF not EXISTS (SELECT * FROM @Roles)
-	BEGIN
-		declare @id integer = 0;
-		select @id = RoleID from Users.Roles where RoleName = 'User'
-		INSERT INTO @RolesTable(roleID)
-		values
-			(
-				--@id
-				(select RoleID from Users.Roles where RoleName = 'User')
-			)
-	END
-	else
-	BEGIN
-		insert into @RolesTable(roleID)
-		select roleID from @Roles
-	END
-
-	declare @newUser integer = 0
-	declare @passSalt nvarchar(max) = null
-
-	set @passSalt = CONVERT(nvarchar(max), NEWID());
-
-	declare @company nvarchar(max)
-
-	Select @company = com.CompanyName
-	from General.CompanyDepartment gd
-	left join General.Company com on gd.CompanyID = com.CompanyID
-	where gd.DepartmentID = @DepartmentID
-
-	IF(
-		(@DepartmentID = 0) or
-		(@company != @CompanyName)
-		)
-		BEGIN
-			RAISERROR('DepartmentID is 0 or company name is not correct',15,1);
-			RETURN 0
-		END
-
-	IF(@PhotoID = 0)
-	BEGIN
-		set @PhotoID = null
-	END
-
-
-	begin transaction AddUser
-
-	declare @error as int
-	insert into Users.Users(UserName,DepartmentID,PasswordSalt,PasswordHash,PhotoID,Active)
-	values
-	(
-		@Username,
-		@DepartmentID,
-		@passSalt,
-		HASHBytes('SHA2_512',CONCAT(@passSalt,HASHBytes('SHA2_512',@Password)) ),
-		@PhotoID,
-		@Active
-	);
-	set @error = @@ERROR;
-	
-	IF @error > 0
-		begin
-			ROLLBACK transaction AddUser
-			RAISERROR('Error was raised Inserting row',15,1);
-			RETURN 0;
-		end
-	ELSE
-		begin
-			set @newUser = SCOPE_IDENTITY();
-			exec Users.AssignRoles @newUser, @roles
-		end
-		
-	commit transaction AddUser
-	return @newUser
 END
 go
 
@@ -1229,7 +1080,7 @@ CREATE PROCEDURE Users.GetUsers
 	@companyName nvarchar(max) = '%',
 	@Active int = null,
 	@search nvarchar(max) = '%',
-	@RoleID int = null
+	@RoleName nvarchar(128) = null
 )
 AS
 BEGIN
@@ -1241,9 +1092,6 @@ BEGIN
 	END
 	ELSE
 		set @SearchText = '%';
-
-	if(@RoleID is not null and @RoleID <= 0)
-		set @RoleID = null
 
 	Select DISTINCT us.UserID, us.UserName, us.DepartmentID, us.PhotoID, us.Active, 
 	CAST(
@@ -1257,11 +1105,10 @@ BEGIN
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
 	left join General.Department dp on dp.DepartmentID = us.DepartmentID
 	left join Users.UserRoles ur on ur.UserID = us.UserID
-	left join Users.Roles rl on rl.RoleID = ur.RoleID
 	where cp.CompanyName like @companyName 
 	and
 	(
-		(@RoleID is null or @RoleID = rl.RoleID) and
+		(@RoleName is null or @RoleName = ur.RoleName) and
 		(LOWER(us.UserName) like @SearchText or LOWER(dp.DepartmentName) like @SearchText)
 	)
 	AND (us.Deleted is null or us.Deleted = 0)
@@ -1281,10 +1128,9 @@ BEGIN
 	Select us.UserID,us.UserName,us.DepartmentID,us.Active,us.PhotoID
 	from Users.Users us
 	left join Users.UserRoles ur on us.UserID = ur.UserID
-	left join Users.Roles rs on rs.RoleID = ur.RoleID
 	left join General.CompanyDepartment cd on cd.DepartmentID = us.DepartmentID
 	left join General.Company cp on cp.CompanyID = cd.CompanyID
-	where rs.RoleName like @roles and us.Active > 0
+	where ur.RoleName like @roles and us.Active > 0
 	and cp.CompanyName like @companyName
 	AND (us.Deleted is null or us.Deleted = 0)
 END
@@ -1312,20 +1158,6 @@ BEGIN
 	--and us.Active = 1
 END
 
-go
-
-CREATE PROCEDURE Users.GetUserRoles
-(
-	@userID int = 0
-)
-AS
-BEGIN
-	select us.UserID,us.UserName,rl.RoleID,rl.RoleName from Users.Users us
-	left join Users.UserRoles ur on ur.UserID = us.UserID
-	left join Users.Roles rl on rl.RoleID = ur.RoleID
-	where us.UserID = @userID
-	AND (us.Deleted is null or us.Deleted = 0)
-END
 go
 
 CREATE PROCEDURE Tasks.AddNote

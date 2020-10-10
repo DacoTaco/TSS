@@ -27,8 +27,8 @@ namespace TechnicalServiceSystem.Utilities
     public class SessionHandler
     {
         private static ISession Session { get; set; } = null;
-        private ISessionFactory _factory = null;
-        private ISessionFactory SessionFactory
+        private static ISessionFactory _factory = null;
+        private static ISessionFactory SessionFactory
         {
             get
             {
@@ -78,6 +78,7 @@ namespace TechnicalServiceSystem.Utilities
         }
 
         private ISession OpenSession() => SessionFactory.OpenSession();
+
         public void BindSession()
         {
             if (CurrentSessionContext.HasBind(SessionFactory))

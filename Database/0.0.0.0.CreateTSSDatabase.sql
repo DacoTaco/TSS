@@ -61,22 +61,8 @@ GO
 Begin Tran Create_Database
 
 --user & general stuff
-create table Users.Roles
-(
-	RoleID integer not null Identity(1,1) Primary key,
-	RoleName nvarchar(35) NOT NULL
-);
-
-Create type Users.UserRolesTable as table (roleID integer,roleName nvarchar(50))
+Create type Users.UserRolesTable as table (roleName nvarchar(50))
 Create type Users.UserInfo as table (userID integer,userName nvarchar(35))
-
-insert into Users.Roles (RoleName)
-values
-( 'Admin' ), ( 'User' ),
-( 'Technician' ),( 'User Manager' ),
-('Task Manager' ),( 'Suppliers Manager' );
-
-go
 
 Create Table General.Photo
 (
@@ -150,12 +136,19 @@ create Table Users.UserRoles
 (
 	ID int not null identity(1,1) primary key,
 	UserID int foreign key references Users.Users(UserID) on delete cascade not null,
-	RoleID Integer foreign key references Users.Roles(RoleID) on delete cascade not null
+	RoleName nvarchar(128) not null
 );
 go
 
 ALTER TABLE Users.UserRoles
-  ADD CONSTRAINT UQ_UserRoles UNIQUE(UserID, RoleID);
+WITH CHECK ADD  CONSTRAINT [CK_UserRoles] 
+CHECK(
+	[RoleName] in ('SuppliersManager' ,'TaskManager', 'UserManager', 'Technician', 'User', 'Admin')
+)
+GO
+
+ALTER TABLE Users.UserRoles
+  ADD CONSTRAINT UQ_UserRoles UNIQUE(UserID, RoleName);
 GO
 
 --Suppliers & machine stuff

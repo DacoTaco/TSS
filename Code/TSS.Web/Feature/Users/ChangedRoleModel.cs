@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TechnicalServiceSystem.Entities.Users;
 
 namespace TSS.Web.Feature.Users
 {
     public class ChangedRoleModel
     {
         private ChangedRoleModel() { }
-        public int ID { get; set; }
+        public Role Role { get; set; }
         public bool IsChecked { get; set; }
         public static ChangedRoleModel TryParse(string json)
         {

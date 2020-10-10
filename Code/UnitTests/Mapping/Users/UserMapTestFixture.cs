@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using TechnicalServiceSystem.Entities.Users;
 using TechnicalServiceSystem.Entities.General;
+using System.Collections.Generic;
 
 namespace UnitTests.Mapping.Users
 {
@@ -17,7 +18,8 @@ namespace UnitTests.Mapping.Users
                 UserName = "TextFixture Username",
                 IsActive = false,
                 Department = new Department(5) {Description = "test department"},
-                Photo = new Photo() { FileName = "UserMapTest.jpg"}
+                Photo = new Photo() { FileName = "UserMapTest.jpg"},
+                Roles = new List<Role>() { Role.User }
             };
 
             //Act&Assert
