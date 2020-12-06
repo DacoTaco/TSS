@@ -60,16 +60,13 @@ namespace TSS.Web
             set { Settings.SetSessionSetting("OriginalUser", value); }
         }
 
-
-
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                 Response.Redirect("Login.aspx");
 
-            //if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(),RolesPermissions.ManageUsers) == false)
-            //    Response.Redirect("Index.aspx");
+            if (LoggedInUser.IsUserLoggedIn == false || RoleManager.UserHasPermission(LoggedInUser.GetUser(), RolesPermissions.ManageUsers) == false)
+                Response.Redirect("Index.aspx");
 
             if (IsPostBack)
                 return;
@@ -202,12 +199,6 @@ namespace TSS.Web
             => ReadOnly ? LanguageFiles.GetLocalTranslation("UserOpenMsg", "User info is already opened by another user. the user info will be opened as read only.") : null;
 
         [WebMethod]
-        public static bool IsAdmin(string role)
-        {
-            return role == Role.Admin.ToString();
-        }
-
-        [WebMethod]
         public static bool CloseUser()
         {
             var ret = true;
@@ -298,7 +289,7 @@ namespace TSS.Web
                 {
                     case "roles":
                         //we receive our role data through a json object. we try and parse the object and set the user accordingly
-                        var changedRole = ChangedRoleModel.TryParse(value as string);
+                        var changedRole = RoleModel.TryParse(value as string);
                         if (changedRole == null)
                         {
                             changed = false;
@@ -307,7 +298,7 @@ namespace TSS.Web
 
                         var roles = SystemLists.User.Roles;
 
-                        if (IsAdmin(changedRole.Role.ToString()) && changedRole.IsChecked)
+                        if (changedRole.Role == Role.Admin && changedRole.IsChecked)
                         {
                             EdittedUser.Roles.Clear();
                             EdittedUser.Roles = new List<Role>(roles);
@@ -317,12 +308,12 @@ namespace TSS.Web
 
                         if (!changedRole.IsChecked && EdittedUser.Roles.Any(r => r == changedRole.Role))
                         {
-                            var role = EdittedUser.Roles.Where(r => r == changedRole.Role).First();
+                            var role = EdittedUser.Roles.First(r => r == changedRole.Role);
                             EdittedUser.Roles.Remove(role);
                         }
                         else if(changedRole.IsChecked && !EdittedUser.Roles.Any(r => r == changedRole.Role))
                         {
-                            EdittedUser.Roles.Add(roles.Where(r => r == changedRole.Role).First());
+                            EdittedUser.Roles.Add(roles.First(r => r == changedRole.Role));
                         }
                         changed = true;
                         break;

@@ -1,37 +1,18 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
+﻿using System;
 using System.Web;
 using System.Web.Http;
 using System.Web.Routing;
 using TechnicalServiceSystem.Utilities;
-using TSS.Web.Feature.General;
 
 namespace TSS.Web
 {
     public class Global : HttpApplication
     {
-        public class BrowserJsonFormatter : JsonMediaTypeFormatter
-        {
-            public BrowserJsonFormatter()
-            {
-                this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
-                this.SerializerSettings.Formatting = Formatting.Indented;
-            }
-
-            public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType)
-            {
-                base.SetDefaultContentHeaders(type, headers, mediaType);
-                headers.ContentType = new MediaTypeHeaderValue("application/json");
-            }
-        }
-
         void Application_Start(object sender, EventArgs e)
         {
             // Code that runs on application startup
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
+           RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             /*var json = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
             json.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.All;

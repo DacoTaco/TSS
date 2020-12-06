@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props')" />
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" />
+  <Import Project="..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6B445D47-A28F-40E0-AC28-8AD1B5ABE730}</ProjectGuid>
+    <ProjectGuid>{ACE4DB0A-884D-476B-A6C3-3F04C8B2E9DF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnitTests</RootNamespace>
-    <AssemblyName>UnitTests</AssemblyName>
+    <RootNamespace>UnitTests.Web</RootNamespace>
+    <AssemblyName>UnitTests.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -34,14 +35,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Equin.ApplicationFramework.BindingListView">
-      <HintPath>..\packages\Equin.ApplicationFramework.BindingListView.1.4.5222.35545\lib\net40-Client\Equin.ApplicationFramework.BindingListView.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentNHibernate, Version=2.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections, Version=4.0.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <HintPath>..\packages\Iesi.Collections.4.0.0.4000\lib\net40\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate, Version=4.0.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <HintPath>..\packages\NHibernate.4.0.0.4000\lib\net40\NHibernate.dll</HintPath>
@@ -51,8 +49,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,61 +65,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConvertersTestFixture.cs" />
-    <Compile Include="Entities\TaskEntityTestFixture.cs" />
-    <Compile Include="Managers\SupplierManagerTestFixture.cs" />
-    <Compile Include="Managers\RoleManagerTestFixture.cs" />
-    <Compile Include="Managers\UserManagerTestFixture.cs" />
-    <Compile Include="Managers\GeneralManagerTestFixture.cs" />
-    <Compile Include="Managers\TaskManagerTestFixture.cs" />
-    <Compile Include="Mapping\General\AddressMapTestFixture.cs" />
-    <Compile Include="Mapping\General\CompanyMapTestFixture.cs" />
-    <Compile Include="Mapping\General\DepartmentMapTestFixture.cs" />
-    <Compile Include="Mapping\General\LocationMapTestFixture.cs" />
-    <Compile Include="Mapping\General\PhotoMapTestFixture.cs" />
-    <Compile Include="Mapping\Suppliers\ContactMapTestFixture.cs" />
-    <Compile Include="Mapping\Suppliers\DocumentationMapTestFixture.cs" />
-    <Compile Include="Mapping\Suppliers\MachineMapTestFixture.cs" />
-    <Compile Include="Mapping\Suppliers\MachineTypeMapTestFixture.cs" />
-    <Compile Include="Mapping\Suppliers\SupplierMapTestFixture.cs" />
-    <Compile Include="Mapping\Tasks\RepeatingInfoMapTestFixture.cs" />
-    <Compile Include="Mapping\Tasks\TaskStatusMapTestFixture.cs" />
-    <Compile Include="Mapping\Tasks\TaskTypeMapTestFixture.cs" />
-    <Compile Include="Mapping\Tasks\NoteMapTestFixture.cs" />
-    <Compile Include="Mapping\Tasks\TaskMapTestFixture.cs" />
-    <Compile Include="Mapping\Users\UserMapTestFixture.cs" />
-    <Compile Include="NhibernateTestFixture.cs" />
+    <Compile Include="ControllerTestFixture.cs" />
+    <Compile Include="Feature\General\DepartmentControllerTestFixture.cs" />
+    <Compile Include="Feature\Users\UserControllerTestFixture.cs" />
+    <Compile Include="Feature\Users\RoleModelTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SessionTestFixture.cs" />
-    <Compile Include="Utilities\AESHandlerTestFixture.cs" />
+    <Compile Include="StartUpFixture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\TechnicalServiceSystem\Backbone.csproj">
-      <Project>{e70a3a76-763b-45db-9a85-2de20537ac47}</Project>
+      <Project>{E70A3A76-763B-45DB-9A85-2DE20537AC47}</Project>
       <Name>Backbone</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TSS.Web\TSS.Web.csproj">
+      <Project>{078501dd-fb22-46e7-b363-00587a1eb240}</Project>
+      <Name>TSS.Web</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
     <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props'))" />
+    <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

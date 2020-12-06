@@ -16,7 +16,6 @@ along with this program.If not, see http://www.gnu.org/licenses */
 
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -117,6 +116,7 @@ namespace TSS.Web
                     ? SystemLists.General.Departments.Where(d => d.ID == user.Department.ID).First()
                     : SystemLists.General.Departments.First();
 
+                new GeneralManager().GetDepartment(department);
                 Task.Location = department.Locations.OrderBy(l => l.Description).First();
                 Task.Reporter = user != null ? user.UserName : "";
                 TaskID = 0;
@@ -210,12 +210,12 @@ namespace TSS.Web
 
                 var roles = RoleManager.GetUserPermissions(LoggedInUser.GetUser());
 
-                if ((roles & (int) RolesPermissions.ManageMachines) == 0 &&
-                    (roles & (int) RolesPermissions.Technician) == 0)
+                if(!roles.Any(x => x == RolesPermissions.ManageMachines) &&
+                   !roles.Any(x => x == RolesPermissions.Technician))
                     machineRow.Visible = false;
 
-                if ((roles & (int)RolesPermissions.ManageTasks) == 0 &&
-                    (roles & (int)RolesPermissions.Technician) == 0)
+                if (!roles.Any(x => x == RolesPermissions.ManageTasks) &&
+                    !roles.Any(x => x == RolesPermissions.Technician))
                 {
                     selectTaskState.Disabled = true;
                     selectTaskState.Style.Add("background-color", "#EBEBE4");
@@ -525,35 +525,12 @@ namespace TSS.Web
         {
             var type = typeof(Task);
             var property = type.GetProperty(PropertyName);
-            var test = type.GetProperties();
 
             if (property == null)
                 return null;
 
             var ret = property.GetValue(Task, null);
             return ret;
-        }
-
-        /// <summary>
-        ///     Get all locations of a given DepartmentID
-        /// </summary>
-        /// <returns></returns>
-        [WebMethod]
-        public static List<Location> GetLocations()
-        {
-            var list = new List<Location>();
-            try
-            {
-                var generalMngr = new GeneralManager();
-                list = generalMngr.GetLocations(Task.DepartmentID, Settings.GetCompanyName()).ToList();
-                if (list == null)
-                    list = new List<Location>();
-                return list;
-            }
-            catch
-            {
-                return new List<Location>();
-            }
         }
     }
 }

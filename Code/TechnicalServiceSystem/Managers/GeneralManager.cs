@@ -73,6 +73,19 @@ namespace TechnicalServiceSystem
             }
 
         }
+
+        public Department GetDepartment(Department department)
+        {
+            try
+            {
+                Session.Refresh(department);
+                return department;
+            }
+            catch
+            {
+                throw;
+            }
+        }
         /// <summary>
         ///     Retrieve List with all known locations. parameters are optional. default is all locations from all companies.
         /// </summary>

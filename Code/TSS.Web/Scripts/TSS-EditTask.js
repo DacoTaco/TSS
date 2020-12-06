@@ -174,18 +174,18 @@ function updateTaskDepartment() {
 
     //then replace the location dropdown :P
     //we can't reload the page because it would cause shit to reset losing all data.
-    //SO, we just get the locations using a webmethod and parse it in javascript.
-    var ret;
+    //SO, we just get the locations using an API call and parse it in javascript.
+    var array;
     var ajaxGetLocations = function() {
         $.ajax({
-            type: "POST",
-            url: "EditTask.aspx/GetLocations",
+            type: "GET",
+            url: "api/Department/"+ value + "/Locations",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             async: false,
             cache: false,
             success: function(data) {
-                ret = data;
+                array = data;
                 return true;
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -203,14 +203,11 @@ function updateTaskDepartment() {
         control.remove(i);
     }
     i = 0;
-    if (ret != null) {
-        //get array from the returned data...
-        var array = ret.d;
-        var length = array.length;
-
+    if (array != null)
+    {
         //looping time!
         //this is fun as the structure of the objects is the same as in C#. so we get the ID and the Name, perfect!
-        for (i = 0; i < length; i++) {
+        for (i = 0; i < array.length; i++) {
             var option = document.createElement("option");
             var location = array[i];
 

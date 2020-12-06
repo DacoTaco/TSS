@@ -208,15 +208,12 @@ function IsRoleAdmin(role)
     var ret = false;
     var ajaxFn = function() {
         $.ajax({
-            type: "POST",
-            url: "EditUser.aspx/IsAdmin",
-            data: "{role:'" + role + "'}",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            type: "GET",
+            url: "api/User/Role/" + role + "/IsAdmin",
             async: false,
             cache: "false",
             success: function(data) {
-                if (data.d == true) {
+                if (data == true) {
                     ret = true;
                     return true;
                 } else {

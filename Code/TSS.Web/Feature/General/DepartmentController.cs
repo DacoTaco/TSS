@@ -11,17 +11,16 @@ namespace TSS.Web.Feature.General
     public class DepartmentController : ApiController
     {
         // GET: api/Locations
-        //[Route("")]
-        //[HttpGet]
-        //public string Get()
-        //{
-        //    return "";
-        //}
+        /*[Route("")]
+        [HttpGet]
+        public string Get()
+        {
+            return "";
+        }*/
 
-        // GET: api/Locations/5
+        // GET: api/Department/5/Locations
         [Route("{id}/Locations")]
         [HttpGet]
-        [HttpPost]
         public IHttpActionResult Get(int id)
         {
             if (Settings.RequireLogin() && !LoggedInUser.IsUserLoggedIn)

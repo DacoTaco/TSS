@@ -26,6 +26,7 @@ namespace TechnicalServiceSystem.Utilities
 
                 aes.Key = key;
                 aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
 
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
@@ -74,6 +75,7 @@ namespace TechnicalServiceSystem.Utilities
 
                 aes.Key = key;
                 aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
 
                 var inputbytes = new byte[input.Length / 2];
 

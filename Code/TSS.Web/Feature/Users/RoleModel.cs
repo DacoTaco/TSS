@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using TechnicalServiceSystem.Entities.Users;
 
 namespace TSS.Web.Feature.Users
@@ -7,6 +9,23 @@ namespace TSS.Web.Feature.Users
     {
         public Role Role { get; set; }
         public string RoleName { get; set; }
+        public bool IsChecked { get; set; }
+        public static RoleModel TryParse(string json)
+        {
+            try
+            {
+                var objectData = JsonConvert.DeserializeObject(json);
+                if (objectData == null) return null;
+                var jObject = objectData as JObject;
+                var roleModel = jObject.ToObject<RoleModel>();
+                roleModel.RoleName = roleModel.Role.ToString();
+                return roleModel;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         public static RoleModel CreateModel(Role role, string translatedName = "")
         {

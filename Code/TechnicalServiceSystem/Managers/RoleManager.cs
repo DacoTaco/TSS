@@ -38,10 +38,7 @@ namespace TechnicalServiceSystem
             if (user == null || user.Roles == null || user.Roles.Count <= 0)
                 return false;
 
-            if (user.Roles.Where(x => x == role).FirstOrNull() != null)
-                return true;
-
-            return false;
+            return user.Roles.Any(x => x == role);
         }
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace TechnicalServiceSystem
         {
             var roles = GetUserPermissions(user);
 
-            return ((roles & (int)permission) > 0);
+            return roles.Any(x => x == permission);
         }
 
         /// <summary>
@@ -64,48 +61,50 @@ namespace TechnicalServiceSystem
         /// <param name="user"></param>
         /// <param name="roleList"></param>
         /// <returns></returns>
-        public static int GetUserPermissions(User user)
+        public static IList<RolesPermissions> GetUserPermissions(User user)
         {
-            var roles = 0;
+            var roles = new List<RolesPermissions>();
             IList<Role> roleList = SystemLists.User.Roles;
             if (roleList == null)
-                return 0;
+                return roles;
 
             if (user == null)
-                roles = (int) RolesPermissions.Tasks;
+                roles.Add(RolesPermissions.Tasks);
             else
                 foreach (var role in roleList)
+                {
                     if (UserHasRole(user, role))
                         switch (role)
                         {
                             case Role.Admin:
-                                roles = int.MaxValue;
+                                var enumValues = typeof(RolesPermissions).GetEnumValues().Cast<RolesPermissions>();
+                                roles.AddRange(enumValues);
                                 break;
-
                             case Role.UserManager:
-                                roles |= (int) RolesPermissions.ManageUsers;
+                                roles.Add(RolesPermissions.ManageUsers);
                                 break;
                             case Role.SuppliersManager:
-                                roles |= (int) RolesPermissions.ManageSuppliers;
-                                roles |= (int) RolesPermissions.ViewSuppliers;
-                                roles |= (int) RolesPermissions.ManageMachines;
+                                roles.Add(RolesPermissions.ManageSuppliers);
+                                roles.Add(RolesPermissions.ViewSuppliers);
+                                roles.Add(RolesPermissions.ManageMachines);
                                 break;
                             case Role.TaskManager:
-                                roles |= (int) RolesPermissions.ManageTasks;
-                                roles |= (int) RolesPermissions.Technician;
-                                roles |= (int) RolesPermissions.ViewSuppliers;
-                                roles |= (int) RolesPermissions.ManageMachines;
+                                roles.Add(RolesPermissions.ManageTasks);
+                                roles.Add(RolesPermissions.Technician);
+                                roles.Add(RolesPermissions.ViewSuppliers);
+                                roles.Add(RolesPermissions.ManageMachines);
                                 break;
                             case Role.Technician:
-                                roles |= (int) RolesPermissions.Technician;
-                                roles |= (int) RolesPermissions.ViewSuppliers;
-                                roles |= (int) RolesPermissions.ManageMachines;
+                                roles.Add(RolesPermissions.Technician);
+                                roles.Add(RolesPermissions.ViewSuppliers);
+                                roles.Add(RolesPermissions.ManageMachines);
                                 break;
                             case Role.User:
                             default:
-                                roles |= (int) RolesPermissions.Tasks;
+                                roles.Add(RolesPermissions.Tasks);
                                 break;
                         }
+                }                   
             return roles;
         }
     }

@@ -45,8 +45,8 @@ namespace TSS.Web
         }
         protected static string ActiveTab
         {
-            get { return Settings.GetSessionSetting<string>("ActiveTab"); }
-            set { Settings.SetSessionSetting("ActiveTab", value); }
+            get { return Settings.GetSessionSetting<string>(nameof(ActiveTab)); }
+            set { Settings.SetSessionSetting(nameof(ActiveTab), value); }
         }
 
         protected void Setup_UserContent()
@@ -92,7 +92,7 @@ namespace TSS.Web
 
             var roles = RoleManager.GetUserPermissions(user);
             //handle the tasks tab
-            if ((roles & (int) RolesPermissions.Tasks) <= 0)
+            if (!roles.Any(x => x == RolesPermissions.Tasks))
             {
                 TasksTab.Visible = false;
                 Tasks.Visible = false;
@@ -110,7 +110,7 @@ namespace TSS.Web
                 DropDownSorting.DataSource = DepartmentsList;
                 DropDownSorting.DataBind();
 
-                if (LoggedInUser.IsUserLoggedIn && (roles & (int) RolesPermissions.Technician) <= 0)
+                if (LoggedInUser.IsUserLoggedIn && (!roles.Any(x => x == RolesPermissions.Technician)))
                 {
                     DropDownSorting.SelectedIndex =
                         DepartmentsList.ToList().FindIndex(x => x.ID == LoggedInUser.GetUser().Department.ID);
@@ -171,7 +171,7 @@ namespace TSS.Web
             }
 
             //handle machines tab
-            //if ((roles & (int)RolesPermissions.ManageMachines) <= 0)
+            //if (!roles.Any(x => x == RolesPermissions.ManageMachines))
             {
                 //no permissions!
                 MachinesTab.Visible = false;
@@ -184,10 +184,8 @@ namespace TSS.Web
             }*/
 
             //permissions to the Suppliers tab!
-            /*if (
-                ((roles & (int)RolesPermissions.ViewSuppliers) <= 0 ) &&
-                ((roles & (int)RolesPermissions.ManageSuppliers) <= 0)
-            )*/
+            /*if (!roles.Any(x => x == RolesPermissions.ManageSuppliers) &&
+                !roles.Any(x => x == RolesPermissions.ViewSuppliers))*/
             {
                 SuppliersTab.Visible = false;
                 //Suppliers.Visible = false;
@@ -200,7 +198,7 @@ namespace TSS.Web
 
 
             //permissions for the Users tab!
-            if ((roles & (int) RolesPermissions.ManageUsers) <= 0)
+            if (!roles.Any(x => x == RolesPermissions.ManageUsers))
             {
                 UsersTab.Visible = false;
                 Users.Visible = false;
