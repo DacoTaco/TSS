@@ -943,9 +943,9 @@ BEGIN
 		where (us.DateToDelete is not null) and (CONVERT(date, us.DateToDelete) <= CONVERT(date, getdate()))
 
 
-	IF EXISTS(Select * from @users)
+	IF EXISTS(Select 1 from @users)
 	BEGIN
-		While EXISTS(SELECT * FROM @users)
+		While EXISTS(SELECT 1 FROM @users)
 		BEGIN
 			declare @userID int = 0;
 			select TOP 1 @userID = ID from @users
@@ -1059,7 +1059,7 @@ BEGIN
 	declare @ret int
 
 	IF EXISTS(
-		Select * 
+		Select 1 
 		from Users.Users us
 		where us.UserID = @UserID and 
 		@UserHash = CONVERT(nvarchar(max),(HASHBytes('SHA2_512',CONCAT(us.PasswordSalt,HASHBytes('SHA2_512',CONCAT(us.UserID,':',us.UserName))) )),2)
@@ -1227,7 +1227,7 @@ Begin
 		Select @StatusID = ts.StatusID from Tasks.TaskStatus ts where ts.StatusDescription like 'Being Processed'
 	END
 
-	IF EXISTS(SELECT * FROM @reporterInfo)
+	IF EXISTS(SELECT 1 FROM @reporterInfo)
 	BEGIN
 		select TOP 1 @reporterID=UserID from @reporterInfo
 		IF(@reporterID is not null and @reporterID > 0)
@@ -1299,7 +1299,7 @@ BEGIN
 	left join Suppliers.Machine ma on ma.MachineID = tk.MachineID
 	where tt.TypeDescription like 'Repeating Task'
 
-	While EXISTS(SELECT * FROM #Temp)
+	While EXISTS(SELECT 1 FROM #Temp)
 	Begin
 		Select Top 1 @taskID = TaskID From #Temp
 		--Select TOP 1 @taskDate = RepeatingInfoID from #Temp
@@ -1370,7 +1370,7 @@ Begin
 	--from Suppliers.Machine ma
 	--where ma.MachineName like @MachineName
 
-	IF EXISTS(SELECT * FROM @reporterInfo)
+	IF EXISTS(SELECT 1 FROM @reporterInfo)
 	BEGIN
 		select TOP 1 @reporterID=UserID from @reporterInfo
 		IF(@reporterID is not null and @reporterID > 0)

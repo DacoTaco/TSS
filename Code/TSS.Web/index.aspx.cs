@@ -103,7 +103,6 @@ namespace TSS.Web
                 var list = SystemLists.General.Departments;
 
                 var DepartmentsList = new ObservableCollection<Department>();
-
                 DepartmentsList.Add(new Department(0) {Description = LanguageFiles.GetLocalTranslation("AllDepartments", "All") });
                 foreach (var item in SystemLists.General.Departments) DepartmentsList.Add(item);
 
@@ -258,8 +257,9 @@ namespace TSS.Web
             if (Settings.RequireLogin() && LoggedInUser.IsUserLoggedIn == false)
                 Response.Redirect("Login");
 
-            if (IsPostBack)
-                return;
+            // Unsure what this is for, but it kills when using the UI to sort the tables because it doesn't databind the tables ... :/ 
+            /*if (IsPostBack)
+                return;*/
 
             Setup_Page();
         }

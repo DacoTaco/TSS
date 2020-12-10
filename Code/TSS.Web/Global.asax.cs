@@ -12,7 +12,7 @@ namespace TSS.Web
         {
             // Code that runs on application startup
             GlobalConfiguration.Configure(WebApiConfig.Register);
-           RouteConfig.RegisterRoutes(RouteTable.Routes);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             /*var json = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
             json.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.All;

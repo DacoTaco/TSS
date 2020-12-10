@@ -84,7 +84,15 @@ namespace TSS.Web
             //retrieve UserID and load user
             if (!int.TryParse(Request.Params["UserID"], out UserID) || UserID <= 0)
             {
-                OriginalUser = new User(0) { UserName = "", IsActive = true };
+                OriginalUser = new User(0) 
+                { 
+                    UserName = "", 
+                    IsActive = true,
+                    Roles = new List<Role>() 
+                    { 
+                        Role.User 
+                    }
+                };
 
                 var gnrlManager = new GeneralManager();
                 var photo = gnrlManager.GetPhoto("./system/DefaultUser.jpg");
@@ -127,11 +135,14 @@ namespace TSS.Web
         protected void Page_Fill()
         {
             RolesTable.DataSource = SystemLists.User.Roles.Where(x => x != Role.AllRoles && x != Role.Unknown).ToList();
-            selectDepartment.DataSource = new GeneralManager().GetDepartments(Settings.GetCompanyName());
+            var departments = new GeneralManager().GetDepartments(Settings.GetCompanyName());
+            selectDepartment.DataSource = departments;
             selectDepartment.DataBind();
 
-            if(UserID > 0)
-                selectDepartment.SelectItem(EdittedUser.Department.ID.ToString());
+            if (EdittedUser.Department == null)
+                EdittedUser.Department = departments.First();
+
+            selectDepartment.SelectItem(EdittedUser.Department.ID.ToString());
 
             if ((EdittedUser.Photo?.ID??0) != 0)
             {
@@ -168,17 +179,8 @@ namespace TSS.Web
             }
             else
             {
-                if (EdittedUser.ID == 0 && role == Role.User)
-                {
-                    //new user & UserID found. check it & add it
-                    hasRole = true;
-                    EdittedUser.Roles.Add(role);
-                }
-                else
-                {
-                    //does the user have the role?
-                    hasRole = RoleManager.UserHasRole(OriginalUser, role);
-                }
+                //does the user have the role?
+                hasRole = RoleManager.UserHasRole(OriginalUser, role);
             }
 
             checkbox.Checked = hasRole;

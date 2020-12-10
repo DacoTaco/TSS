@@ -189,7 +189,7 @@
                             <asp:BoundField DataField="Description" HeaderText="Description" ReadOnly="True" SortExpression="Description" meta:resourcekey="Description" ItemStyle-CssClass="gridview-align-left">
                             </asp:BoundField>
 
-                            <asp:TemplateField HeaderText="Urguency" meta:resourcekey="Urguent" SortExpression="Urguent" ControlStyle-Width="6.4em">
+                            <asp:TemplateField HeaderText="Urguency" meta:resourcekey="Urguent" SortExpression="IsUrguent" ControlStyle-Width="6.4em">
                                 <ItemTemplate>
                                     <asp:CheckBox ID="urguentchkbx" runat="server" Checked='<%# Bind("IsUrguent") %>' style="zoom: 0.7;" onclick="return false;" onkeydown="e = e || window.event; if(e.keyCode !== 9) return false;"/>
                                 </ItemTemplate>
@@ -268,7 +268,7 @@
                                   ShowHeaderWhenEmpty="True" style="font-size: 2vmin; margin-left: auto; margin-right: auto; margin-top: 1vw; max-width: 100%" BackColor="White" BorderColor="#868686"
                                   RowStyle-CssClass="text-responsive">
                         <Columns>
-                            <asp:BoundField DataField="UserName" HeaderText="Username" ReadOnly="True" SortExpression="Username" meta:resourcekey="UserName"/>
+                            <asp:BoundField DataField="UserName" HeaderText="Username" ReadOnly="True" SortExpression="UserName" meta:resourcekey="UserName"/>
                             <asp:CheckBoxField HeaderText="Active" meta:resourcekey="Active" SortExpression="IsActive" DataField="IsActive" ReadOnly="false" ControlStyle-Width="6.4em"/>
                             <asp:BoundField DataField="Department" HeaderText="Department" meta:resourcekey="Department" SortExpression="Department"/>
                             <asp:TemplateField ControlStyle-Width="6.4em" ItemStyle-CssClass="hidden-xs hidden-sm hidden-md" HeaderStyle-CssClass="hidden-xs hidden-sm hidden-md">
