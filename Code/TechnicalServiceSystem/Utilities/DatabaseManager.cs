@@ -22,16 +22,12 @@ namespace TechnicalServiceSystem.Utilities
 {
     public class DatabaseManager : IDisposable
     {
-        protected ISession Session;
+        protected ISession Session => _handler.GetCurrentSession();
+        private readonly SessionHandler _handler;
 
         public DatabaseManager() 
         {
-            Session = new SessionHandler().GetCurrentSession();
-        }
-
-        public ISession GetSession()
-        {
-            return Session;
+            _handler = new SessionHandler();
         }
 
         protected IDbConnection GetConnection()

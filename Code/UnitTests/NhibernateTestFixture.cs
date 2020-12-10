@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.If not, see http://www.gnu.org/licenses */
 
+using NHibernate;
 using NUnit.Framework;
 using System.Transactions;
 using TechnicalServiceSystem.Utilities;
@@ -21,22 +22,24 @@ using TechnicalServiceSystem.Utilities;
 namespace UnitTests
 {
     [TestFixture]
-    public class NhibernateTestFixture : DatabaseManager
-    {
+    public class NhibernateTestFixture
+    {        
+        protected ISession Session;
         //run this code block in a transaction that will get rollbacked later
         private TransactionScope _transactionScope;
 
         [TearDown]
         protected void TearDownSession()
         {
-            _transactionScope.Dispose();
             Session.Clear();
+            _transactionScope.Dispose();
         }
 
         [SetUp]
         protected void SetUpSession()
         {
             _transactionScope = new TransactionScope();
+            Session = new SessionHandler().GetCurrentSession();
         }
     }
 }

@@ -38,10 +38,9 @@ namespace TechnicalServiceSystem
         ///
         public User GetUserByID(int UserID)
         {
-            var session = GetSession();
             try
             {
-                return session.QueryOver<User>().Where(x => x.ID == UserID).SingleOrDefault();
+                return Session.QueryOver<User>().Where(x => x.ID == UserID).SingleOrDefault();
             }
             catch (Exception ex)
             {
@@ -62,8 +61,7 @@ namespace TechnicalServiceSystem
 
             try
             {
-                var session = GetSession();
-                list = new ObservableCollection<User>(session
+                list = new ObservableCollection<User>(Session
                     .CreateSQLQuery("exec Users.GetUsersByRole :roles, :companyName")
                     .AddEntity(typeof(User))
                     .SetParameter("roles", Enum.GetName(typeof(Role),role))
@@ -99,10 +97,9 @@ namespace TechnicalServiceSystem
 
         public ObservableCollection<User> GetUsers(string company, string searchText = null, Role role = Role.AllRoles, bool? activeOnly = true)
         {
-            var session = GetSession();
             try
             {
-                return new ObservableCollection<User>(session.CreateSQLQuery("exec Users.GetUsers :company, :active, :search, :role")
+                return new ObservableCollection<User>(Session.CreateSQLQuery("exec Users.GetUsers :company, :active, :search, :role")
                     .AddEntity(typeof(User))
                     .SetParameter("company", string.IsNullOrWhiteSpace(company) ? "%" : company)
                     .SetParameter("active", activeOnly.HasValue ? (activeOnly.Value ? 1 : 0) : (object)DBNull.Value, NHibernateUtil.Int32)
@@ -134,7 +131,7 @@ namespace TechnicalServiceSystem
 
             try
             {
-                var connection = GetSession()?.Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.StoredProcedure;
@@ -283,7 +280,7 @@ namespace TechnicalServiceSystem
 
             try
             {
-                var connection = GetSession().Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.StoredProcedure;
@@ -342,7 +339,7 @@ namespace TechnicalServiceSystem
             var ret = false;
             try
             {
-                var connection = GetSession().Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     if (Session.Transaction.IsActive)

@@ -97,7 +97,7 @@ namespace TechnicalServiceSystem
 
             try
             {
-                var connection = GetSession()?.Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.StoredProcedure;
@@ -173,7 +173,7 @@ namespace TechnicalServiceSystem
             {
                 //no return value's in Nhibernate :(
                 //good old ADO.NET it is!
-                var connection = GetSession()?.Connection;
+                var connection = Session.Connection;
                 using (var command = connection.CreateCommand())
                 {
                     if (Session.Transaction.IsActive)
@@ -458,13 +458,12 @@ namespace TechnicalServiceSystem
             if (task == null)
                 return;
 
-            var session = GetSession();
-            var connection = session.Connection;
-            using (var trans = session.BeginTransaction())
+            var connection = Session.Connection;
+            using (var trans = Session.BeginTransaction())
             {
                 try
                 {
-                    using (var command = session.Connection.CreateCommand())
+                    using (var command = Session.Connection.CreateCommand())
                     {
                         trans.Enlist(command);
                         command.CommandType = CommandType.StoredProcedure;
